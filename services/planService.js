@@ -406,6 +406,21 @@ async function rejectPayment(paymentId, reason = 'Verification failed', adminUse
   }
 }
 
+async function deletePaymentsByMobile(mobile) {
+  if (!mobile) return;
+  const cleanMobile = String(mobile).trim().replace(/\D/g, '').slice(-10);
+
+  if (db.isConnected) {
+    try {
+      await db.query('DELETE FROM payments WHERE user_mobile = $1 OR user_mobile LIKE $2', [cleanMobile, `%${cleanMobile}%`]);
+    } catch(e) {}
+  }
+
+  const payments = await getPayments();
+  const filtered = payments.filter(p => !p.userMobile.includes(cleanMobile));
+  fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(filtered, null, 2));
+}
+
 module.exports = {
   getPlans,
   getPlanById,
@@ -414,5 +429,6 @@ module.exports = {
   getPayments,
   createPaymentRequest,
   approvePayment,
-  rejectPayment
+  rejectPayment,
+  deletePaymentsByMobile
 };

@@ -3,6 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const config = require('./config');
 const logger = require('./services/logger');
+const ezytmAccountService = require('./services/ezytmAccountService');
 
 const CACHE_FILE = path.join(__dirname, 'data', 'operator_cache.json');
 
@@ -33,6 +34,7 @@ class FastBrowserManager {
     this.isReady = false;
     this.isInitializing = false;
     this.initPromise = null;
+    this.currentAccount = null;
     this.cache = loadPersistentCache();
     
     // Concurrency FIFO Queue (replaces busy-wait polling)
@@ -62,6 +64,10 @@ class FastBrowserManager {
         try {
           await this.cleanup();
 
+          // Select active EzyTM account from pool (Round-robin)
+          const account = await ezytmAccountService.getNextActiveAccount();
+          this.currentAccount = account;
+
           this.browser = await chromium.launch({
             headless: process.env.PLAYWRIGHT_HEADLESS !== 'false',
             args: [
@@ -82,17 +88,17 @@ class FastBrowserManager {
 
           this.page = await this.context.newPage();
 
-          // 1. Login to PlanAPI
-          logger.info(`Authenticating automation worker with PlanAPI (Attempt ${attempt}/${retries})...`);
+          // 1. Login to PlanAPI / EzyTM using selected account
+          logger.info(`Authenticating automation worker with EzyTM node [${account.label}] (${account.username}) (Attempt ${attempt}/${retries})...`);
           await this.page.goto(config.loginUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
           const userInput = this.page.locator('#ContentPlaceHolder1_txtUsername');
           await userInput.waitFor({ state: 'visible', timeout: 20000 });
-          await userInput.fill(config.username || '8840457632');
+          await userInput.fill(account.username || config.username || '8840457632');
 
           const passInput = this.page.locator('#ContentPlaceHolder1_Password');
           await passInput.waitFor({ state: 'visible', timeout: 20000 });
-          await passInput.fill(config.password || '123456');
+          await passInput.fill(account.password || config.password || '123456');
 
           await this.page.locator('#ContentPlaceHolder1_LinkButton1').click();
           await this.page.waitForTimeout(2000);
@@ -103,11 +109,17 @@ class FastBrowserManager {
 
           this.isReady = true;
           this.isInitializing = false;
+          if (this.currentAccount && this.currentAccount.id) {
+            ezytmAccountService.recordAccountSuccess(this.currentAccount.id).catch(() => {});
+          }
           const elapsed = (performance.now() - t0).toFixed(2);
-          logger.info(`Automation Worker Ready & Pre-warmed in ${elapsed}ms.`);
+          logger.info(`Automation Worker Ready & Pre-warmed on node [${account.label}] in ${elapsed}ms.`);
           return this.page;
         } catch (err) {
           logger.warn(`Automation worker init attempt ${attempt} failed: ${err.message}`);
+          if (this.currentAccount && this.currentAccount.id) {
+            ezytmAccountService.recordAccountFailure(this.currentAccount.id, err.message).catch(() => {});
+          }
           await this.cleanup();
           if (attempt === retries) {
             this.isInitializing = false;

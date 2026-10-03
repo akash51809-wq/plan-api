@@ -86,7 +86,7 @@
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Session</span></li>
             
             <li class="menu-item">
-              <a href="#" role="button" class="menu-link" data-action="logout">
+              <a href="login.html" role="button" class="menu-link" id="btn-sidebar-signout" data-action="logout">
                 <i class="menu-icon tf-icons bx bx-power-off text-danger"></i>
                 <div>Sign Out</div>
               </a>
@@ -168,7 +168,7 @@
                     </li>
                     <li><div class="dropdown-divider my-1"></div></li>
                     <li>
-                      <a class="dropdown-item" href="#" role="button" data-action="logout">
+                      <a class="dropdown-item" href="login.html" role="button" id="btn-dropdown-signout" data-action="logout">
                         <i class="bx bx-power-off me-3 text-danger"></i><span>Log Out</span>
                       </a>
                     </li>
@@ -1871,11 +1871,13 @@
       }
 
       function logoutUser() {
+        try {
+          fetch('/api/auth/logout', { method: 'POST', keepalive: true }).catch(() => {});
+        } catch(e) {}
         localStorage.removeItem('planapi_user');
-        showToast('Logged out successfully.');
-        setTimeout(() => {
-          window.location.href = 'login.html';
-        }, 400);
+        sessionStorage.clear();
+        currentUser = null;
+        window.location.replace('login.html');
       }
 
       function setAndQuery(num) {
@@ -2831,6 +2833,12 @@
       document.addEventListener('DOMContentLoaded', () => {
         // Search inputs enter key listeners
         
+        const btnSignoutSide = document.getElementById('btn-sidebar-signout');
+        if (btnSignoutSide) btnSignoutSide.addEventListener('click', (e) => { e.preventDefault(); logoutUser(); });
+
+        const btnSignoutDrop = document.getElementById('btn-dropdown-signout');
+        if (btnSignoutDrop) btnSignoutDrop.addEventListener('click', (e) => { e.preventDefault(); logoutUser(); });
+
         const btnRegen1 = document.getElementById('btn-regenerate-api-token');
         if (btnRegen1) btnRegen1.addEventListener('click', handleRegenerateUserToken);
 

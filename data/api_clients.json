@@ -1,67 +1,51 @@
 [
   {
-    "id": "CLI_1791015768158_1t06",
-    "user_id": "USR_1791015768081_76g7",
-    "client_name": "Website 1 Production",
-    "api_token_hash": "58d5998ee168b5f82bb197fb8f649ab42ca1b82f8c64b47ace78b7249f3bc0ba",
-    "api_token_preview": "tok_0fe...9238",
-    "allowed_ips": [
-      "192.168.1.0/24",
-      "10.0.0.5"
-    ],
+    "id": "CLI_1790932767840_main",
+    "user_id": "USR_1790932767840",
+    "client_name": "Default Client",
+    "api_token_hash": "229f37fe3fc321cf79f427771746fceceebc040d3a51f22e7240360a76f2dfcf",
+    "api_token_preview": "tok_c7f...851",
+    "allowed_ips": [],
     "status": "Active",
-    "created_at": "2026-10-03T08:22:48.164Z"
+    "created_at": "2026-10-02T09:19:27.840Z"
   },
   {
-    "id": "CLI_1791015812048_vsbv",
-    "user_id": "USR_1791015812042_q8al",
+    "id": "CLI_1791018972416_5crj",
+    "user_id": "USR_1791018972397_zoud",
     "client_name": "Website 1 Production",
-    "api_token_hash": "b2d7ca042d281355c1cce5a20485fdab29cb51e64630638c68ffbb28446bc6e7",
-    "api_token_preview": "tok_7ab...1405",
+    "api_token_hash": "4ec9bcfbe74a8eeacfe937c450df5e39d955aae24238615b94cfa0c138adc473",
+    "api_token_preview": "tok_9c2...7760",
     "allowed_ips": [
       "192.168.1.0/24",
       "10.0.0.5"
     ],
     "status": "Active",
-    "created_at": "2026-10-03T08:23:32.052Z"
+    "created_at": "2026-10-03T09:16:12.420Z"
   },
   {
-    "id": "CLI_1791017128276_9u8d",
-    "user_id": "USR_1791017128272_sywa",
+    "id": "CLI_1791019019689_dpk4",
+    "user_id": "USR_1791019019673_7wfo",
     "client_name": "Website 1 Production",
-    "api_token_hash": "dd3a097fa4dee671287feb78611a1c5d7101cd5caf1856f5f656cdddd2c6a2dd",
-    "api_token_preview": "tok_d6a...051a",
+    "api_token_hash": "5e6aadc64c94dd6a0f5ccb05ff86fd7bbf4699b09dc911e1e299d7469c5a98ad",
+    "api_token_preview": "tok_239...05bf",
     "allowed_ips": [
       "192.168.1.0/24",
       "10.0.0.5"
     ],
     "status": "Active",
-    "created_at": "2026-10-03T08:45:28.278Z"
+    "created_at": "2026-10-03T09:16:59.697Z"
   },
   {
-    "id": "CLI_1791017352200_6sek",
-    "user_id": "USR_1791017352197_b1dk",
+    "id": "CLI_1791019225522_mdgr",
+    "user_id": "USR_1791019225497_ne0g",
     "client_name": "Website 1 Production",
-    "api_token_hash": "5336a7ed82ed03a9e945fe5db19dd364c455bfa7384a7e5ee87915cee732ee7f",
-    "api_token_preview": "tok_3d6...bcbc",
+    "api_token_hash": "91f3fe12ed5a83acef4c82b6ac63c5557d97f872ab978750be2fb596dbfa8a80",
+    "api_token_preview": "tok_d8a...0f47",
     "allowed_ips": [
       "192.168.1.0/24",
       "10.0.0.5"
     ],
     "status": "Active",
-    "created_at": "2026-10-03T08:49:12.202Z"
-  },
-  {
-    "id": "CLI_1791017786623_wyjd",
-    "user_id": "USR_1791017786619_vcza",
-    "client_name": "Website 1 Production",
-    "api_token_hash": "f1e9f5af6446c864aa9f685adb8492d8b64e062b040d900a7534efd81c633ff7",
-    "api_token_preview": "tok_d5f...2766",
-    "allowed_ips": [
-      "192.168.1.0/24",
-      "10.0.0.5"
-    ],
-    "status": "Active",
-    "created_at": "2026-10-03T08:56:26.626Z"
+    "created_at": "2026-10-03T09:20:25.531Z"
   }
 ]

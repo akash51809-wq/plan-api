@@ -273,6 +273,46 @@ async function runTestSuite() {
     assert.strictEqual(ipService.isIpAllowed('172.16.50.11', allowedList), false);
   });
 
+  // ----------------------------------------------------
+  // TEST 9: EzyTM Multi-Account Pool & Round-Robin Rotation
+  // ----------------------------------------------------
+  await test('9. EzyTM Multi-Account Pool & Round-Robin Rotation', async () => {
+    const ezytmAccountService = require('../services/ezytmAccountService');
+    const acc1 = await ezytmAccountService.addAccount({
+      username: 'test_node_1',
+      password: 'pass1_test',
+      label: 'Test Node 1'
+    });
+    const acc2 = await ezytmAccountService.addAccount({
+      username: 'test_node_2',
+      password: 'pass2_test',
+      label: 'Test Node 2'
+    });
+
+    assert.ok(acc1.id, 'Account 1 ID created');
+    assert.ok(acc2.id, 'Account 2 ID created');
+
+    // Test round robin selection
+    const pick1 = await ezytmAccountService.getNextActiveAccount();
+    const pick2 = await ezytmAccountService.getNextActiveAccount();
+    assert.ok(pick1 && pick2, 'Both round-robin picks should return active accounts');
+
+    // Test status toggle
+    const toggled = await ezytmAccountService.toggleAccountStatus(acc1.id);
+    assert.strictEqual(toggled.status, 'Disabled', 'Account 1 should now be disabled');
+
+    // Clean up test accounts
+    await ezytmAccountService.deleteAccount(acc1.id);
+    await ezytmAccountService.deleteAccount(acc2.id);
+  });
+
+  // Clean test dummy users and payments created during test execution
+  await userService.deleteUser('9999900001');
+  await userService.deleteUser('9999900002');
+  await userService.deleteUser('9999900003');
+  await userService.deleteUser('9999900004');
+  await planService.deletePaymentsByMobile('99999');
+
   console.log('\n====================================================');
   console.log(`📊 TEST RESULTS: ${passed} PASSED | ${failed} FAILED`);
   console.log('====================================================');

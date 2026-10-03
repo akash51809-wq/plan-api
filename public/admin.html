@@ -76,6 +76,14 @@
               </a>
             </li>
 
+            <li class="menu-item" id="menu-ezytm">
+              <a href="#" role="button" class="menu-link" data-admin-panel="ezytm">
+                <i class="menu-icon tf-icons bx bx-server text-primary"></i>
+                <div>EzyTM Accounts Pool</div>
+                <span class="badge bg-label-primary rounded-pill ms-auto" id="sidebar-ezytm-count">1</span>
+              </a>
+            </li>
+
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Billing & Plans</span></li>
 
             <li class="menu-item" id="menu-plans">
@@ -99,20 +107,6 @@
               <a href="#" role="button" class="menu-link" data-admin-panel="users">
                 <i class="menu-icon tf-icons bx bx-group text-primary"></i>
                 <div>Registered Users (<span id="sidebar-user-count">0</span>)</div>
-              </a>
-            </li>
-
-            <li class="menu-item">
-              <a href="dashboard.html" class="menu-link" target="_blank">
-                <i class="menu-icon tf-icons bx bx-external-link text-secondary"></i>
-                <div>View User Portal</div>
-              </a>
-            </li>
-
-            <li class="menu-item">
-              <a href="index.html" class="menu-link" target="_blank">
-                <i class="menu-icon tf-icons bx bx-globe text-info"></i>
-                <div>Main Website</div>
               </a>
             </li>
           </ul>
@@ -361,12 +355,173 @@
                           <th>Remaining Hits</th>
                           <th>Total Hits</th>
                           <th>Status</th>
+                          <th class="text-center">Action</th>
                         </tr>
                       </thead>
                       <tbody id="registered-users-tbody">
-                        <tr><td colspan="6" class="text-center py-4">Loading users...</td></tr>
+                        <tr><td colspan="7" class="text-center py-4">Loading users...</td></tr>
                       </tbody>
                     </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ================= PANEL 5: EZYTM MULTI-ACCOUNT POOL ================= -->
+              <div id="panel-ezytm" class="admin-panel">
+                <!-- Summary Metrics -->
+                <div class="row g-4 mb-4">
+                  <div class="col-sm-6 col-xl-3">
+                    <div class="card border shadow-sm">
+                      <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between">
+                          <div class="content-left">
+                            <span class="text-muted small fw-bold text-uppercase">Total Accounts</span>
+                            <div class="d-flex align-items-center my-1">
+                              <h3 class="mb-0 me-2" id="metric-ezytm-total">1</h3>
+                            </div>
+                            <small class="text-muted">Registered in pool</small>
+                          </div>
+                          <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-server bx-sm"></i></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-xl-3">
+                    <div class="card border shadow-sm">
+                      <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between">
+                          <div class="content-left">
+                            <span class="text-muted small fw-bold text-uppercase">Active Nodes</span>
+                            <div class="d-flex align-items-center my-1">
+                              <h3 class="mb-0 me-2 text-success" id="metric-ezytm-active">1</h3>
+                            </div>
+                            <small class="text-success fw-bold">Live in rotation</small>
+                          </div>
+                          <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-success"><i class="bx bx-check-shield bx-sm"></i></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-xl-3">
+                    <div class="card border shadow-sm">
+                      <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between">
+                          <div class="content-left">
+                            <span class="text-muted small fw-bold text-uppercase">Total Requests</span>
+                            <div class="d-flex align-items-center my-1">
+                              <h3 class="mb-0 me-2 text-info" id="metric-ezytm-requests">0</h3>
+                            </div>
+                            <small class="text-muted">Distributed queries</small>
+                          </div>
+                          <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-info"><i class="bx bx-transfer bx-sm"></i></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-sm-6 col-xl-3">
+                    <div class="card border shadow-sm">
+                      <div class="card-body">
+                        <div class="d-flex align-items-start justify-content-between">
+                          <div class="content-left">
+                            <span class="text-muted small fw-bold text-uppercase">Routing Engine</span>
+                            <div class="d-flex align-items-center my-1">
+                              <h4 class="mb-0 me-2 text-primary">Round-Robin</h4>
+                            </div>
+                            <small class="text-success fw-bold"><i class="bx bx-pulse"></i> Zero-Pending Auto Failover</small>
+                          </div>
+                          <div class="avatar">
+                            <span class="avatar-initial rounded bg-label-warning"><i class="bx bx-refresh bx-sm"></i></span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Main EzyTM Pool Management Table Card -->
+                <div class="card shadow-sm border mb-4">
+                  <div class="card-header d-flex justify-content-between align-items-center border-bottom pb-3">
+                    <div>
+                      <h5 class="mb-0"><i class="bx bx-server text-primary me-2"></i>EzyTM & PlanAPI Account Rotation Pool</h5>
+                      <small class="text-muted">The system automatically cycles (1 by 1) through all active accounts to fetch operator and plan details, eliminating pending bottlenecks and distributing load.</small>
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button class="btn btn-sm btn-outline-primary" id="btn-refresh-ezytm"><i class="bx bx-refresh"></i> Refresh</button>
+                      <button class="btn btn-sm btn-primary" id="btn-open-add-ezytm" data-bs-toggle="modal" data-bs-target="#modalAddEzytm">
+                        <i class="bx bx-plus me-1"></i> Add EzyTM ID
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="table-responsive text-nowrap">
+                    <table class="table table-hover">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Node / Label</th>
+                          <th>Username / Mobile</th>
+                          <th>Password</th>
+                          <th>Dispatches</th>
+                          <th>Success</th>
+                          <th>Failures</th>
+                          <th>Status</th>
+                          <th>Last Used</th>
+                          <th class="text-center">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody id="ezytm-accounts-tbody">
+                        <tr><td colspan="9" class="text-center py-4">Loading accounts pool...</td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add EzyTM Account Modal -->
+              <div class="modal fade" id="modalAddEzytm" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                      <h5 class="modal-title text-white"><i class="bx bx-server me-2"></i>Add EzyTM / PlanAPI Account</h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="form-add-ezytm">
+                      <div class="modal-body">
+                        <div class="mb-3">
+                          <label for="ezytm-input-label" class="form-label fw-bold">Account Label / Node Name</label>
+                          <input type="text" id="ezytm-input-label" class="form-control" placeholder="e.g. Node 2 - Secondary Account" required />
+                          <small class="text-muted">Descriptive name to identify this credential</small>
+                        </div>
+                        <div class="mb-3">
+                          <label for="ezytm-input-username" class="form-label fw-bold">EzyTM Username / Mobile No.</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="bx bx-user"></i></span>
+                            <input type="text" id="ezytm-input-username" class="form-control" placeholder="e.g. 8840457632" required />
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <label for="ezytm-input-password" class="form-label fw-bold">EzyTM Login Password</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="bx bx-lock-alt"></i></span>
+                            <input type="text" id="ezytm-input-password" class="form-control" placeholder="e.g. your_password" required />
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-save-ezytm">
+                          <i class="bx bx-plus me-1"></i> Add Account to Pool
+                        </button>
+                      </div>
+                    </form>
                   </div>
                 </div>
               </div>
@@ -435,6 +590,7 @@
         loadRegisteredUsers();
         loadAdminPlans();
         loadBillingRequests();
+        loadEzytmAccounts();
 
         if (window.location.hash) {
           const p = window.location.hash.replace('#', '');
@@ -463,6 +619,7 @@
         if (panelId === 'users') loadRegisteredUsers();
         if (panelId === 'plans') loadAdminPlans();
         if (panelId === 'billing') loadBillingRequests();
+        if (panelId === 'ezytm') loadEzytmAccounts();
       }
 
       function adminLogout() {
@@ -765,13 +922,169 @@
                 <td><span class="badge bg-label-success fs-6 fw-bold">${(u.remainingHits || 0).toLocaleString()}</span></td>
                 <td><span class="badge bg-label-secondary">${(u.totalHits || 0).toLocaleString()}</span></td>
                 <td><span class="badge bg-label-success">${u.status || 'Active'}</span></td>
+                <td class="text-center">
+                  <button class="btn btn-sm btn-outline-danger btn-delete-user" data-id="${u.id || u.mobile}" data-name="${encodeURIComponent(u.name || 'User')}" title="Delete User">
+                    <i class="bx bx-trash"></i>
+                  </button>
+                </td>
               </tr>
             `).join('');
           } else {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No users registered yet.</td></tr>';
+            document.getElementById('sidebar-user-count').innerText = '0';
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No users registered yet.</td></tr>';
           }
         } catch(e) {
-          tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Error loading users.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-danger">Error loading users.</td></tr>';
+        }
+      }
+
+      async function deleteRegisteredUser(id, encodedName) {
+        const name = decodeURIComponent(encodedName || 'this user');
+        if (!confirm(`Are you sure you want to delete user "${name}"?\nThis action cannot be undone.`)) return;
+
+        try {
+          const res = await adminFetch(`/api/admin/users/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            showToast('User deleted successfully.', 'bg-success');
+            loadRegisteredUsers();
+          } else {
+            showToast(data.message || 'Failed to delete user.', 'bg-danger');
+          }
+        } catch (e) {
+          showToast('Error deleting user.', 'bg-danger');
+        }
+      }
+
+      // ---------------- EZYTM MULTI-ACCOUNT POOL JS ---------------- //
+
+      async function loadEzytmAccounts() {
+        const tbody = document.getElementById('ezytm-accounts-tbody');
+        try {
+          const res = await adminFetch('/api/admin/ezytm-accounts');
+          const data = await res.json();
+          if (data.success && data.accounts && data.accounts.length > 0) {
+            const accounts = data.accounts;
+            const activeCount = accounts.filter(a => a.status === 'Active').length;
+            const totalRequests = accounts.reduce((acc, a) => acc + (a.total_requests || 0), 0);
+
+            document.getElementById('metric-ezytm-total').innerText = accounts.length;
+            document.getElementById('metric-ezytm-active').innerText = activeCount;
+            document.getElementById('metric-ezytm-requests').innerText = totalRequests.toLocaleString();
+            document.getElementById('sidebar-ezytm-count').innerText = activeCount;
+
+            tbody.innerHTML = accounts.map((a, idx) => {
+              const statusBadge = a.status === 'Active'
+                ? '<span class="badge bg-label-success"><i class="bx bx-check-circle me-1"></i>Active</span>'
+                : '<span class="badge bg-label-secondary"><i class="bx bx-pause-circle me-1"></i>Disabled</span>';
+
+              const lastUsedStr = a.last_used_at ? new Date(a.last_used_at).toLocaleTimeString() : 'Never';
+              const lastErrStr = a.last_error ? `<br><small class="text-danger text-truncate d-inline-block" style="max-width: 150px;">${a.last_error}</small>` : '';
+
+              return `
+                <tr>
+                  <td>
+                    <strong>${a.label || `Node ${idx + 1}`}</strong><br>
+                    <small class="text-muted"><code>${a.id}</code></small>
+                  </td>
+                  <td><strong>${a.username}</strong></td>
+                  <td><code class="text-muted">••••••••</code></td>
+                  <td><span class="badge bg-label-primary">${(a.total_requests || 0).toLocaleString()}</span></td>
+                  <td><span class="badge bg-label-success">${(a.success_requests || 0).toLocaleString()}</span></td>
+                  <td><span class="badge bg-label-danger">${(a.failed_requests || 0).toLocaleString()}</span></td>
+                  <td>${statusBadge}</td>
+                  <td><small class="text-muted">${lastUsedStr}</small>${lastErrStr}</td>
+                  <td class="text-center">
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-${a.status === 'Active' ? 'warning' : 'success'} btn-toggle-ezytm" data-id="${a.id}" title="${a.status === 'Active' ? 'Disable Node' : 'Enable Node'}">
+                        <i class="bx bx-${a.status === 'Active' ? 'pause' : 'play'}"></i>
+                      </button>
+                      <button class="btn btn-outline-danger btn-delete-ezytm" data-id="${a.id}" data-label="${encodeURIComponent(a.label || a.username)}" title="Delete Account">
+                        <i class="bx bx-trash"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No accounts added yet.</td></tr>';
+          }
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger">Error loading EzyTM accounts.</td></tr>';
+        }
+      }
+
+      async function handleAddEzytmAccount(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        const label = document.getElementById('ezytm-input-label').value.trim();
+        const username = document.getElementById('ezytm-input-username').value.trim();
+        const password = document.getElementById('ezytm-input-password').value.trim();
+        const btn = document.getElementById('btn-save-ezytm');
+
+        if (!username || !password) {
+          showToast('Username and password are required.', 'bg-danger');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Adding...';
+
+        try {
+          const res = await adminFetch('/api/admin/ezytm-accounts', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ label, username, password })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('EzyTM account added to rotation pool!', 'bg-success');
+            document.getElementById('form-add-ezytm').reset();
+            const modalEl = document.getElementById('modalAddEzytm');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+            loadEzytmAccounts();
+          } else {
+            showToast(data.message || 'Failed to add account.', 'bg-danger');
+          }
+        } catch (err) {
+          showToast('Network error adding EzyTM account.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-plus me-1"></i> Add Account to Pool';
+        }
+      }
+
+      async function toggleEzytmAccount(id) {
+        try {
+          const res = await adminFetch(`/api/admin/ezytm-accounts/${id}/toggle`, { method: 'PUT' });
+          const data = await res.json();
+          if (data.success) {
+            showToast(data.message, 'bg-success');
+            loadEzytmAccounts();
+          } else {
+            showToast(data.message || 'Toggle failed.', 'bg-danger');
+          }
+        } catch (e) {
+          showToast('Error toggling account status.', 'bg-danger');
+        }
+      }
+
+      async function deleteEzytmAccount(id, encodedLabel) {
+        const label = decodeURIComponent(encodedLabel || 'this account');
+        if (!confirm(`Are you sure you want to remove "${label}" from the rotation pool?`)) return;
+
+        try {
+          const res = await adminFetch(`/api/admin/ezytm-accounts/${id}`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            showToast('Account removed from pool.', 'bg-success');
+            loadEzytmAccounts();
+          } else {
+            showToast(data.message || 'Delete failed.', 'bg-danger');
+          }
+        } catch (e) {
+          showToast('Error deleting account.', 'bg-danger');
         }
       }
 
@@ -797,6 +1110,12 @@
 
         const btnRefreshUsers = document.getElementById('btn-refresh-users');
         if (btnRefreshUsers) btnRefreshUsers.addEventListener('click', loadRegisteredUsers);
+
+        const btnRefreshEzytm = document.getElementById('btn-refresh-ezytm');
+        if (btnRefreshEzytm) btnRefreshEzytm.addEventListener('click', loadEzytmAccounts);
+
+        const formAddEzytm = document.getElementById('form-add-ezytm');
+        if (formAddEzytm) formAddEzytm.addEventListener('submit', handleAddEzytmAccount);
       });
 
       // Delegated clicks for sidebar navigation and table actions
@@ -830,6 +1149,32 @@
           e.preventDefault();
           const id = rejectBtn.getAttribute('data-id');
           if (id) rejectPaymentReq(id);
+          return;
+        }
+
+        const deleteUserBtn = e.target.closest('.btn-delete-user');
+        if (deleteUserBtn) {
+          e.preventDefault();
+          const id = deleteUserBtn.getAttribute('data-id');
+          const name = deleteUserBtn.getAttribute('data-name');
+          if (id) deleteRegisteredUser(id, name);
+          return;
+        }
+
+        const toggleEzytmBtn = e.target.closest('.btn-toggle-ezytm');
+        if (toggleEzytmBtn) {
+          e.preventDefault();
+          const id = toggleEzytmBtn.getAttribute('data-id');
+          if (id) toggleEzytmAccount(id);
+          return;
+        }
+
+        const deleteEzytmBtn = e.target.closest('.btn-delete-ezytm');
+        if (deleteEzytmBtn) {
+          e.preventDefault();
+          const id = deleteEzytmBtn.getAttribute('data-id');
+          const label = deleteEzytmBtn.getAttribute('data-label');
+          if (id) deleteEzytmAccount(id, label);
           return;
         }
       });

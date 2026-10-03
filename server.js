@@ -7,7 +7,7 @@ const cors = require('cors');
 const logger = require('./services/logger');
 const { initDatabase, closePool } = require('./services/db');
 const { getSettings, saveSettings, sendWhatsAppMessage } = require('./services/whatsappService');
-const { getUsers, saveUser, findUser, deductUserHit, refundUserHit, regenerateUserToken } = require('./services/userService');
+const { getUsers, getAllUsers, saveUser, deleteUser, findUser, deductUserHit, refundUserHit, regenerateUserToken } = require('./services/userService');
 const { createApiClient, getApiClients, updateApiClient, regenerateApiClientToken, revokeApiClient, authenticateApiRequest } = require('./services/clientService');
 const { generateAndSaveOtp, verifyOtp } = require('./services/otpService');
 const { loginAdmin } = require('./services/adminService');
@@ -18,6 +18,7 @@ const { fetchRofferDetails } = require('./services/rofferService');
 const { fetchLastRechargeDetails } = require('./services/rechargeCheckService');
 const { fetchDthInfoDetails } = require('./services/dthInfoService');
 const { getClientIp } = require('./services/ipService');
+const ezytmAccountService = require('./services/ezytmAccountService');
 const browserManager = require('./browserManager');
 
 const { requestIdMiddleware, requireAdmin, requireUser } = require('./middleware/auth');
@@ -207,6 +208,11 @@ app.post('/api/user/regenerate-token', requireUser, async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+});
+
+// 5. User Logout
+app.post('/api/auth/logout', (req, res) => {
+  res.json({ success: true, message: 'Logged out successfully.' });
 });
 
 // ---------------- API CLIENTS / MULTI-APPLICATION MANAGEMENT ---------------- //
@@ -448,10 +454,73 @@ app.post('/api/admin/payments/reject', requireAdmin, async (req, res, next) => {
 });
 
 // 5. Admin Users List
-app.get('/api/admin/users', requireAdmin, (req, res) => {
-  const users = getUsers();
-  res.json({ success: true, users });
+app.get('/api/admin/users', requireAdmin, async (req, res, next) => {
+  try {
+    const users = await getAllUsers();
+    res.json({ success: true, users });
+  } catch (error) {
+    next(error);
+  }
 });
+
+// 6. Admin Delete User
+app.delete('/api/admin/users/:id', requireAdmin, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    await deleteUser(id);
+    res.json({ success: true, message: 'User deleted successfully.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ---------------- EZYTM MULTI-ACCOUNT POOL MANAGEMENT (ADMIN) ---------------- //
+
+// 1. Get All EzyTM Accounts
+app.get('/api/admin/ezytm-accounts', requireAdmin, async (req, res, next) => {
+  try {
+    const accounts = await ezytmAccountService.getAllAccounts();
+    res.json({ success: true, accounts });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 2. Add New EzyTM Account
+app.post('/api/admin/ezytm-accounts', requireAdmin, async (req, res, next) => {
+  try {
+    const { username, password, label } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ success: false, message: 'Username/Mobile and Password are required.' });
+    }
+    const account = await ezytmAccountService.addAccount({ username, password, label });
+    res.status(201).json({ success: true, message: 'EzyTM Account added to rotation pool successfully!', account });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+// 3. Toggle EzyTM Account Active Status
+app.put('/api/admin/ezytm-accounts/:id/toggle', requireAdmin, async (req, res, next) => {
+  try {
+    const updated = await ezytmAccountService.toggleAccountStatus(req.params.id);
+    res.json({ success: true, message: `Account status updated to ${updated.status}.`, account: updated });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+// 4. Delete EzyTM Account
+app.delete('/api/admin/ezytm-accounts/:id', requireAdmin, async (req, res, next) => {
+  try {
+    await ezytmAccountService.deleteAccount(req.params.id);
+    res.json({ success: true, message: 'EzyTM Account removed from pool.' });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+
 
 // ---------------- PUBLIC DEVELOPER API ENDPOINTS (RATE-LIMITED & CONCURRENCY-SAFE) ---------------- //
 

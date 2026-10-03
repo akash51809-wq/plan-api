@@ -304,9 +304,43 @@ async function regenerateUserToken(mobileOrId) {
   }
 }
 
+async function getAllUsers() {
+  if (db.isConnected) {
+    try {
+      const res = await db.query(
+        `SELECT id, name, mobile, api_token as "apiToken", total_hits as "totalHits", 
+                used_hits as "usedHits", remaining_hits as "remainingHits", status, 
+                last_login as "lastLogin", created_at as "createdAt", updated_at as "updatedAt"
+         FROM users 
+         ORDER BY created_at DESC`
+      );
+      return res.rows;
+    } catch (e) {
+      logger.warn('Failed to query users from DB', { error: e.message });
+    }
+  }
+  return getUsers();
+}
+
+async function deleteUser(id) {
+  if (!id) return false;
+  if (db.isConnected) {
+    try {
+      await db.query('DELETE FROM users WHERE id = $1 OR mobile = $1', [id]);
+    } catch(e) {
+      logger.error('Failed to delete user from DB', { error: e.message });
+    }
+  }
+  const users = getUsers().filter(u => u.id !== id && u.mobile !== id);
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+  return true;
+}
+
 module.exports = {
   getUsers,
+  getAllUsers,
   saveUser,
+  deleteUser,
   findUser,
   findUserByMobile,
   validateApiUser,
@@ -314,3 +348,4 @@ module.exports = {
   refundUserHit,
   regenerateUserToken
 };
+
