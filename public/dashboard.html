@@ -43,7 +43,7 @@
               <span class="app-brand-text demo menu-text fw-bold ms-2">PlanAPI</span>
             </a>
 
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <a href="#" role="button" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
               <i class="bx bx-chevron-left bx-sm d-flex align-items-center justify-content-center"></i>
             </a>
           </div>
@@ -54,14 +54,14 @@
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Services</span></li>
             
             <li class="menu-item active" id="menu-lookup">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('lookup')">
+              <a href="#" role="button" class="menu-link" data-user-panel="lookup">
                 <i class="menu-icon tf-icons bx bx-mobile-alt text-primary"></i>
                 <div>Operator Lookup</div>
               </a>
             </li>
 
             <li class="menu-item" id="menu-mobile-plans">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('mobile-plans')">
+              <a href="#" role="button" class="menu-link" data-user-panel="mobile-plans">
                 <i class="menu-icon tf-icons bx bx-list-check text-warning"></i>
                 <div>Mobile Plans</div>
                 <div class="badge bg-label-warning fs-tiny rounded-pill ms-auto">Live</div>
@@ -69,7 +69,7 @@
             </li>
 
             <li class="menu-item" id="menu-roffer">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('roffer')">
+              <a href="#" role="button" class="menu-link" data-user-panel="roffer">
                 <i class="menu-icon tf-icons bx bx-gift text-info"></i>
                 <div>R-Offer Check</div>
                 <div class="badge bg-label-info fs-tiny rounded-pill ms-auto">New</div>
@@ -77,7 +77,7 @@
             </li>
 
             <li class="menu-item" id="menu-lastrecharge">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('lastrecharge')">
+              <a href="#" role="button" class="menu-link" data-user-panel="lastrecharge">
                 <i class="menu-icon tf-icons bx bx-history text-success"></i>
                 <div>Last Recharge Check</div>
                 <div class="badge bg-label-success fs-tiny rounded-pill ms-auto">Live</div>
@@ -85,7 +85,7 @@
             </li>
 
             <li class="menu-item" id="menu-dthinfo">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('dthinfo')">
+              <a href="#" role="button" class="menu-link" data-user-panel="dthinfo">
                 <i class="menu-icon tf-icons bx bx-tv text-danger"></i>
                 <div>DTH Info</div>
                 <div class="badge bg-label-danger fs-tiny rounded-pill ms-auto">New</div>
@@ -93,7 +93,7 @@
             </li>
 
             <li class="menu-item" id="menu-buy-plan">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('buy-plan')">
+              <a href="#" role="button" class="menu-link" data-user-panel="buy-plan">
                 <i class="menu-icon tf-icons bx bx-diamond text-success"></i>
                 <div>Buy Plan</div>
                 <div class="badge bg-label-success fs-tiny rounded-pill ms-auto">Pricing</div>
@@ -101,7 +101,7 @@
             </li>
 
             <li class="menu-item" id="menu-api">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('api')">
+              <a href="#" role="button" class="menu-link" data-user-panel="api">
                 <i class="menu-icon tf-icons bx bx-code-alt text-warning"></i>
                 <div>API Documents</div>
                 <div class="badge bg-label-warning fs-tiny rounded-pill ms-auto">v1.0</div>
@@ -109,7 +109,7 @@
             </li>
 
             <li class="menu-item" id="menu-clients">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('clients')">
+              <a href="#" role="button" class="menu-link" data-user-panel="clients">
                 <i class="menu-icon tf-icons bx bx-key text-primary"></i>
                 <div>API Keys & Whitelist</div>
                 <div class="badge bg-label-primary fs-tiny rounded-pill ms-auto">Multi-App</div>
@@ -117,7 +117,7 @@
             </li>
 
             <li class="menu-item" id="menu-profile">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('profile')">
+              <a href="#" role="button" class="menu-link" data-user-panel="profile">
                 <i class="menu-icon tf-icons bx bx-user-circle text-info"></i>
                 <div>My Profile</div>
               </a>
@@ -133,7 +133,7 @@
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Session</span></li>
             
             <li class="menu-item">
-              <a href="javascript:void(0);" class="menu-link" onclick="logoutUser()">
+              <a href="#" role="button" class="menu-link" data-action="logout">
                 <i class="menu-icon tf-icons bx bx-power-off text-danger"></i>
                 <div>Sign Out</div>
               </a>
@@ -148,7 +148,7 @@
           <!-- Top Navbar -->
           <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
             <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
-              <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+              <a class="nav-item nav-link px-0 me-xl-6" href="#" role="button">
                 <i class="bx bx-menu bx-md"></i>
               </a>
             </div>
@@ -157,7 +157,7 @@
               <div class="navbar-nav align-items-center">
                 <div class="nav-item d-flex align-items-center">
                   <i class="bx bx-search bx-md me-2 text-muted"></i>
-                  <input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2" placeholder="Search mobile number..." id="nav-quick-search" onkeypress="if(event.key==='Enter') quickLookup()" />
+                  <input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2" placeholder="Search mobile number..." id="nav-quick-search"  />
                 </div>
               </div>
 
@@ -169,21 +169,21 @@
                 </li>
 
                 <li class="nav-item me-3">
-                  <button class="btn btn-sm btn-primary" onclick="switchUserPanel('buy-plan')">
+                  <button class="btn btn-sm btn-primary" data-user-panel="buy-plan">
                     <i class="bx bx-plus me-1"></i> Buy Hits
                   </button>
                 </li>
 
                 <!-- User Dropdown -->
                 <li class="nav-item navbar-dropdown dropdown-user dropdown">
-                  <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
+                  <a class="nav-link dropdown-toggle hide-arrow p-0" href="#" role="button" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
                       <span class="avatar-initial rounded-circle bg-label-primary" id="nav-avatar-char">U</span>
                     </div>
                   </a>
                   <ul class="dropdown-menu dropdown-menu-end">
                     <li>
-                      <a class="dropdown-item" href="javascript:void(0);">
+                      <a class="dropdown-item" href="#" role="button">
                         <div class="d-flex">
                           <div class="flex-shrink-0 me-3">
                             <div class="avatar avatar-online">
@@ -199,23 +199,23 @@
                     </li>
                     <li><div class="dropdown-divider my-1"></div></li>
                     <li>
-                      <a class="dropdown-item" href="javascript:void(0);" onclick="switchUserPanel('buy-plan')">
+                      <a class="dropdown-item" href="#" role="button" data-user-panel="buy-plan">
                         <i class="bx bx-diamond me-3 text-success"></i><span>Buy Plan</span>
                       </a>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="javascript:void(0);" onclick="switchUserPanel('api')">
+                      <a class="dropdown-item" href="#" role="button" data-user-panel="api">
                         <i class="bx bx-code-alt me-3 text-warning"></i><span>API Documents</span>
                       </a>
                     </li>
                     <li>
-                      <a class="dropdown-item" href="javascript:void(0);" onclick="switchUserPanel('profile')">
+                      <a class="dropdown-item" href="#" role="button" data-user-panel="profile">
                         <i class="bx bx-user me-3"></i><span>My Profile</span>
                       </a>
                     </li>
                     <li><div class="dropdown-divider my-1"></div></li>
                     <li>
-                      <a class="dropdown-item" href="javascript:void(0);" onclick="logoutUser()">
+                      <a class="dropdown-item" href="#" role="button" data-action="logout">
                         <i class="bx bx-power-off me-3 text-danger"></i><span>Log Out</span>
                       </a>
                     </li>
@@ -240,7 +240,7 @@
                     <p class="text-muted mb-0">Check live mobile network operator and circle details instantly</p>
                   </div>
                   <div>
-                    <button class="btn btn-outline-primary" onclick="switchUserPanel('api')">
+                    <button class="btn btn-outline-primary" data-user-panel="api">
                       <i class="bx bx-code-alt me-1"></i> Developer API
                     </button>
                   </div>
@@ -259,7 +259,7 @@
                           <div class="input-group input-group-merge">
                             <span class="input-group-text"><i class="bx bx-phone text-muted"></i> +91</span>
                             <input type="tel" id="lookup-mobile-input" class="form-control form-control-lg" placeholder="e.g. 9335819686" maxlength="10" value="9335819686" />
-                            <button class="btn btn-primary btn-lg" id="btn-run-lookup" onclick="runOperatorLookup()">
+                            <button class="btn btn-primary btn-lg" id="btn-run-lookup" id="btn-run-operator">
                               <i class="bx bx-bolt-circle me-1"></i> Check Operator
                             </button>
                           </div>
@@ -279,7 +279,7 @@
                       </div>
                       <div class="card-body pt-3">
                         <div class="list-group list-group-flush">
-                          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 py-3" onclick="setAndQuery('9335819686')">
+                          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 py-3" data-action="set-and-query" data-mobile="9335819686">
                             <div>
                               <h6 class="mb-0">9335819686</h6>
                               <small class="text-muted">Airtel • UP East</small>
@@ -287,7 +287,7 @@
                             <span class="badge bg-label-primary"><i class="bx bx-play"></i> Query</span>
                           </button>
 
-                          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 py-3" onclick="setAndQuery('8840457632')">
+                          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 py-3" data-action="set-and-query" data-mobile="8840457632">
                             <div>
                               <h6 class="mb-0">8840457632</h6>
                               <small class="text-muted">Vodafone • UP East</small>
@@ -309,7 +309,7 @@
                     <p class="text-muted mb-0">Search and explore real-time telecom recharge plans across all operators and circles in India</p>
                   </div>
                   <div>
-                    <button class="btn btn-outline-warning" onclick="switchUserPanel('api')">
+                    <button class="btn btn-outline-warning" data-user-panel="api">
                       <i class="bx bx-code-alt me-1"></i> Plan Fetch API Docs
                     </button>
                   </div>
@@ -369,7 +369,7 @@
 
                       <!-- Action Button -->
                       <div class="col-md-2">
-                        <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-mobile-plans" onclick="runMobilePlanLookup()">
+                        <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-mobile-plans" id="btn-run-mobile-plans">
                           <i class="bx bx-search-alt me-1"></i> Fetch Plans
                         </button>
                       </div>
@@ -389,7 +389,7 @@
                       </div>
                       <div class="input-group" style="max-width: 260px;">
                         <span class="input-group-text"><i class="bx bx-search"></i></span>
-                        <input type="text" class="form-control" placeholder="Search plan amount / data..." id="input-filter-plans" onkeyup="filterRenderedPlans()" />
+                        <input type="text" class="form-control" placeholder="Search plan amount / data..." id="input-filter-plans"  />
                       </div>
                     </div>
 
@@ -397,19 +397,19 @@
                       <!-- Category Nav Tabs -->
                       <ul class="nav nav-pills mb-3 gap-2 flex-wrap" id="plan-category-tabs">
                         <li class="nav-item">
-                          <button class="nav-link active fw-bold btn-sm" onclick="switchPlanCategory('ALL')">All Plans (<span id="count-all">0</span>)</button>
+                          <button class="nav-link active fw-bold btn-sm" data-plan-cat="ALL">All Plans (<span id="count-all">0</span>)</button>
                         </li>
                         <li class="nav-item">
-                          <button class="nav-link fw-bold btn-sm" onclick="switchPlanCategory('FULLTT')">Unlimited / Combo (<span id="count-fulltt">0</span>)</button>
+                          <button class="nav-link fw-bold btn-sm" data-plan-cat="FULLTT">Unlimited / Combo (<span id="count-fulltt">0</span>)</button>
                         </li>
                         <li class="nav-item">
-                          <button class="nav-link fw-bold btn-sm" onclick="switchPlanCategory('DATA')">4G / 5G Data (<span id="count-data">0</span>)</button>
+                          <button class="nav-link fw-bold btn-sm" data-plan-cat="DATA">4G / 5G Data (<span id="count-data">0</span>)</button>
                         </li>
                         <li class="nav-item">
-                          <button class="nav-link fw-bold btn-sm" onclick="switchPlanCategory('TOPUP')">Talktime TOPUP (<span id="count-topup">0</span>)</button>
+                          <button class="nav-link fw-bold btn-sm" data-plan-cat="TOPUP">Talktime TOPUP (<span id="count-topup">0</span>)</button>
                         </li>
                         <li class="nav-item">
-                          <button class="nav-link fw-bold btn-sm" onclick="switchPlanCategory('Romaing')">Roaming (<span id="count-roaming">0</span>)</button>
+                          <button class="nav-link fw-bold btn-sm" data-plan-cat="Romaing">Roaming (<span id="count-roaming">0</span>)</button>
                         </li>
                       </ul>
 
@@ -432,7 +432,7 @@
                     <p class="text-muted mb-0">Fetch special tailored personalized recharge offers directly from telecom operators (Airtel & Vodafone Idea)</p>
                   </div>
                   <div>
-                    <button class="btn btn-outline-info" onclick="switchUserPanel('api')">
+                    <button class="btn btn-outline-info" data-user-panel="api">
                       <i class="bx bx-code-alt me-1"></i> R-Offer API Docs
                     </button>
                   </div>
@@ -465,7 +465,7 @@
                       </div>
 
                       <div class="col-md-3">
-                        <button class="btn btn-info btn-lg w-100 fw-bold shadow-sm text-white" id="btn-fetch-roffer" onclick="runRofferLookup()">
+                        <button class="btn btn-info btn-lg w-100 fw-bold shadow-sm text-white" id="btn-fetch-roffer" id="btn-run-roffer">
                           <i class="bx bx-search-alt me-1"></i> Check R-Offers
                         </button>
                       </div>
@@ -504,7 +504,7 @@
                     <p class="text-muted mb-0">Verify subscriber details, balance, last recharge date, next expiry date, and plan status in real-time</p>
                   </div>
                   <div>
-                    <button class="btn btn-outline-success" onclick="switchUserPanel('api')">
+                    <button class="btn btn-outline-success" data-user-panel="api">
                       <i class="bx bx-code-alt me-1"></i> Recharge API Docs
                     </button>
                   </div>
@@ -542,7 +542,7 @@
                       </div>
 
                       <div class="col-md-3">
-                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-lastrecharge" onclick="runLastRechargeLookup()">
+                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-lastrecharge" id="btn-run-last-recharge">
                           <i class="bx bx-search-alt me-1"></i> Check Status
                         </button>
                       </div>
@@ -579,7 +579,7 @@
                     <p class="text-muted mb-0">Fetch live DTH subscriber name, registered mobile, monthly rental, balance, due date, plan, and address in real time</p>
                   </div>
                   <div>
-                    <button class="btn btn-outline-danger" onclick="switchUserPanel('api')">
+                    <button class="btn btn-outline-danger" data-user-panel="api">
                       <i class="bx bx-code-alt me-1"></i> DTH Info API Docs
                     </button>
                   </div>
@@ -613,7 +613,7 @@
                       </div>
 
                       <div class="col-md-3">
-                        <button class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-dthinfo" onclick="runDthLookup()">
+                        <button class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-dthinfo" id="btn-run-dth">
                           <i class="bx bx-search-alt me-1"></i> Fetch DTH Info
                         </button>
                       </div>
@@ -688,7 +688,7 @@
                 <div class="card shadow-sm border mb-4">
                   <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                     <h5 class="mb-0 fw-bold"><i class="bx bx-history text-secondary me-2"></i>My Payment & Recharge History</h5>
-                    <button class="btn btn-sm btn-outline-primary" onclick="loadUserPaymentHistory()">
+                    <button class="btn btn-sm btn-outline-primary" id="btn-refresh-user-payments">
                       <i class="bx bx-refresh"></i> Refresh History
                     </button>
                   </div>
@@ -735,7 +735,7 @@
                         <label class="form-label fw-bold small text-uppercase">ApiUserID (Registered Mobile)</label>
                         <div class="input-group">
                           <input type="text" class="form-control bg-lighter fw-bold" id="api-card-userid" readonly value="..." />
-                          <button class="btn btn-outline-primary" onclick="copyToClipboard('api-card-userid', 'ApiUserID copied!')">
+                          <button class="btn btn-outline-primary" data-copy-target="api-card-userid" data-copy-msg="ApiUserID copied!">
                             <i class="bx bx-copy"></i>
                           </button>
                         </div>
@@ -744,7 +744,7 @@
                         <label class="form-label fw-bold small text-uppercase">API Token (Generated by System)</label>
                         <div class="input-group">
                           <input type="text" class="form-control bg-lighter font-monospace" id="api-card-token" readonly value="..." />
-                          <button class="btn btn-outline-primary" onclick="copyToClipboard('api-card-token', 'API Token copied!')">
+                          <button class="btn btn-outline-primary" data-copy-target="api-card-token" data-copy-msg="API Token copied!">
                             <i class="bx bx-copy"></i>
                           </button>
                         </div>
@@ -833,10 +833,10 @@
                               <strong class="d-block mb-1">Request:</strong>
                               <div class="input-group">
                                 <input type="text" class="form-control font-monospace bg-light text-danger fw-bold" id="api-full-url" readonly value="..." />
-                                <button class="btn btn-outline-primary" onclick="copyToClipboard('api-full-url', 'Request URL copied!')">
+                                <button class="btn btn-outline-primary" data-copy-target="api-full-url" data-copy-msg="Request URL copied!">
                                   <i class="bx bx-copy me-1"></i> Copy
                                 </button>
-                                <a href="javascript:void(0);" class="btn btn-outline-secondary" id="btn-test-browser" target="_blank">
+                                <a href="#" role="button" class="btn btn-outline-secondary" id="btn-test-browser" target="_blank">
                                   <i class="bx bx-link-external"></i>
                                 </a>
                               </div>
@@ -887,7 +887,7 @@
                               <div class="input-group mb-2">
                                 <span class="input-group-text"><i class="bx bx-phone"></i> +91</span>
                                 <input type="text" class="form-control" id="api-test-input-mobile" placeholder="Enter 10-digit number" value="9335819686" />
-                                <button class="btn btn-primary fw-bold" id="btn-run-api-test" onclick="runLiveApiTest()">
+                                <button class="btn btn-primary fw-bold" id="btn-run-api-test" id="btn-run-live-api-test">
                                   <i class="bx bx-send me-1"></i> Execute Test
                                 </button>
                               </div>
@@ -975,7 +975,7 @@
                               <strong class="d-block mb-1">Request:</strong>
                               <div class="input-group">
                                 <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-planfetch-url" readonly value="/api/Mobile/Operatorplan?apimember_id=[YOUR_MEMBER_ID]&api_password=[YOUR_API_TOKEN]&cricle=[Circle]&operatorcode=[OpCode]" />
-                                <button class="btn btn-outline-primary" onclick="copyToClipboard('api-planfetch-url', 'Plan Request URL copied!')">
+                                <button class="btn btn-outline-primary" data-copy-target="api-planfetch-url" data-copy-msg="Plan Request URL copied!">
                                   <i class="bx bx-copy me-1"></i> Copy
                                 </button>
                               </div>
@@ -1014,14 +1014,14 @@
                                     <td class="text-muted">string</td>
                                     <td><span class="text-danger fw-bold">Body</span></td>
                                     <td><span class="badge bg-label-danger">Required</span></td>
-                                    <td>Enter given <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalCircleCodes" onclick="openCircleCodesModal()" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Circle Code</a></td>
+                                    <td>Enter given <a href="#" role="button" data-bs-toggle="modal" data-bs-target="#modalCircleCodes" data-action="open-circle-codes" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Circle Code</a></td>
                                   </tr>
                                   <tr>
                                     <td><code class="text-dark fw-bold">operatorcode</code></td>
                                     <td class="text-muted">string</td>
                                     <td><span class="text-danger fw-bold">Body</span></td>
                                     <td><span class="badge bg-label-danger">Required</span></td>
-                                    <td>Enter given <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" onclick="openOperatorCodesModal()" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator Code</a></td>
+                                    <td>Enter given <a href="#" role="button" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" data-action="open-operator-codes" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator Code</a></td>
                                   </tr>
                                 </tbody>
                               </table>
@@ -1053,7 +1053,7 @@
                                   </select>
                                 </div>
                               </div>
-                              <button class="btn btn-primary w-100 fw-bold" id="btn-run-plan-api-test" onclick="runLivePlanApiTest()">
+                              <button class="btn btn-primary w-100 fw-bold" id="btn-run-plan-api-test" id="btn-run-live-plan-api-test">
                                 <i class="bx bx-send me-1"></i> Execute Plan Fetch Call
                               </button>
                               <div id="api-test-plan-output-container" style="display: none;" class="mt-2">
@@ -1159,7 +1159,7 @@
                               <strong class="d-block mb-1">Request:</strong>
                               <div class="input-group">
                                 <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-roffer-url" readonly value="/api/Mobile/RofferCheck?apimember_id=[YOUR_MEMBER_ID]&api_password=[YOUR_API_TOKEN]&operator_code=[OpCode]&mobile_no=12XXXXXXX0" />
-                                <button class="btn btn-outline-primary" onclick="copyToClipboard('api-roffer-url', 'R-Offer URL copied!')">
+                                <button class="btn btn-outline-primary" data-copy-target="api-roffer-url" data-copy-msg="R-Offer URL copied!">
                                   <i class="bx bx-copy me-1"></i> Copy
                                 </button>
                               </div>
@@ -1198,7 +1198,7 @@
                                     <td class="text-muted">string</td>
                                     <td><span class="text-danger fw-bold">Body</span></td>
                                     <td><span class="badge bg-label-danger">Required</span></td>
-                                    <td>Enter api operator code <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" onclick="openOperatorCodesModal()" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator Code</a></td>
+                                    <td>Enter api operator code <a href="#" role="button" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" data-action="open-operator-codes" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator Code</a></td>
                                   </tr>
                                   <tr>
                                     <td><code class="text-dark fw-bold">mobile_no</code></td>
@@ -1227,7 +1227,7 @@
                                   </select>
                                 </div>
                               </div>
-                              <button class="btn btn-info w-100 fw-bold text-white" id="btn-run-roffer-api-test" onclick="runLiveRofferApiTest()">
+                              <button class="btn btn-info w-100 fw-bold text-white" id="btn-run-roffer-api-test" id="btn-run-live-roffer-api-test">
                                 <i class="bx bx-send me-1"></i> Execute R-Offer Check Call
                               </button>
                               <div id="api-test-roffer-output-container" style="display: none;" class="mt-2">
@@ -1322,7 +1322,7 @@
                               <strong class="d-block mb-1">Request:</strong>
                               <div class="input-group">
                                 <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-lastrecharge-url" readonly value="/api/Mobile/DthInfoWithLastRechargeDate?apimember_id=[YOUR_MEMBER_ID]&api_password=[YOUR_API_TOKEN]&mobile_no=12XXXXXXX0&Opcode=[OpCode]" />
-                                <button class="btn btn-outline-primary" onclick="copyToClipboard('api-lastrecharge-url', 'Recharge URL copied!')">
+                                <button class="btn btn-outline-primary" data-copy-target="api-lastrecharge-url" data-copy-msg="Recharge URL copied!">
                                   <i class="bx bx-copy me-1"></i> Copy
                                 </button>
                               </div>
@@ -1361,7 +1361,7 @@
                                     <td class="text-muted">string</td>
                                     <td><span class="text-danger fw-bold">Body</span></td>
                                     <td><span class="badge bg-label-danger">Required</span></td>
-                                    <td>Enter Your given <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" onclick="openOperatorCodesModal()" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator code</a></td>
+                                    <td>Enter Your given <a href="#" role="button" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" data-action="open-operator-codes" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator code</a></td>
                                   </tr>
                                   <tr>
                                     <td><code class="text-dark fw-bold">mobile_no</code></td>
@@ -1394,7 +1394,7 @@
                                   </select>
                                 </div>
                               </div>
-                              <button class="btn btn-success w-100 fw-bold" id="btn-run-recharge-api-test" onclick="runLiveLastRechargeApiTest()">
+                              <button class="btn btn-success w-100 fw-bold" id="btn-run-recharge-api-test" id="btn-run-live-lastrecharge-api-test">
                                 <i class="bx bx-send me-1"></i> Execute Last Recharge Call
                               </button>
                               <div id="api-test-recharge-output-container" style="display: none;" class="mt-2">
@@ -1466,7 +1466,7 @@
                           <h5 class="mb-1"><i class="bx bx-key text-primary me-2"></i>API Applications & Multi-Website Keys</h5>
                           <p class="text-muted small mb-0">Create isolated API keys for each of your websites/servers and configure optional IP Whitelisting.</p>
                         </div>
-                        <button class="btn btn-primary" onclick="openCreateClientModal()">
+                        <button class="btn btn-primary" data-action="open-create-client">
                           <i class="bx bx-plus me-1"></i> Create New Application Key
                         </button>
                       </div>
@@ -1524,7 +1524,7 @@
                       </li>
                     </ul>
 
-                    <button class="btn btn-outline-danger" onclick="logoutUser()">
+                    <button class="btn btn-outline-danger" data-action="logout">
                       <i class="bx bx-power-off me-1"></i> Sign Out
                     </button>
                   </div>
@@ -1553,7 +1553,7 @@
             <h5 class="modal-title text-white"><i class="bx bx-credit-card me-2"></i>Recharge / Buy Plan</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form id="form-payment-request" onsubmit="handlePaymentSubmit(event)">
+          <form id="form-payment-request" >
             <div class="modal-body pt-4">
               <!-- Selected Plan Details Summary -->
               <div class="alert alert-primary d-flex justify-content-between align-items-center mb-3">
@@ -1639,28 +1639,28 @@
                     <td class="ps-3 fw-bold text-dark"><i class="bx bx-radio-circle text-danger me-1"></i> Airtel</td>
                     <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">02 / 2</span></td>
                     <td class="text-end pe-3">
-                      <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('2')"><i class="bx bx-copy me-1"></i> Copy</button>
+                      <button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="2"><i class="bx bx-copy me-1"></i> Copy</button>
                     </td>
                   </tr>
                   <tr>
                     <td class="ps-3 fw-bold text-dark"><i class="bx bx-radio-circle text-primary me-1"></i> Reliance Jio</td>
                     <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">11</span></td>
                     <td class="text-end pe-3">
-                      <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('11')"><i class="bx bx-copy me-1"></i> Copy</button>
+                      <button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="11"><i class="bx bx-copy me-1"></i> Copy</button>
                     </td>
                   </tr>
                   <tr>
                     <td class="ps-3 fw-bold text-dark"><i class="bx bx-radio-circle text-warning me-1"></i> Vodafone Idea (VI)</td>
                     <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">06 / 6</span></td>
                     <td class="text-end pe-3">
-                      <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('6')"><i class="bx bx-copy me-1"></i> Copy</button>
+                      <button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="6"><i class="bx bx-copy me-1"></i> Copy</button>
                     </td>
                   </tr>
                   <tr>
                     <td class="ps-3 fw-bold text-dark"><i class="bx bx-radio-circle text-info me-1"></i> BSNL</td>
                     <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">04 / 4</span></td>
                     <td class="text-end pe-3">
-                      <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('4')"><i class="bx bx-copy me-1"></i> Copy</button>
+                      <button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="4"><i class="bx bx-copy me-1"></i> Copy</button>
                     </td>
                   </tr>
                 </tbody>
@@ -1687,7 +1687,7 @@
               <small class="text-muted"><i class="bx bx-info-circle me-1 text-primary"></i>Use these 2-digit numeric codes in the <code>cricle</code> parameter when calling the Plan Fetch API.</small>
             </div>
             <div class="mb-3">
-              <input type="text" id="input-search-circle-codes" class="form-control" placeholder="Search circle name or 2-digit code..." onkeyup="filterCircleCodesTable()" />
+              <input type="text" id="input-search-circle-codes" class="form-control" placeholder="Search circle name or 2-digit code..."  />
             </div>
             <div class="table-responsive border rounded" style="max-height: 400px; overflow-y: auto;">
               <table class="table table-hover align-middle mb-0" id="table-circle-codes">
@@ -1700,29 +1700,29 @@
                   </tr>
                 </thead>
                 <tbody id="tbody-circle-codes">
-                  <tr><td class="ps-3 text-muted fw-bold">1</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Rajasthan</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">70</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('70')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">2</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> UP (East)</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">54</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('54')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">3</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> UP (West) & Uttarakhand</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">97</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('97')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">4</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Delhi NCR</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">10</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('10')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">5</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Mumbai</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">92</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('92')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">6</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Maharashtra & Goa</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">90</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('90')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">7</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Bihar & Jharkhand</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">52</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('52')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">8</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Gujarat</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">98</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('98')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">9</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Madhya Pradesh & Chhattisgarh</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">93</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('93')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">10</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Punjab</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">02</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('02')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">11</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Haryana</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">96</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('96')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">12</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Kolkata</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">31</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('31')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">13</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> West Bengal</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">51</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('51')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">14</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Karnataka</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">06</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('06')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">15</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Andhra Pradesh & Telangana</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">49</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('49')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">16</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Tamil Nadu</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">94</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('94')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">17</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Chennai</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">40</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('40')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">18</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Kerala</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">95</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('95')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">19</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Odisha</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">53</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('53')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">20</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Assam</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">56</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('56')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">21</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> North East</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">16</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('16')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">22</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Himachal Pradesh</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">03</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('03')"><i class="bx bx-copy"></i> Copy</button></td></tr>
-                  <tr><td class="ps-3 text-muted fw-bold">23</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Jammu & Kashmir</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">55</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('55')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">1</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Rajasthan</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">70</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="70"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">2</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> UP (East)</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">54</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="54"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">3</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> UP (West) & Uttarakhand</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">97</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="97"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">4</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Delhi NCR</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">10</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="10"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">5</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Mumbai</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">92</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="92"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">6</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Maharashtra & Goa</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">90</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="90"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">7</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Bihar & Jharkhand</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">52</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="52"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">8</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Gujarat</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">98</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="98"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">9</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Madhya Pradesh & Chhattisgarh</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">93</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="93"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">10</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Punjab</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">02</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="02"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">11</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Haryana</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">96</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="96"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">12</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Kolkata</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">31</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="31"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">13</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> West Bengal</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">51</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="51"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">14</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Karnataka</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">06</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="06"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">15</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Andhra Pradesh & Telangana</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">49</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="49"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">16</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Tamil Nadu</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">94</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="94"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">17</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Chennai</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">40</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="40"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">18</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Kerala</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">95</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="95"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">19</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Odisha</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">53</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="53"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">20</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Assam</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">56</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="56"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">21</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> North East</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">16</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="16"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">22</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Himachal Pradesh</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">03</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="03"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">23</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Jammu & Kashmir</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">55</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="55"><i class="bx bx-copy"></i> Copy</button></td></tr>
                 </tbody>
               </table>
             </div>
@@ -1745,7 +1745,7 @@
             <h5 class="modal-title text-white"><i class="bx bx-plus-circle me-2"></i>Create New API Application Key</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form onsubmit="submitCreateClient(event)">
+          <form id="form-create-client">
             <div class="modal-body pt-4">
               <div class="mb-3">
                 <label class="form-label fw-bold">Application / Website Name <span class="text-danger">*</span></label>
@@ -1775,7 +1775,7 @@
             <h5 class="modal-title text-white"><i class="bx bx-shield-quarter me-2"></i>Configure Allowed IPs (Whitelist)</h5>
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <form onsubmit="submitEditIps(event)">
+          <form id="form-edit-ips">
             <div class="modal-body pt-4">
               <input type="hidden" id="edit-client-id" />
               <div class="mb-3">
@@ -1813,7 +1813,7 @@
 
             <div class="input-group mb-3">
               <input type="text" id="display-new-token" class="form-control font-monospace fw-bold text-success text-center" readonly />
-              <button class="btn btn-outline-success" type="button" onclick="copyNewToken()"><i class="bx bx-copy"></i> Copy</button>
+              <button class="btn btn-outline-success" type="button" id="btn-copy-new-token"><i class="bx bx-copy"></i> Copy</button>
             </div>
           </div>
           <div class="modal-footer bg-light">
@@ -1945,7 +1945,7 @@
             <td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> ${c.name}</td>
             <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">${c.code}</span></td>
             <td class="text-end pe-3">
-              <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('${c.code}')">
+              <button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="${c.code}">
                 <i class="bx bx-copy"></i> Copy
               </button>
             </td>
@@ -2093,14 +2093,14 @@
                   <td>${lastUsed}</td>
                   <td>
                     <div class="btn-group btn-group-sm">
-                      <button class="btn btn-outline-info" title="Configure Allowed IPs" onclick="openEditIpsModal('${c.id}', '${encodeURIComponent(c.client_name)}', '${ipsJson}')">
+                      <button class="btn btn-outline-info" title="Configure Allowed IPs" data-action="edit-ips" data-id="${c.id}" data-name="${encodeURIComponent(c.client_name)}" data-ips="${encodeURIComponent(ipsJson)}">
                         <i class="bx bx-shield"></i> IPs
                       </button>
-                      <button class="btn btn-outline-warning" title="Regenerate Token" onclick="regenerateClientKey('${c.id}', '${encodeURIComponent(c.client_name)}')">
+                      <button class="btn btn-outline-warning" title="Regenerate Token" data-action="regenerate-token" data-id="${c.id}" data-name="${encodeURIComponent(c.client_name)}">
                         <i class="bx bx-refresh"></i> Reset
                       </button>
                       ${c.status === 'Active' ? `
-                      <button class="btn btn-outline-danger" title="Revoke Key" onclick="revokeClient('${c.id}', '${encodeURIComponent(c.client_name)}')">
+                      <button class="btn btn-outline-danger" title="Revoke Key" data-action="revoke-client" data-id="${c.id}" data-name="${encodeURIComponent(c.client_name)}">
                         <i class="bx bx-trash"></i>
                       </button>` : ''}
                     </div>
@@ -2113,7 +2113,7 @@
               <tr>
                 <td colspan="6" class="text-center py-4">
                   <div class="text-muted mb-2">No custom API applications created yet.</div>
-                  <button class="btn btn-sm btn-primary" onclick="openCreateClientModal()">
+                  <button class="btn btn-sm btn-primary" data-action="open-create-client">
                     <i class="bx bx-plus"></i> Create First Application Key
                   </button>
                 </td>
@@ -2329,7 +2329,7 @@
                 <td><strong class="fs-5 text-dark">₹${p.amount}</strong></td>
                 <td><span class="badge bg-label-primary fs-6 px-3">${p.hits.toLocaleString()}</span></td>
                 <td class="pe-4 text-end">
-                  <button type="button" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: #2a8f87; border-radius: 6px;" onclick="openPaymentModal('${p.id}', ${p.amount}, ${p.hits})">
+                  <button type="button" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: #2a8f87; border-radius: 6px;" data-action="open-payment-modal" data-id="${p.id}" data-amount="${p.amount}" data-hits="${p.hits}">
                     Buy Now
                   </button>
                 </td>
@@ -2730,7 +2730,7 @@
                   </div>
                   <div class="pt-3 mt-2 border-top d-flex justify-content-between align-items-center">
                     <small class="text-muted"><i class="bx bx-check-circle text-success me-1"></i>Direct Recharge</small>
-                    <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('₹${item.rs} - ${item.desc}')">
+                    <button class="btn btn-sm btn-outline-primary fw-bold" data-copy-text="₹${item.rs} - ${item.desc}">
                       <i class="bx bx-copy me-1"></i> Copy
                     </button>
                   </div>
@@ -2855,7 +2855,7 @@
                       </div>
                       <div class="pt-3 mt-2 border-top d-flex justify-content-between align-items-center">
                         <small class="text-muted"><i class="bx bx-check-double text-success me-1"></i>Direct Operator Offer</small>
-                        <button class="btn btn-sm btn-outline-info fw-bold" onclick="copyToClipboardText('₹${item.price} Offer: ${item.ofrtext || item.logdesc}')">
+                        <button class="btn btn-sm btn-outline-info fw-bold" data-copy-text="₹${item.price} Offer: ${item.ofrtext || item.logdesc}">
                           <i class="bx bx-copy me-1"></i> Copy
                         </button>
                       </div>
@@ -3213,6 +3213,181 @@
           btn.innerHTML = '<i class="bx bx-search-alt me-1"></i> Fetch DTH Info';
         }
       }
+
+      // ---------------- EVENT LISTENERS & DELEGATION (CSP HARDENED) ---------------- //
+      document.addEventListener('DOMContentLoaded', () => {
+        // Search inputs enter key listeners
+        const quickSearch = document.getElementById('nav-quick-search');
+        if (quickSearch) {
+          quickSearch.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') quickLookup();
+          });
+        }
+
+        const lookupInput = document.getElementById('lookup-mobile-input');
+        if (lookupInput) {
+          lookupInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') runOperatorLookup();
+          });
+        }
+
+        const filterPlansInput = document.getElementById('input-filter-plans');
+        if (filterPlansInput) {
+          filterPlansInput.addEventListener('input', () => filterRenderedPlans());
+        }
+
+        const rofferInput = document.getElementById('input-roffer-mobile');
+        if (rofferInput) {
+          rofferInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') runRofferLookup();
+          });
+        }
+
+        const rechargeInput = document.getElementById('input-lastrecharge-mobile');
+        if (rechargeInput) {
+          rechargeInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') runLastRechargeLookup();
+          });
+        }
+
+        const dthInput = document.getElementById('input-dth-number');
+        if (dthInput) {
+          dthInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') runDthLookup();
+          });
+        }
+
+        const circleSearchInput = document.getElementById('input-search-circle-codes');
+        if (circleSearchInput) {
+          circleSearchInput.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase().trim();
+            const filtered = ALL_INDIA_CIRCLES.filter(c => c.name.toLowerCase().includes(q) || c.code.includes(q));
+            renderCircleCodesTable(filtered);
+          });
+        }
+
+        // Direct Button click listeners
+        const btnLookup = document.getElementById('btn-run-lookup') || document.getElementById('btn-run-operator');
+        if (btnLookup) btnLookup.addEventListener('click', runOperatorLookup);
+
+        const btnFetchPlans = document.getElementById('btn-fetch-mobile-plans') || document.getElementById('btn-run-mobile-plans');
+        if (btnFetchPlans) btnFetchPlans.addEventListener('click', runMobilePlanLookup);
+
+        const btnFetchRoffer = document.getElementById('btn-fetch-roffer') || document.getElementById('btn-run-roffer');
+        if (btnFetchRoffer) btnFetchRoffer.addEventListener('click', runRofferLookup);
+
+        const btnFetchRecharge = document.getElementById('btn-fetch-lastrecharge') || document.getElementById('btn-run-last-recharge');
+        if (btnFetchRecharge) btnFetchRecharge.addEventListener('click', runLastRechargeLookup);
+
+        const btnFetchDth = document.getElementById('btn-fetch-dthinfo') || document.getElementById('btn-run-dth');
+        if (btnFetchDth) btnFetchDth.addEventListener('click', runDthLookup);
+
+        const btnRefreshPayments = document.getElementById('btn-refresh-user-payments');
+        if (btnRefreshPayments) btnRefreshPayments.addEventListener('click', loadUserPaymentHistory);
+
+        const btnRunApiTest = document.getElementById('btn-run-operator-api-test') || document.getElementById('btn-run-live-api-test');
+        if (btnRunApiTest) btnRunApiTest.addEventListener('click', runLiveApiTest);
+
+        const btnRunPlanApiTest = document.getElementById('btn-run-plan-api-test') || document.getElementById('btn-run-live-plan-api-test');
+        if (btnRunPlanApiTest) btnRunPlanApiTest.addEventListener('click', runLivePlanApiTest);
+
+        const btnRunRofferApiTest = document.getElementById('btn-run-roffer-api-test') || document.getElementById('btn-run-live-roffer-api-test');
+        if (btnRunRofferApiTest) btnRunRofferApiTest.addEventListener('click', runLiveRofferApiTest);
+
+        const btnRunRechargeApiTest = document.getElementById('btn-run-recharge-api-test') || document.getElementById('btn-run-live-lastrecharge-api-test');
+        if (btnRunRechargeApiTest) btnRunRechargeApiTest.addEventListener('click', runLiveLastRechargeApiTest);
+
+        const btnCopyNewTok = document.getElementById('btn-copy-new-token');
+        if (btnCopyNewTok) btnCopyNewTok.addEventListener('click', copyNewToken);
+
+        // Form submission listeners
+        const formPay = document.getElementById('modalPaymentForm') || document.getElementById('paymentModalForm');
+        if (formPay) formPay.addEventListener('submit', handlePaymentSubmit);
+
+        const formClient = document.getElementById('form-create-client');
+        if (formClient) formClient.addEventListener('submit', submitCreateClient);
+
+        const formIps = document.getElementById('form-edit-ips');
+        if (formIps) formIps.addEventListener('submit', submitEditIps);
+      });
+
+      // Global Delegated click dispatcher
+      document.addEventListener('click', (e) => {
+        // User panel switcher
+        const panelEl = e.target.closest('[data-user-panel]');
+        if (panelEl) {
+          e.preventDefault();
+          const target = panelEl.getAttribute('data-user-panel');
+          if (target) switchUserPanel(target);
+          return;
+        }
+
+        // Plan category switcher
+        const planCatEl = e.target.closest('[data-plan-cat]');
+        if (planCatEl) {
+          e.preventDefault();
+          const cat = planCatEl.getAttribute('data-plan-cat');
+          if (cat) switchPlanCategory(cat);
+          return;
+        }
+
+        // Copy target text from element ID
+        const copyTargetEl = e.target.closest('[data-copy-target]');
+        if (copyTargetEl) {
+          e.preventDefault();
+          const targetId = copyTargetEl.getAttribute('data-copy-target');
+          const msg = copyTargetEl.getAttribute('data-copy-msg');
+          if (targetId) copyToClipboard(targetId, msg);
+          return;
+        }
+
+        // Copy literal text
+        const copyTextEl = e.target.closest('[data-copy-text]');
+        if (copyTextEl) {
+          e.preventDefault();
+          const text = copyTextEl.getAttribute('data-copy-text');
+          if (text) copyToClipboardText(text);
+          return;
+        }
+
+        // Generic actions
+        const actionEl = e.target.closest('[data-action]');
+        if (actionEl) {
+          e.preventDefault();
+          const action = actionEl.getAttribute('data-action');
+          if (action === 'logout') {
+            logoutUser();
+          } else if (action === 'open-circle-codes') {
+            openCircleCodesModal();
+          } else if (action === 'open-operator-codes') {
+            openOperatorCodesModal();
+          } else if (action === 'open-create-client') {
+            openCreateClientModal();
+          } else if (action === 'set-and-query') {
+            const mob = actionEl.getAttribute('data-mobile');
+            if (mob) setAndQuery(mob);
+          } else if (action === 'open-payment-modal') {
+            const planId = actionEl.getAttribute('data-id');
+            const amount = Number(actionEl.getAttribute('data-amount'));
+            const hits = Number(actionEl.getAttribute('data-hits'));
+            openPaymentModal(planId, amount, hits);
+          } else if (action === 'edit-ips') {
+            const id = actionEl.getAttribute('data-id');
+            const name = decodeURIComponent(actionEl.getAttribute('data-name') || '');
+            const ipsJson = decodeURIComponent(actionEl.getAttribute('data-ips') || '[]');
+            openEditIpsModal(id, name, ipsJson);
+          } else if (action === 'regenerate-token') {
+            const id = actionEl.getAttribute('data-id');
+            const name = decodeURIComponent(actionEl.getAttribute('data-name') || '');
+            regenerateClientKey(id, name);
+          } else if (action === 'revoke-client') {
+            const id = actionEl.getAttribute('data-id');
+            const name = decodeURIComponent(actionEl.getAttribute('data-name') || '');
+            revokeClient(id, name);
+          }
+        }
+      });
+
     </script>
   </body>
 </html>

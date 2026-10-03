@@ -73,7 +73,7 @@
                   <div class="form-text text-success"><i class="bx bxs-check-shield"></i> OTP will be sent directly via WhatsApp.</div>
                 </div>
 
-                <button class="btn btn-primary d-grid w-100" id="btn-send-otp" onclick="requestSignupOTP()">
+                <button class="btn btn-primary d-grid w-100" id="btn-send-otp">
                   <i class="bx bxl-whatsapp me-1"></i> Send WhatsApp OTP
                 </button>
               </div>
@@ -90,13 +90,13 @@
                   <input type="text" class="form-control otp-digit-input" id="signup-otp" placeholder="••••••" maxlength="6" autofocus />
                 </div>
 
-                <button class="btn btn-success d-grid w-100 mb-3" id="btn-verify-otp" onclick="verifySignupOTP()">
+                <button class="btn btn-success d-grid w-100 mb-3" id="btn-verify-otp">
                   <i class="bx bx-check-double me-1"></i> Verify & Open Dashboard
                 </button>
 
                 <div class="text-center">
                   <span id="otp-timer-text" class="text-muted">Resend in <strong id="otp-countdown">30</strong>s</span>
-                  <a href="javascript:void(0);" id="btn-resend-otp" class="text-primary" onclick="requestSignupOTP()" style="display: none;">Resend OTP</a>
+                  <a href="#" role="button" id="btn-resend-otp" class="text-primary" style="display: none;">Resend OTP</a>
                 </div>
               </div>
 
@@ -244,6 +244,43 @@
           btn.innerHTML = '<i class="bx bx-check-double me-1"></i> Verify & Open Dashboard';
         }
       }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const btnSend = document.getElementById('btn-send-otp');
+        if (btnSend) btnSend.addEventListener('click', requestSignupOTP);
+
+        const btnVerify = document.getElementById('btn-verify-otp');
+        if (btnVerify) btnVerify.addEventListener('click', verifySignupOTP);
+
+        const btnResend = document.getElementById('btn-resend-otp');
+        if (btnResend) {
+          btnResend.addEventListener('click', (e) => {
+            e.preventDefault();
+            requestSignupOTP();
+          });
+        }
+
+        const nameInput = document.getElementById('signup-name');
+        if (nameInput) {
+          nameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') requestSignupOTP();
+          });
+        }
+
+        const mobileInput = document.getElementById('signup-mobile');
+        if (mobileInput) {
+          mobileInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') requestSignupOTP();
+          });
+        }
+
+        const otpInput = document.getElementById('signup-otp');
+        if (otpInput) {
+          otpInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verifySignupOTP();
+          });
+        }
+      });
     </script>
   </body>
 </html>

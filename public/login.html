@@ -67,7 +67,7 @@
                   </div>
                 </div>
 
-                <button class="btn btn-primary d-grid w-100" id="btn-login-send" onclick="requestLoginOTP()">
+                <button class="btn btn-primary d-grid w-100" id="btn-login-send">
                   <i class="bx bxl-whatsapp me-1"></i> Send Login OTP
                 </button>
               </div>
@@ -84,7 +84,7 @@
                   <input type="text" class="form-control otp-digit-input" id="login-otp" placeholder="••••••" maxlength="6" autofocus />
                 </div>
 
-                <button class="btn btn-success d-grid w-100 mb-3" id="btn-login-verify" onclick="verifyLoginOTP()">
+                <button class="btn btn-success d-grid w-100 mb-3" id="btn-login-verify">
                   <i class="bx bx-log-in me-1"></i> Verify & Sign In
                 </button>
               </div>
@@ -203,6 +203,28 @@
           btn.innerHTML = '<i class="bx bx-log-in me-1"></i> Verify & Sign In';
         }
       }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const btnSend = document.getElementById('btn-login-send');
+        if (btnSend) btnSend.addEventListener('click', requestLoginOTP);
+
+        const btnVerify = document.getElementById('btn-login-verify');
+        if (btnVerify) btnVerify.addEventListener('click', verifyLoginOTP);
+
+        const mobileInput = document.getElementById('login-mobile');
+        if (mobileInput) {
+          mobileInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') requestLoginOTP();
+          });
+        }
+
+        const otpInput = document.getElementById('login-otp');
+        if (otpInput) {
+          otpInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verifyLoginOTP();
+          });
+        }
+      });
     </script>
   </body>
 </html>

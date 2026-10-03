@@ -24,5 +24,18 @@
     ],
     "status": "Active",
     "created_at": "2026-10-03T08:23:32.052Z"
+  },
+  {
+    "id": "CLI_1791017128276_9u8d",
+    "user_id": "USR_1791017128272_sywa",
+    "client_name": "Website 1 Production",
+    "api_token_hash": "dd3a097fa4dee671287feb78611a1c5d7101cd5caf1856f5f656cdddd2c6a2dd",
+    "api_token_preview": "tok_d6a...051a",
+    "allowed_ips": [
+      "192.168.1.0/24",
+      "10.0.0.5"
+    ],
+    "status": "Active",
+    "created_at": "2026-10-03T08:45:28.278Z"
   }
 ]

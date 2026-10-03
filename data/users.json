@@ -6,17 +6,17 @@
     "status": "Active",
     "lastLogin": "2026-10-02T11:44:38.694Z",
     "createdAt": "2026-10-02T09:19:27.840Z",
-    "updatedAt": "2026-10-03T08:23:57.481Z",
+    "updatedAt": "2026-10-03T08:45:29.561Z",
     "apiToken": "tok_c7f65f27e096035786e9c851",
-    "remainingHits": 40033,
+    "remainingHits": 40029,
     "totalHits": 40100,
-    "usedHits": 67,
+    "usedHits": 71,
     "lastPlanAmount": 100,
     "lastPlanHits": 20000,
     "lastRechargeDate": "2026-10-02T11:30:57.257Z"
   },
   {
-    "id": "USR_1791015811931_owl0",
+    "id": "USR_1791017128237_nhkm",
     "apiToken": "tok_93c67ae7e328a62aaa550e45902293d9",
     "remainingHits": 1,
     "totalHits": 10,
@@ -25,10 +25,10 @@
     "name": "Concurrency Tester",
     "mobile": "9999900001",
     "createdAt": "2026-10-03T08:22:47.492Z",
-    "updatedAt": "2026-10-03T08:23:31.999Z"
+    "updatedAt": "2026-10-03T08:45:28.259Z"
   },
   {
-    "id": "USR_1791015812042_q8al",
+    "id": "USR_1791017128272_sywa",
     "apiToken": "tok_150048b83b6c76bb91a14bacbff9dd62",
     "remainingHits": 50,
     "totalHits": 100,
@@ -37,10 +37,10 @@
     "name": "Multi-App User",
     "mobile": "9999900002",
     "createdAt": "2026-10-03T08:22:48.148Z",
-    "updatedAt": "2026-10-03T08:23:32.044Z"
+    "updatedAt": "2026-10-03T08:45:28.274Z"
   },
   {
-    "id": "USR_1791015812094_ctq8",
+    "id": "USR_1791017128288_e2g4",
     "apiToken": "tok_ec498b48e9cd2c86fd94d0ef43694c8b",
     "remainingHits": 0,
     "totalHits": 100,
@@ -49,10 +49,10 @@
     "name": "Payment Tamper User",
     "mobile": "9999900003",
     "createdAt": "2026-10-03T08:22:48.484Z",
-    "updatedAt": "2026-10-03T08:23:32.097Z"
+    "updatedAt": "2026-10-03T08:45:28.289Z"
   },
   {
-    "id": "USR_1791015812117_4qf7",
+    "id": "USR_1791017128296_3mtw",
     "apiToken": "tok_98d931a4390116c0f75cfa7f823f0284",
     "remainingHits": 20010,
     "totalHits": 20010,
@@ -61,6 +61,6 @@
     "name": "Double Approval User",
     "mobile": "9999900004",
     "createdAt": "2026-10-03T08:22:48.536Z",
-    "updatedAt": "2026-10-03T08:23:32.163Z"
+    "updatedAt": "2026-10-03T08:45:28.303Z"
   }
 ]

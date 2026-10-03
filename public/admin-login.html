@@ -50,7 +50,7 @@
                 <input type="password" class="form-control" id="admin-pass" placeholder="••••••••" value="admin123" />
               </div>
 
-              <button class="btn btn-danger d-grid w-100 mb-3" id="btn-admin-login" onclick="doAdminLogin()">
+              <button class="btn btn-danger d-grid w-100 mb-3" id="btn-admin-login">
                 <i class="bx bx-shield-quarter me-1"></i> Sign In to Admin Panel
               </button>
 
@@ -119,6 +119,25 @@
           btn.innerHTML = '<i class="bx bx-shield-quarter me-1"></i> Sign In to Admin Panel';
         }
       }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const btnLogin = document.getElementById('btn-admin-login');
+        if (btnLogin) btnLogin.addEventListener('click', doAdminLogin);
+
+        const userInput = document.getElementById('admin-user');
+        if (userInput) {
+          userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') doAdminLogin();
+          });
+        }
+
+        const passInput = document.getElementById('admin-pass');
+        if (passInput) {
+          passInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') doAdminLogin();
+          });
+        }
+      });
     </script>
   </body>
 </html>

@@ -52,7 +52,7 @@
               <span class="app-brand-text demo menu-text fw-bold ms-2">Admin Panel</span>
             </a>
 
-            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+            <a href="#" role="button" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
               <i class="bx bx-chevron-left bx-sm d-flex align-items-center justify-content-center"></i>
             </a>
           </div>
@@ -63,14 +63,14 @@
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Configuration</span></li>
             
             <li class="menu-item active" id="menu-wa-settings">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchAdminPanel('wa-settings')">
+              <a href="#" role="button" class="menu-link" data-admin-panel="wa-settings">
                 <i class="menu-icon tf-icons bx bxl-whatsapp text-success"></i>
                 <div>WhatsApp Settings</div>
               </a>
             </li>
 
             <li class="menu-item" id="menu-wa-test">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchAdminPanel('wa-test')">
+              <a href="#" role="button" class="menu-link" data-admin-panel="wa-test">
                 <i class="menu-icon tf-icons bx bx-paper-plane text-info"></i>
                 <div>Live WA Tester</div>
               </a>
@@ -79,14 +79,14 @@
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Billing & Plans</span></li>
 
             <li class="menu-item" id="menu-plans">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchAdminPanel('plans')">
+              <a href="#" role="button" class="menu-link" data-admin-panel="plans">
                 <i class="menu-icon tf-icons bx bx-layer text-warning"></i>
                 <div>Manage Plans</div>
               </a>
             </li>
 
             <li class="menu-item" id="menu-billing">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchAdminPanel('billing')">
+              <a href="#" role="button" class="menu-link" data-admin-panel="billing">
                 <i class="menu-icon tf-icons bx bx-receipt text-danger"></i>
                 <div>Plan Billing Requests</div>
                 <span class="badge bg-danger rounded-pill ms-auto" id="sidebar-pending-billing" style="display: none;">0</span>
@@ -96,7 +96,7 @@
             <li class="menu-header small text-uppercase"><span class="menu-header-text">Management</span></li>
 
             <li class="menu-item" id="menu-users">
-              <a href="javascript:void(0);" class="menu-link" onclick="switchAdminPanel('users')">
+              <a href="#" role="button" class="menu-link" data-admin-panel="users">
                 <i class="menu-icon tf-icons bx bx-group text-primary"></i>
                 <div>Registered Users (<span id="sidebar-user-count">0</span>)</div>
               </a>
@@ -125,7 +125,7 @@
           <!-- Top Navbar -->
           <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
             <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
-              <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+              <a class="nav-item nav-link px-0 me-xl-6" href="#" role="button">
                 <i class="bx bx-menu bx-md"></i>
               </a>
             </div>
@@ -143,7 +143,7 @@
                 </li>
 
                 <li class="nav-item">
-                  <button class="btn btn-sm btn-outline-danger" onclick="adminLogout()">
+                  <button class="btn btn-sm btn-outline-danger" id="btn-admin-logout">
                     <i class="bx bx-power-off me-1"></i> Admin Logout
                   </button>
                 </li>
@@ -194,7 +194,7 @@
                       </div>
                     </div>
 
-                    <button class="btn btn-success px-4" id="btn-save-wa" onclick="saveWhatsAppConfig()">
+                    <button class="btn btn-success px-4" id="btn-save-wa">
                       <i class="bx bx-save me-1"></i> Save WhatsApp Configuration
                     </button>
                   </div>
@@ -223,7 +223,7 @@
                       <textarea id="admin-test-message" class="form-control" rows="3">Hello! This is a test message from PlanAPI Admin Panel.</textarea>
                     </div>
 
-                    <button class="btn btn-primary px-4" id="btn-admin-test-send" onclick="sendTestWhatsAppMsg()">
+                    <button class="btn btn-primary px-4" id="btn-admin-test-send">
                       <i class="bx bx-paper-plane me-1"></i> Dispatch Test WhatsApp
                     </button>
 
@@ -245,7 +245,7 @@
                         <h5 class="mb-0 text-warning fw-bold"><i class="bx bx-plus-circle me-2"></i>Add New Plan</h5>
                       </div>
                       <div class="card-body pt-4">
-                        <form id="form-add-plan" onsubmit="handleAddPlan(event)">
+                        <form id="form-add-plan">
                           <div class="mb-3">
                             <label class="form-label fw-bold">Plan Amount (₹)</label>
                             <div class="input-group">
@@ -277,7 +277,7 @@
                     <div class="card shadow-sm border h-100">
                       <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold"><i class="bx bx-list-check text-primary me-2"></i>Plan List</h5>
-                        <button class="btn btn-sm btn-outline-primary" onclick="loadAdminPlans()">
+                        <button class="btn btn-sm btn-outline-primary" id="btn-refresh-plans">
                           <i class="bx bx-refresh"></i> Refresh
                         </button>
                       </div>
@@ -312,7 +312,7 @@
                       <h5 class="mb-0 fw-bold"><i class="bx bx-receipt text-danger me-2"></i>Plan Billing & Payment Requests</h5>
                       <small class="text-muted">Review user payment submissions and approve/reject hit credits</small>
                     </div>
-                    <button class="btn btn-sm btn-outline-primary" onclick="loadBillingRequests()">
+                    <button class="btn btn-sm btn-outline-primary" id="btn-refresh-billing">
                       <i class="bx bx-refresh"></i> Refresh Requests
                     </button>
                   </div>
@@ -348,7 +348,7 @@
                       <h5 class="mb-0"><i class="bx bx-group text-primary me-2"></i>Registered Users</h5>
                       <small class="text-muted">Users registered via WhatsApp OTP verification</small>
                     </div>
-                    <button class="btn btn-sm btn-outline-primary" onclick="loadRegisteredUsers()"><i class="bx bx-refresh"></i> Refresh List</button>
+                    <button class="btn btn-sm btn-outline-primary" id="btn-refresh-users"><i class="bx bx-refresh"></i> Refresh List</button>
                   </div>
 
                   <div class="table-responsive text-nowrap">
@@ -589,7 +589,7 @@
                 <td><span class="badge bg-label-primary fs-6 px-3">${p.hits.toLocaleString()}</span></td>
                 <td><span class="badge bg-label-success">Active</span></td>
                 <td class="text-end">
-                  <button class="btn btn-sm btn-outline-danger" onclick="deleteAdminPlan('${p.id}')">
+                  <button class="btn btn-sm btn-outline-danger btn-delete-plan" data-id="${p.id}">
                     <i class="bx bx-trash"></i> Delete
                   </button>
                 </td>
@@ -604,7 +604,7 @@
       }
 
       async function handleAddPlan(e) {
-        e.preventDefault();
+        if (e && e.preventDefault) e.preventDefault();
         const amount = document.getElementById('plan-input-amount').value;
         const hits = document.getElementById('plan-input-hits').value;
         const btn = document.getElementById('btn-add-plan');
@@ -685,10 +685,10 @@
                   <td class="text-center">
                     ${p.status === 'Pending' ? `
                       <div class="btn-group btn-group-sm">
-                        <button class="btn btn-success" onclick="approvePaymentReq('${p.id}')" title="Approve and Credit Hits">
+                        <button class="btn btn-success btn-approve-pay" data-id="${p.id}" title="Approve and Credit Hits">
                           <i class="bx bx-check"></i> Accept
                         </button>
-                        <button class="btn btn-outline-danger" onclick="rejectPaymentReq('${p.id}')" title="Reject Request">
+                        <button class="btn btn-outline-danger btn-reject-pay" data-id="${p.id}" title="Reject Request">
                           <i class="bx bx-x"></i> Reject
                         </button>
                       </div>
@@ -774,6 +774,65 @@
           tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Error loading users.</td></tr>';
         }
       }
+
+      // Event listener registration
+      document.addEventListener('DOMContentLoaded', () => {
+        const btnLogout = document.getElementById('btn-admin-logout');
+        if (btnLogout) btnLogout.addEventListener('click', adminLogout);
+
+        const btnSaveWa = document.getElementById('btn-save-wa');
+        if (btnSaveWa) btnSaveWa.addEventListener('click', saveWhatsAppConfig);
+
+        const btnTestSend = document.getElementById('btn-admin-test-send');
+        if (btnTestSend) btnTestSend.addEventListener('click', sendTestWhatsAppMsg);
+
+        const formAddPlan = document.getElementById('form-add-plan');
+        if (formAddPlan) formAddPlan.addEventListener('submit', handleAddPlan);
+
+        const btnRefreshPlans = document.getElementById('btn-refresh-plans');
+        if (btnRefreshPlans) btnRefreshPlans.addEventListener('click', loadAdminPlans);
+
+        const btnRefreshBilling = document.getElementById('btn-refresh-billing');
+        if (btnRefreshBilling) btnRefreshBilling.addEventListener('click', loadBillingRequests);
+
+        const btnRefreshUsers = document.getElementById('btn-refresh-users');
+        if (btnRefreshUsers) btnRefreshUsers.addEventListener('click', loadRegisteredUsers);
+      });
+
+      // Delegated clicks for sidebar navigation and table actions
+      document.addEventListener('click', (e) => {
+        const panelLink = e.target.closest('[data-admin-panel]');
+        if (panelLink) {
+          e.preventDefault();
+          const panelName = panelLink.getAttribute('data-admin-panel');
+          if (panelName) switchAdminPanel(panelName);
+          return;
+        }
+
+        const deleteBtn = e.target.closest('.btn-delete-plan');
+        if (deleteBtn) {
+          e.preventDefault();
+          const id = deleteBtn.getAttribute('data-id');
+          if (id) deleteAdminPlan(id);
+          return;
+        }
+
+        const approveBtn = e.target.closest('.btn-approve-pay');
+        if (approveBtn) {
+          e.preventDefault();
+          const id = approveBtn.getAttribute('data-id');
+          if (id) approvePaymentReq(id);
+          return;
+        }
+
+        const rejectBtn = e.target.closest('.btn-reject-pay');
+        if (rejectBtn) {
+          e.preventDefault();
+          const id = rejectBtn.getAttribute('data-id');
+          if (id) rejectPaymentReq(id);
+          return;
+        }
+      });
     </script>
   </body>
 </html>
