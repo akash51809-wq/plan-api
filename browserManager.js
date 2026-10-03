@@ -387,7 +387,7 @@ class EzytmSessionPool {
     this.browserLaunchPromise = (async () => {
       try {
         logger.info('Launching Chromium browser instance for EzyTM Multi-Session Pool...');
-        this.sharedBrowser = await chromium.launch({
+        const launchOptions = {
           headless: process.env.PLAYWRIGHT_HEADLESS !== 'false',
           args: [
             '--no-sandbox',
@@ -398,7 +398,32 @@ class EzytmSessionPool {
             '--no-zygote',
             '--disable-gpu'
           ]
-        });
+        };
+
+        try {
+          this.sharedBrowser = await chromium.launch(launchOptions);
+        } catch (launchErr) {
+          const errMsg = launchErr.message || '';
+          if (
+            errMsg.includes("Executable doesn't exist") ||
+            errMsg.includes('playwright install') ||
+            errMsg.includes('chrome-headless-shell') ||
+            errMsg.includes('chromium')
+          ) {
+            logger.warn('Playwright Chromium binary missing from system cache. Running automatic background installation (npx playwright install chromium)...');
+            const { execSync } = require('child_process');
+            try {
+              execSync('npx playwright install chromium', { stdio: 'inherit' });
+              logger.info('Playwright Chromium installed successfully. Retrying browser launch...');
+              this.sharedBrowser = await chromium.launch(launchOptions);
+            } catch (installErr) {
+              logger.error('Failed to auto-install Playwright chromium binary', { error: installErr.message });
+              throw launchErr;
+            }
+          } else {
+            throw launchErr;
+          }
+        }
 
         this.sharedBrowser.on('disconnected', () => {
           logger.warn('Chromium browser process disconnected. Will relaunch on demand.');

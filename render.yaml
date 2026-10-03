@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: planapi-service
+    env: node
+    plan: standard
+    buildCommand: npm install && npx playwright install chromium --with-deps
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PLAYWRIGHT_HEADLESS
+        value: "true"

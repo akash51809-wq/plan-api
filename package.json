@@ -6,7 +6,10 @@
   "scripts": {
     "start": "node server.js",
     "cli": "node main.js",
-    "check": "node --check server.js"
+    "check": "node --check server.js",
+    "build": "npx playwright install chromium --with-deps || npx playwright install chromium || true",
+    "postinstall": "npx playwright install chromium --with-deps || npx playwright install chromium || true",
+    "render-build": "npm install && (npx playwright install chromium --with-deps || npx playwright install chromium)"
   },
   "dependencies": {
     "cors": "^2.8.6",
