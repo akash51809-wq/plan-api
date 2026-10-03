@@ -350,6 +350,20 @@ app.post('/api/admin/settings', requireAdmin, (req, res) => {
   }
 });
 
+// Admin Live WhatsApp Test Dispatcher
+app.post('/api/admin/send-test', requireAdmin, async (req, res, next) => {
+  try {
+    const { mobile, message } = req.body;
+    if (!mobile || !message) {
+      return res.status(400).json({ success: false, message: 'Recipient mobile and message are required.' });
+    }
+    const result = await sendWhatsAppMessage(mobile, message);
+    res.json({ success: true, message: 'WhatsApp message dispatched successfully.', result });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to send WhatsApp message.' });
+  }
+});
+
 // 3. Admin Plans Management
 app.post('/api/admin/plans', requireAdmin, async (req, res, next) => {
   try {
