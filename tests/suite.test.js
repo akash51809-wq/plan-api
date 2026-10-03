@@ -274,10 +274,12 @@ async function runTestSuite() {
   });
 
   // ----------------------------------------------------
-  // TEST 9: EzyTM Multi-Account Pool & Round-Robin Rotation
+  // TEST 9: EzyTM Multi-Account Persistent Session Pool & Rotation
   // ----------------------------------------------------
-  await test('9. EzyTM Multi-Account Pool & Round-Robin Rotation', async () => {
+  await test('9. EzyTM Multi-Account Persistent Session Pool & Rotation', async () => {
     const ezytmAccountService = require('../services/ezytmAccountService');
+    const browserManager = require('../browserManager');
+
     const acc1 = await ezytmAccountService.addAccount({
       username: 'test_node_1',
       password: 'pass1_test',
@@ -292,18 +294,66 @@ async function runTestSuite() {
     assert.ok(acc1.id, 'Account 1 ID created');
     assert.ok(acc2.id, 'Account 2 ID created');
 
-    // Test round robin selection
+    // Verify session pool hot-add auto-detection
+    assert.ok(browserManager.sessions.has(acc1.id), 'Session pool must auto-detect and register acc1');
+    assert.ok(browserManager.sessions.has(acc2.id), 'Session pool must auto-detect and register acc2');
+
+    const s1 = browserManager.sessions.get(acc1.id);
+    const s2 = browserManager.sessions.get(acc2.id);
+    assert.strictEqual(s1.username, 'test_node_1');
+    assert.strictEqual(s2.username, 'test_node_2');
+
+    // Simulate ready state for fast unit testing of concurrency queues
+    s1.sessionState = 'READY';
+    s1.initPromise = null;
+    s1.context = {};
+    s1.page = { isClosed: () => false, url: () => 'http://localhost' };
+
+    s2.sessionState = 'READY';
+    s2.initPromise = null;
+    s2.context = {};
+    s2.page = { isClosed: () => false, url: () => 'http://localhost' };
+
+    // Test per-account independent sequential queue execution with parallel inter-account processing
+    let acc1TaskRunning = false;
+    let acc2TaskRunning = false;
+    let parallelOverlapDetected = false;
+
+    const task1 = s1.executeTask(async () => {
+      acc1TaskRunning = true;
+      await new Promise(r => setTimeout(r, 40));
+      if (acc2TaskRunning) parallelOverlapDetected = true;
+      acc1TaskRunning = false;
+      return 'result1';
+    }, 'test_parallel_1');
+
+    const task2 = s2.executeTask(async () => {
+      acc2TaskRunning = true;
+      await new Promise(r => setTimeout(r, 40));
+      if (acc1TaskRunning) parallelOverlapDetected = true;
+      acc2TaskRunning = false;
+      return 'result2';
+    }, 'test_parallel_2');
+
+    const [r1, r2] = await Promise.all([task1, task2]);
+    assert.strictEqual(r1, 'result1');
+    assert.strictEqual(r2, 'result2');
+    assert.strictEqual(parallelOverlapDetected, true, 'Tasks on different account sessions must execute in parallel');
+
+    // Test round robin account selection
     const pick1 = await ezytmAccountService.getNextActiveAccount();
     const pick2 = await ezytmAccountService.getNextActiveAccount();
     assert.ok(pick1 && pick2, 'Both round-robin picks should return active accounts');
 
-    // Test status toggle
+    // Test status toggle and hot-update
     const toggled = await ezytmAccountService.toggleAccountStatus(acc1.id);
     assert.strictEqual(toggled.status, 'Disabled', 'Account 1 should now be disabled');
 
-    // Clean up test accounts
+    // Clean up test accounts (and verify hot-delete from pool)
     await ezytmAccountService.deleteAccount(acc1.id);
     await ezytmAccountService.deleteAccount(acc2.id);
+    assert.strictEqual(browserManager.sessions.has(acc1.id), false, 'Deleted account 1 must be removed from pool');
+    assert.strictEqual(browserManager.sessions.has(acc2.id), false, 'Deleted account 2 must be removed from pool');
   });
 
   // ----------------------------------------------------

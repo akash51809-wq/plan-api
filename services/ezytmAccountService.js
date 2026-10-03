@@ -7,6 +7,27 @@ const logger = require('./logger');
 const ACCOUNTS_JSON_PATH = path.join(__dirname, '..', 'data', 'ezytm_accounts.json');
 
 let roundRobinIndex = 0;
+const changeListeners = new Set();
+
+function addAccountChangeListener(fn) {
+  if (typeof fn === 'function') {
+    changeListeners.add(fn);
+  }
+}
+
+function removeAccountChangeListener(fn) {
+  changeListeners.delete(fn);
+}
+
+function notifyChange(event, data) {
+  for (const fn of changeListeners) {
+    try {
+      fn(event, data);
+    } catch (err) {
+      logger.error('Error in account change listener', { event, error: err.message });
+    }
+  }
+}
 
 /**
  * Load default fallback accounts if file or table is empty
@@ -115,7 +136,9 @@ async function addAccount({ username, password, label }) {
          RETURNING *`,
         [accountId, cleanUser, cleanPass, cleanLabel]
       );
-      return res.rows[0];
+      const row = res.rows[0];
+      notifyChange('add', row);
+      return row;
     } catch (e) {
       logger.error('Failed to insert ezytm account into DB', { error: e.message });
     }
@@ -138,6 +161,7 @@ async function addAccount({ username, password, label }) {
   };
   accounts.push(newAcc);
   saveAccountsToFile(accounts);
+  notifyChange('add', newAcc);
   return newAcc;
 }
 
@@ -161,7 +185,11 @@ async function updateAccount(id, { username, password, label, status }) {
 
       const sql = `UPDATE ezytm_accounts SET ${updates.join(', ')} WHERE id = $1 RETURNING *`;
       const res = await db.query(sql, values);
-      if (res.rows.length > 0) return res.rows[0];
+      if (res.rows.length > 0) {
+        const row = res.rows[0];
+        notifyChange('update', row);
+        return row;
+      }
     } catch (e) {
       logger.error('Failed to update ezytm account in DB', { error: e.message });
     }
@@ -178,6 +206,7 @@ async function updateAccount(id, { username, password, label, status }) {
   accounts[accIndex].updated_at = new Date().toISOString();
 
   saveAccountsToFile(accounts);
+  notifyChange('update', accounts[accIndex]);
   return accounts[accIndex];
 }
 
@@ -210,6 +239,7 @@ async function deleteAccount(id) {
   const accounts = readAccountsFromFile();
   const filtered = accounts.filter(a => a.id !== id);
   saveAccountsToFile(filtered);
+  notifyChange('delete', id);
   return true;
 }
 
@@ -328,5 +358,7 @@ module.exports = {
   deleteAccount,
   getNextActiveAccount,
   recordAccountSuccess,
-  recordAccountFailure
+  recordAccountFailure,
+  addAccountChangeListener,
+  removeAccountChangeListener
 };

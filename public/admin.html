@@ -974,9 +974,20 @@
             document.getElementById('sidebar-ezytm-count').innerText = activeCount;
 
             tbody.innerHTML = accounts.map((a, idx) => {
-              const statusBadge = a.status === 'Active'
-                ? '<span class="badge bg-label-success"><i class="bx bx-check-circle me-1"></i>Active</span>'
-                : '<span class="badge bg-label-secondary"><i class="bx bx-pause-circle me-1"></i>Disabled</span>';
+              let statusBadge = '';
+              if (a.status !== 'Active') {
+                statusBadge = '<span class="badge bg-label-secondary"><i class="bx bx-pause-circle me-1"></i>Disabled</span>';
+              } else if (a.sessionState === 'READY') {
+                statusBadge = '<span class="badge bg-label-success"><i class="bx bx-check-shield me-1"></i>READY</span>';
+              } else if (a.sessionState === 'BUSY') {
+                statusBadge = '<span class="badge bg-label-info"><i class="bx bx-loader-alt bx-spin me-1"></i>BUSY</span>';
+              } else if (a.sessionState === 'INITIALIZING') {
+                statusBadge = '<span class="badge bg-label-warning"><i class="bx bx-time me-1"></i>LOGGING IN</span>';
+              } else if (a.sessionState === 'ERROR') {
+                statusBadge = '<span class="badge bg-label-danger"><i class="bx bx-error me-1"></i>ERROR</span>';
+              } else {
+                statusBadge = '<span class="badge bg-label-primary"><i class="bx bx-check me-1"></i>Active</span>';
+              }
 
               const lastUsedStr = a.last_used_at ? new Date(a.last_used_at).toLocaleTimeString() : 'Never';
               const lastErrStr = a.last_error ? `<br><small class="text-danger text-truncate d-inline-block" style="max-width: 150px;">${a.last_error}</small>` : '';

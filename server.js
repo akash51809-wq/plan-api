@@ -476,11 +476,33 @@ app.delete('/api/admin/users/:id', requireAdmin, async (req, res, next) => {
 
 // ---------------- EZYTM MULTI-ACCOUNT POOL MANAGEMENT (ADMIN) ---------------- //
 
-// 1. Get All EzyTM Accounts
+// 1. Get All EzyTM Accounts & Live Pool Session States
 app.get('/api/admin/ezytm-accounts', requireAdmin, async (req, res, next) => {
   try {
     const accounts = await ezytmAccountService.getAllAccounts();
-    res.json({ success: true, accounts });
+    const poolStatus = browserManager.getPoolStatus ? browserManager.getPoolStatus() : [];
+    const poolMap = new Map(poolStatus.map(p => [p.id, p]));
+
+    const enrichedAccounts = accounts.map(a => {
+      const live = poolMap.get(a.id);
+      return {
+        ...a,
+        sessionState: live ? live.sessionState : (a.status === 'Active' ? 'UNINITIALIZED' : 'DISABLED'),
+        queueLength: live ? live.queueLength : 0,
+        totalHandled: live ? live.totalHandled : 0,
+        lastError: live && live.lastError ? live.lastError : a.last_error
+      };
+    });
+
+    res.json({
+      success: true,
+      accounts: enrichedAccounts,
+      pool: {
+        totalSessions: poolStatus.length,
+        readySessions: poolStatus.filter(p => p.sessionState === 'READY').length,
+        busySessions: poolStatus.filter(p => p.sessionState === 'BUSY').length
+      }
+    });
   } catch (error) {
     next(error);
   }
