@@ -592,6 +592,16 @@
     <script src="assets/js/main.js"></script>
 
     <script>
+      function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
       function getAdminToken() {
         return localStorage.getItem('planapi_admin_token') || '';
       }
@@ -1062,6 +1072,7 @@
             tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No accounts added yet.</td></tr>';
           }
         } catch (e) {
+          console.error('loadEzytmAccounts error:', e);
           tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger">Error loading EzyTM accounts.</td></tr>';
         }
       }
