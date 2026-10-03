@@ -164,5 +164,18 @@
     ],
     "status": "Active",
     "created_at": "2026-10-03T10:02:58.801Z"
+  },
+  {
+    "id": "CLI_1791022165828_vuwo",
+    "user_id": "USR_1791022164846_wcyw",
+    "client_name": "Website 1 Production",
+    "api_token_hash": "b0ac75723855238fe8e45883d0c6c0615f7c6d1192cfd672467e161882439448",
+    "api_token_preview": "tok_97a...076b",
+    "allowed_ips": [
+      "192.168.1.0/24",
+      "10.0.0.5"
+    ],
+    "status": "Active",
+    "created_at": "2026-10-03T10:09:26.412Z"
   }
 ]

@@ -466,10 +466,9 @@
                     <table class="table table-hover">
                       <thead class="table-light">
                         <tr>
-                          <th>Node / Label</th>
                           <th>Username / Mobile</th>
                           <th>Password</th>
-                          <th>Dispatches</th>
+                          <th>Total Requests</th>
                           <th>Success</th>
                           <th>Failures</th>
                           <th>Status</th>
@@ -478,7 +477,7 @@
                         </tr>
                       </thead>
                       <tbody id="ezytm-accounts-tbody">
-                        <tr><td colspan="9" class="text-center py-4">Loading accounts pool...</td></tr>
+                        <tr><td colspan="8" class="text-center py-4">Loading accounts pool...</td></tr>
                       </tbody>
                     </table>
                   </div>
@@ -490,21 +489,16 @@
                 <div class="modal-dialog modal-dialog-centered">
                   <div class="modal-content border-0 shadow">
                     <div class="modal-header bg-primary text-white">
-                      <h5 class="modal-title text-white"><i class="bx bx-server me-2"></i>Add EzyTM / PlanAPI Account</h5>
+                      <h5 class="modal-title text-white"><i class="bx bx-server me-2"></i>Add EzyTM Account</h5>
                       <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <form id="form-add-ezytm">
                       <div class="modal-body">
                         <div class="mb-3">
-                          <label for="ezytm-input-label" class="form-label fw-bold">Account Label / Node Name</label>
-                          <input type="text" id="ezytm-input-label" class="form-control" placeholder="e.g. Node 2 - Secondary Account" required />
-                          <small class="text-muted">Descriptive name to identify this credential</small>
-                        </div>
-                        <div class="mb-3">
                           <label for="ezytm-input-username" class="form-label fw-bold">EzyTM Username / Mobile No.</label>
                           <div class="input-group">
                             <span class="input-group-text"><i class="bx bx-user"></i></span>
-                            <input type="text" id="ezytm-input-username" class="form-control" placeholder="e.g. 8840457632" required />
+                            <input type="text" id="ezytm-input-username" class="form-control" placeholder="e.g. 9335819686" required />
                           </div>
                         </div>
                         <div class="mb-3">
@@ -518,7 +512,45 @@
                       <div class="modal-footer border-top">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="submit" class="btn btn-primary" id="btn-save-ezytm">
-                          <i class="bx bx-plus me-1"></i> Add Account to Pool
+                          <i class="bx bx-plus me-1"></i> Add Account & Login
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Edit EzyTM Account Modal -->
+              <div class="modal fade" id="modalEditEzytm" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                  <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                      <h5 class="modal-title text-white"><i class="bx bx-edit me-2"></i>Edit EzyTM Credentials</h5>
+                      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <form id="form-edit-ezytm">
+                      <input type="hidden" id="edit-ezytm-id" />
+                      <div class="modal-body">
+                        <div class="mb-3">
+                          <label for="edit-ezytm-username" class="form-label fw-bold">EzyTM Username / Mobile No.</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="bx bx-user"></i></span>
+                            <input type="text" id="edit-ezytm-username" class="form-control" required />
+                          </div>
+                        </div>
+                        <div class="mb-3">
+                          <label for="edit-ezytm-password" class="form-label fw-bold">EzyTM Login Password</label>
+                          <div class="input-group">
+                            <span class="input-group-text"><i class="bx bx-lock-alt"></i></span>
+                            <input type="text" id="edit-ezytm-password" class="form-control" required />
+                          </div>
+                          <small class="text-muted">Updated password will automatically re-authenticate the node.</small>
+                        </div>
+                      </div>
+                      <div class="modal-footer border-top">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="btn-update-ezytm">
+                          <i class="bx bx-check me-1"></i> Save Changes
                         </button>
                       </div>
                     </form>
@@ -990,16 +1022,18 @@
               }
 
               const lastUsedStr = a.last_used_at ? new Date(a.last_used_at).toLocaleTimeString() : 'Never';
-              const lastErrStr = a.last_error ? `<br><small class="text-danger text-truncate d-inline-block" style="max-width: 150px;">${a.last_error}</small>` : '';
+              const lastErrStr = a.last_error ? `<br><small class="text-danger text-truncate d-inline-block" style="max-width: 150px;">${escapeHtml(a.last_error)}</small>` : '';
 
               return `
                 <tr>
+                  <td><strong>${escapeHtml(a.username)}</strong></td>
                   <td>
-                    <strong>${a.label || `Node ${idx + 1}`}</strong><br>
-                    <small class="text-muted"><code>${a.id}</code></small>
+                    <span id="pass-mask-${a.id}">••••••••</span>
+                    <span id="pass-val-${a.id}" class="d-none"><code>${escapeHtml(a.password || '')}</code></span>
+                    <button class="btn btn-xs btn-link text-muted btn-toggle-pass p-0 ms-2" data-id="${a.id}" title="Show / Hide Password">
+                      <i class="bx bx-show" id="pass-icon-${a.id}"></i>
+                    </button>
                   </td>
-                  <td><strong>${a.username}</strong></td>
-                  <td><code class="text-muted">••••••••</code></td>
                   <td><span class="badge bg-label-primary">${(a.total_requests || 0).toLocaleString()}</span></td>
                   <td><span class="badge bg-label-success">${(a.success_requests || 0).toLocaleString()}</span></td>
                   <td><span class="badge bg-label-danger">${(a.failed_requests || 0).toLocaleString()}</span></td>
@@ -1010,10 +1044,13 @@
                       <button class="btn btn-outline-info btn-reconnect-ezytm" data-id="${a.id}" title="Re-authenticate / Reconnect Node">
                         <i class="bx bx-sync"></i>
                       </button>
+                      <button class="btn btn-outline-primary btn-edit-ezytm" data-id="${a.id}" data-username="${encodeURIComponent(a.username)}" data-password="${encodeURIComponent(a.password || '')}" title="Edit Credentials">
+                        <i class="bx bx-edit-alt"></i>
+                      </button>
                       <button class="btn btn-outline-${a.status === 'Active' ? 'warning' : 'success'} btn-toggle-ezytm" data-id="${a.id}" title="${a.status === 'Active' ? 'Disable Node' : 'Enable Node'}">
                         <i class="bx bx-${a.status === 'Active' ? 'pause' : 'play'}"></i>
                       </button>
-                      <button class="btn btn-outline-danger btn-delete-ezytm" data-id="${a.id}" data-label="${encodeURIComponent(a.label || a.username)}" title="Delete Account">
+                      <button class="btn btn-outline-danger btn-delete-ezytm" data-id="${a.id}" data-username="${encodeURIComponent(a.username)}" title="Delete Account">
                         <i class="bx bx-trash"></i>
                       </button>
                     </div>
@@ -1022,16 +1059,32 @@
               `;
             }).join('');
           } else {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-muted">No accounts added yet.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-muted">No accounts added yet.</td></tr>';
           }
         } catch (e) {
-          tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4 text-danger">Error loading EzyTM accounts.</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4 text-danger">Error loading EzyTM accounts.</td></tr>';
+        }
+      }
+
+      function togglePasswordView(id) {
+        const mask = document.getElementById(`pass-mask-${id}`);
+        const val = document.getElementById(`pass-val-${id}`);
+        const icon = document.getElementById(`pass-icon-${id}`);
+        if (!mask || !val || !icon) return;
+
+        if (mask.classList.contains('d-none')) {
+          mask.classList.remove('d-none');
+          val.classList.add('d-none');
+          icon.className = 'bx bx-show';
+        } else {
+          mask.classList.add('d-none');
+          val.classList.remove('d-none');
+          icon.className = 'bx bx-hide';
         }
       }
 
       async function handleAddEzytmAccount(e) {
         if (e && e.preventDefault) e.preventDefault();
-        const label = document.getElementById('ezytm-input-label').value.trim();
         const username = document.getElementById('ezytm-input-username').value.trim();
         const password = document.getElementById('ezytm-input-password').value.trim();
         const btn = document.getElementById('btn-save-ezytm');
@@ -1042,17 +1095,17 @@
         }
 
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Adding...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Adding & Logging in...';
 
         try {
           const res = await adminFetch('/api/admin/ezytm-accounts', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ label, username, password })
+            body: JSON.stringify({ username, password, label: `EzyTM (${username})` })
           });
           const data = await res.json();
           if (data.success) {
-            showToast('EzyTM account added to rotation pool! Initializing login in background...', 'bg-success');
+            showToast('EzyTM account saved permanently & login initiated!', 'bg-success');
             document.getElementById('form-add-ezytm').reset();
             const modalEl = document.getElementById('modalAddEzytm');
             const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -1065,7 +1118,58 @@
           showToast('Network error adding EzyTM account.', 'bg-danger');
         } finally {
           btn.disabled = false;
-          btn.innerHTML = '<i class="bx bx-plus me-1"></i> Add Account to Pool';
+          btn.innerHTML = '<i class="bx bx-plus me-1"></i> Add Account & Login';
+        }
+      }
+
+      function openEditEzytmModal(id, encodedUser, encodedPass) {
+        const username = decodeURIComponent(encodedUser || '');
+        const password = decodeURIComponent(encodedPass || '');
+        document.getElementById('edit-ezytm-id').value = id;
+        document.getElementById('edit-ezytm-username').value = username;
+        document.getElementById('edit-ezytm-password').value = password;
+
+        const modalEl = document.getElementById('modalEditEzytm');
+        const modal = new bootstrap.Modal(modalEl);
+        modal.show();
+      }
+
+      async function handleUpdateEzytmAccount(e) {
+        if (e && e.preventDefault) e.preventDefault();
+        const id = document.getElementById('edit-ezytm-id').value;
+        const username = document.getElementById('edit-ezytm-username').value.trim();
+        const password = document.getElementById('edit-ezytm-password').value.trim();
+        const btn = document.getElementById('btn-update-ezytm');
+
+        if (!username || !password) {
+          showToast('Username and password are required.', 'bg-danger');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
+
+        try {
+          const res = await adminFetch(`/api/admin/ezytm-accounts/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, label: `EzyTM (${username})` })
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('EzyTM credentials updated and re-authenticating!', 'bg-success');
+            const modalEl = document.getElementById('modalEditEzytm');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+            loadEzytmAccounts();
+          } else {
+            showToast(data.message || 'Failed to update credentials.', 'bg-danger');
+          }
+        } catch (err) {
+          showToast('Network error updating EzyTM account.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-check me-1"></i> Save Changes';
         }
       }
 
@@ -1110,15 +1214,15 @@
         }
       }
 
-      async function deleteEzytmAccount(id, encodedLabel) {
-        const label = decodeURIComponent(encodedLabel || 'this account');
-        if (!confirm(`Are you sure you want to remove "${label}" from the rotation pool?`)) return;
+      async function deleteEzytmAccount(id, encodedUser) {
+        const username = decodeURIComponent(encodedUser || 'this account');
+        if (!confirm(`Are you sure you want to delete EzyTM account "${username}"?`)) return;
 
         try {
           const res = await adminFetch(`/api/admin/ezytm-accounts/${id}`, { method: 'DELETE' });
           const data = await res.json();
           if (data.success) {
-            showToast('Account removed from pool.', 'bg-success');
+            showToast('Account removed from database.', 'bg-success');
             loadEzytmAccounts();
           } else {
             showToast(data.message || 'Delete failed.', 'bg-danger');
@@ -1164,6 +1268,9 @@
 
         const formAddEzytm = document.getElementById('form-add-ezytm');
         if (formAddEzytm) formAddEzytm.addEventListener('submit', handleAddEzytmAccount);
+
+        const formEditEzytm = document.getElementById('form-edit-ezytm');
+        if (formEditEzytm) formEditEzytm.addEventListener('submit', handleUpdateEzytmAccount);
       });
 
       // Delegated clicks for sidebar navigation and table actions
@@ -1209,6 +1316,24 @@
           return;
         }
 
+        const passToggleBtn = e.target.closest('.btn-toggle-pass');
+        if (passToggleBtn) {
+          e.preventDefault();
+          const id = passToggleBtn.getAttribute('data-id');
+          if (id) togglePasswordView(id);
+          return;
+        }
+
+        const editEzytmBtn = e.target.closest('.btn-edit-ezytm');
+        if (editEzytmBtn) {
+          e.preventDefault();
+          const id = editEzytmBtn.getAttribute('data-id');
+          const user = editEzytmBtn.getAttribute('data-username');
+          const pass = editEzytmBtn.getAttribute('data-password');
+          if (id) openEditEzytmModal(id, user, pass);
+          return;
+        }
+
         const reconnectEzytmBtn = e.target.closest('.btn-reconnect-ezytm');
         if (reconnectEzytmBtn) {
           e.preventDefault();
@@ -1229,8 +1354,8 @@
         if (deleteEzytmBtn) {
           e.preventDefault();
           const id = deleteEzytmBtn.getAttribute('data-id');
-          const label = deleteEzytmBtn.getAttribute('data-label');
-          if (id) deleteEzytmAccount(id, label);
+          const user = deleteEzytmBtn.getAttribute('data-username');
+          if (id) deleteEzytmAccount(id, user);
           return;
         }
       });

@@ -522,7 +522,18 @@ app.post('/api/admin/ezytm-accounts', requireAdmin, async (req, res, next) => {
   }
 });
 
-// 3. Toggle EzyTM Account Active Status
+// 3. Edit EzyTM Account Credentials
+app.put('/api/admin/ezytm-accounts/:id', requireAdmin, async (req, res, next) => {
+  try {
+    const { username, password, label, status } = req.body;
+    const updated = await ezytmAccountService.updateAccount(req.params.id, { username, password, label, status });
+    res.json({ success: true, message: 'EzyTM Account updated successfully!', account: updated });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+// 4. Toggle EzyTM Account Active Status
 app.put('/api/admin/ezytm-accounts/:id/toggle', requireAdmin, async (req, res, next) => {
   try {
     const updated = await ezytmAccountService.toggleAccountStatus(req.params.id);

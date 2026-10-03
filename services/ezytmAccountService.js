@@ -85,21 +85,50 @@ function saveAccountsToFile(accounts) {
 }
 
 /**
- * Get all accounts (Admin view)
+ * Get all accounts (Admin view) with dual-sync guarantee
  */
 async function getAllAccounts() {
+  let accountsFromDb = null;
   if (db.isConnected) {
     try {
       const res = await db.query('SELECT * FROM ezytm_accounts ORDER BY created_at ASC');
-      if (res.rows.length > 0) {
-        return res.rows;
+      if (res && Array.isArray(res.rows) && res.rows.length > 0) {
+        accountsFromDb = res.rows;
+        // Keep local file backup synced with DB
+        saveAccountsToFile(accountsFromDb);
+        return accountsFromDb;
       }
     } catch (e) {
       logger.warn('Database query for ezytm_accounts failed, using local store', { error: e.message });
     }
   }
 
-  return readAccountsFromFile();
+  const fileAccounts = readAccountsFromFile();
+
+  // If DB is connected but empty, seed DB from file
+  if (db.isConnected && (!accountsFromDb || accountsFromDb.length === 0)) {
+    for (const acc of fileAccounts) {
+      try {
+        await db.query(
+          `INSERT INTO ezytm_accounts (id, username, password, label, status, total_requests, success_requests, failed_requests, created_at, updated_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+           ON CONFLICT (id) DO NOTHING`,
+          [
+            acc.id || ('EZY_' + Date.now()),
+            acc.username,
+            acc.password,
+            acc.label || `EzyTM (${acc.username})`,
+            acc.status || 'Active',
+            acc.total_requests || 0,
+            acc.success_requests || 0,
+            acc.failed_requests || 0
+          ]
+        );
+      } catch (err) {}
+    }
+  }
+
+  return fileAccounts;
 }
 
 /**
@@ -109,14 +138,13 @@ async function getActiveAccounts() {
   const all = await getAllAccounts();
   const active = all.filter(a => a.status === 'Active');
   if (active.length === 0) {
-    // If all are disabled, return at least one or default seed
     return all.length > 0 ? [all[0]] : getDefaultSeedAccounts();
   }
   return active;
 }
 
 /**
- * Add a new EzyTM Account
+ * Add a new EzyTM Account (Persists to both DB and File)
  */
 async function addAccount({ username, password, label }) {
   if (!username || !password) {
@@ -125,27 +153,10 @@ async function addAccount({ username, password, label }) {
 
   const cleanUser = String(username).trim();
   const cleanPass = String(password).trim();
-  const cleanLabel = String(label || `EzyTM Node (${cleanUser})`).trim();
+  const cleanLabel = String(label || `EzyTM (${cleanUser})`).trim();
   const accountId = 'EZY_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
 
-  if (db.isConnected) {
-    try {
-      const res = await db.query(
-        `INSERT INTO ezytm_accounts (id, username, password, label, status, total_requests, success_requests, failed_requests, created_at, updated_at)
-         VALUES ($1, $2, $3, $4, 'Active', 0, 0, 0, NOW(), NOW())
-         RETURNING *`,
-        [accountId, cleanUser, cleanPass, cleanLabel]
-      );
-      const row = res.rows[0];
-      notifyChange('add', row);
-      return row;
-    } catch (e) {
-      logger.error('Failed to insert ezytm account into DB', { error: e.message });
-    }
-  }
-
-  const accounts = readAccountsFromFile();
-  const newAcc = {
+  let createdAccount = {
     id: accountId,
     username: cleanUser,
     password: cleanPass,
@@ -159,17 +170,44 @@ async function addAccount({ username, password, label }) {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
-  accounts.push(newAcc);
+
+  if (db.isConnected) {
+    try {
+      const res = await db.query(
+        `INSERT INTO ezytm_accounts (id, username, password, label, status, total_requests, success_requests, failed_requests, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, 'Active', 0, 0, 0, NOW(), NOW())
+         RETURNING *`,
+        [accountId, cleanUser, cleanPass, cleanLabel]
+      );
+      if (res && res.rows && res.rows[0]) {
+        createdAccount = res.rows[0];
+      }
+    } catch (e) {
+      logger.error('Failed to insert ezytm account into DB', { error: e.message });
+    }
+  }
+
+  // Always sync to local file store
+  const accounts = readAccountsFromFile();
+  const existingIdx = accounts.findIndex(a => a.id === createdAccount.id || a.username === cleanUser);
+  if (existingIdx !== -1) {
+    accounts[existingIdx] = createdAccount;
+  } else {
+    accounts.push(createdAccount);
+  }
   saveAccountsToFile(accounts);
-  notifyChange('add', newAcc);
-  return newAcc;
+
+  notifyChange('add', createdAccount);
+  return createdAccount;
 }
 
 /**
- * Update an existing account
+ * Update an existing account (Persists to both DB and File)
  */
 async function updateAccount(id, { username, password, label, status }) {
   if (!id) throw new Error('Account ID is required.');
+
+  let updatedRow = null;
 
   if (db.isConnected) {
     try {
@@ -185,29 +223,32 @@ async function updateAccount(id, { username, password, label, status }) {
 
       const sql = `UPDATE ezytm_accounts SET ${updates.join(', ')} WHERE id = $1 RETURNING *`;
       const res = await db.query(sql, values);
-      if (res.rows.length > 0) {
-        const row = res.rows[0];
-        notifyChange('update', row);
-        return row;
+      if (res && res.rows && res.rows.length > 0) {
+        updatedRow = res.rows[0];
       }
     } catch (e) {
       logger.error('Failed to update ezytm account in DB', { error: e.message });
     }
   }
 
+  // Always sync to local file store
   const accounts = readAccountsFromFile();
   const accIndex = accounts.findIndex(a => a.id === id);
-  if (accIndex === -1) throw new Error('Account not found.');
+  if (accIndex !== -1) {
+    if (username) accounts[accIndex].username = String(username).trim();
+    if (password) accounts[accIndex].password = String(password).trim();
+    if (label) accounts[accIndex].label = String(label).trim();
+    if (status) accounts[accIndex].status = status === 'Active' ? 'Active' : 'Disabled';
+    accounts[accIndex].updated_at = new Date().toISOString();
+    saveAccountsToFile(accounts);
+    if (!updatedRow) updatedRow = accounts[accIndex];
+  }
 
-  if (username) accounts[accIndex].username = String(username).trim();
-  if (password) accounts[accIndex].password = String(password).trim();
-  if (label) accounts[accIndex].label = String(label).trim();
-  if (status) accounts[accIndex].status = status === 'Active' ? 'Active' : 'Disabled';
-  accounts[accIndex].updated_at = new Date().toISOString();
-
-  saveAccountsToFile(accounts);
-  notifyChange('update', accounts[accIndex]);
-  return accounts[accIndex];
+  if (updatedRow) {
+    notifyChange('update', updatedRow);
+    return updatedRow;
+  }
+  throw new Error('Account not found.');
 }
 
 /**
@@ -223,7 +264,7 @@ async function toggleAccountStatus(id) {
 }
 
 /**
- * Delete an account
+ * Delete an account (Deletes from both DB and File)
  */
 async function deleteAccount(id) {
   if (!id) throw new Error('Account ID is required.');
