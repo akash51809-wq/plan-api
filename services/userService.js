@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const db = require('./db');
 
 const USERS_FILE = path.join(__dirname, '..', 'data', 'users.json');
 
@@ -74,6 +75,23 @@ function saveUser(user) {
     users.push(savedUser);
   }
   fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+
+  // Async sync to PostgreSQL if connected
+  if (db.isConnected) {
+    db.query(
+      `INSERT INTO users (name, mobile, api_token, total_hits, used_hits, remaining_hits, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, NOW())
+       ON CONFLICT (mobile) DO UPDATE SET
+       name = EXCLUDED.name,
+       api_token = EXCLUDED.api_token,
+       total_hits = EXCLUDED.total_hits,
+       used_hits = EXCLUDED.used_hits,
+       remaining_hits = EXCLUDED.remaining_hits,
+       updated_at = NOW()`,
+      [savedUser.name, savedUser.mobile, savedUser.apiToken, savedUser.totalHits, savedUser.usedHits, savedUser.remainingHits]
+    ).catch(e => console.warn('[PostgreSQL user sync notice]:', e.message));
+  }
+
   return savedUser;
 }
 
@@ -133,4 +151,3 @@ module.exports = {
   generateOTP,
   verifyOTP
 };
-

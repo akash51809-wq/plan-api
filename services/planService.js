@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const { getUsers, saveUser, findUserByMobile } = require('./userService');
+const db = require('./db');
 
 const PLANS_FILE = path.join(__dirname, '..', 'data', 'plans.json');
 const PAYMENTS_FILE = path.join(__dirname, '..', 'data', 'payments.json');
@@ -56,9 +57,18 @@ function savePlan({ amount, hits }) {
   };
 
   plans.push(newPlan);
-  // Sort by amount ascending
   plans.sort((a, b) => a.amount - b.amount);
   fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2));
+
+  // Async sync to PostgreSQL if connected
+  if (db.isConnected) {
+    db.query(
+      `INSERT INTO plans (name, price, hits, validity_days, features)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [`₹${amt} Plan`, amt, hts, 30, JSON.stringify([`${hts.toLocaleString()} Hits`, 'Full API Access', 'High Speed Routing'])]
+    ).catch(e => console.warn('[PostgreSQL plan sync notice]:', e.message));
+  }
+
   return newPlan;
 }
 
@@ -122,6 +132,16 @@ function createPaymentRequest({ userMobile, userName, planId, amount, hits, utr,
 
   payments.unshift(newPayment);
   fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
+
+  // Async sync to PostgreSQL if connected
+  if (db.isConnected) {
+    db.query(
+      `INSERT INTO payments (user_mobile, user_name, plan_id, plan_name, amount, utr_number, screenshot, status)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
+      [newPayment.userMobile, newPayment.userName, null, `Plan ₹${newPayment.amount}`, newPayment.amount, newPayment.utr, newPayment.paymentProof, newPayment.status]
+    ).catch(e => console.warn('[PostgreSQL payment sync notice]:', e.message));
+  }
+
   return newPayment;
 }
 
@@ -162,6 +182,15 @@ function approvePayment(paymentId) {
   payments[paymentIndex] = payment;
 
   fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
+
+  // Async sync to PostgreSQL if connected
+  if (db.isConnected) {
+    db.query(
+      `UPDATE payments SET status = 'Approved', updated_at = NOW() WHERE utr_number = $1`,
+      [payment.utr]
+    ).catch(e => console.warn('[PostgreSQL approve payment notice]:', e.message));
+  }
+
   return { payment, user: updatedUser };
 }
 
@@ -180,6 +209,15 @@ function rejectPayment(paymentId, reason = 'Invalid payment / UTR verification f
 
   payments[paymentIndex] = payment;
   fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
+
+  // Async sync to PostgreSQL if connected
+  if (db.isConnected) {
+    db.query(
+      `UPDATE payments SET status = 'Rejected', updated_at = NOW() WHERE utr_number = $1`,
+      [payment.utr]
+    ).catch(e => console.warn('[PostgreSQL reject payment notice]:', e.message));
+  }
+
   return payment;
 }
 
@@ -193,7 +231,6 @@ function deductUserHit(mobile) {
     return { allowed: false, remainingHits: 0, message: 'User not found' };
   }
 
-  // If remainingHits is undefined, give 50 initial trial hits
   let currentHits = typeof user.remainingHits === 'number' ? user.remainingHits : 50;
 
   if (currentHits <= 0) {

@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const db = require('./db');
 
 const SETTINGS_FILE = path.join(__dirname, '..', 'data', 'settings.json');
 
@@ -35,6 +36,16 @@ function saveSettings(newSettings) {
     const current = getSettings();
     const merged = { ...current, ...newSettings };
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify(merged, null, 2));
+
+    // Async sync to PostgreSQL if connected
+    if (db.isConnected) {
+      db.query(
+        `INSERT INTO settings (key, value, updated_at) VALUES ($1, $2, NOW())
+         ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value, updated_at = NOW()`,
+        ['app_settings', JSON.stringify(merged)]
+      ).catch(e => console.warn('[PostgreSQL settings sync notice]:', e.message));
+    }
+
     return merged;
   } catch (err) {
     console.error('Error saving settings:', err);

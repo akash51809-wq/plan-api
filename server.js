@@ -9,6 +9,7 @@ const { fetchOperatorPlans, OPERATORS_LIST, CIRCLES_LIST } = require('./services
 const { fetchRofferDetails, resolveRofferOperator } = require('./services/rofferService');
 const { fetchLastRechargeDetails } = require('./services/rechargeCheckService');
 const { fetchDthInfoDetails, resolveDthOpCode, DTH_OPERATOR_MAP } = require('./services/dthInfoService');
+const { initDatabase } = require('./services/db');
 const browserManager = require('./browserManager');
 
 const app = express();
@@ -910,7 +911,8 @@ app.post(['/api/lookup/operator', '/api/lookup/full'], async (req, res) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+  await initDatabase();
   console.log(`\n======================================================`);
   console.log(`🚀 PlanAPI Web Portal is running live!`);
   console.log(`🔗 URL: http://localhost:${PORT}`);
@@ -919,6 +921,7 @@ app.listen(PORT, () => {
   console.log(`📡 API Endpoint: http://localhost:${PORT}/api/Mobile/OperatorFetchNew`);
   console.log(`⚡ Speed: Micro-Second In-Memory Series Engine Active!`);
   console.log(`💳 Plans & Hit Limits Engine Active!`);
+  console.log(`🗄️ PostgreSQL Database Engine Ready!`);
   console.log(`======================================================\n`);
 });
 
