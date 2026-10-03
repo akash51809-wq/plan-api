@@ -255,5 +255,18 @@
     ],
     "status": "Active",
     "created_at": "2026-10-03T11:29:36.520Z"
+  },
+  {
+    "id": "CLI_1791030708546_dljx",
+    "user_id": "USR_1791030708543_zcgg",
+    "client_name": "Website 1 Production",
+    "api_token_hash": "91f99fdcc4cab748bb08caa26834860c5c42a4233a06fcb9ee495d0fc3e41b7a",
+    "api_token_preview": "tok_b75...ca50",
+    "allowed_ips": [
+      "192.168.1.0/24",
+      "10.0.0.5"
+    ],
+    "status": "Active",
+    "created_at": "2026-10-03T12:31:48.548Z"
   }
 ]
