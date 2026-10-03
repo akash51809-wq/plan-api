@@ -82,8 +82,8 @@ async function savePlan({ id, name, amount, hits, validityDays = 30, features = 
     }
   }
 
-  const existingPlans = await getPlans(true);
-  const duplicate = existingPlans.find(p => 
+  const plans = await getPlans(true);
+  const duplicate = plans.find(p => 
     p.is_active !== false && 
     (p.id !== id) && 
     Number(p.amount) === amt && 
@@ -95,6 +95,28 @@ async function savePlan({ id, name, amount, hits, validityDays = 30, features = 
 
   const planId = id || ('PLAN_' + amt + '_' + Date.now());
   const planName = name || `₹${amt} Plan`;
+
+  const newPlan = {
+    id: planId,
+    name: planName,
+    amount: amt,
+    hits: hts,
+    validityDays: Number(validityDays) || 30,
+    features: Array.isArray(features) ? features : (typeof features === 'string' ? JSON.parse(features || '[]') : []),
+    isActive: true,
+    is_active: true,
+    createdAt: new Date().toISOString()
+  };
+
+  const existingIndex = plans.findIndex(p => p.id === planId);
+  if (existingIndex >= 0) {
+    plans[existingIndex] = newPlan;
+  } else {
+    plans.push(newPlan);
+  }
+  plans.sort((a, b) => a.amount - b.amount);
+  ensureDir(PLANS_FILE);
+  fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2));
 
   if (db.isConnected) {
     const res = await db.query(
@@ -109,30 +131,12 @@ async function savePlan({ id, name, amount, hits, validityDays = 30, features = 
          is_active = TRUE,
          updated_at = NOW()
        RETURNING id, name, amount, hits, validity_days as "validityDays", features, is_active as "isActive"`,
-      [planId, planName, amt, hts, Number(validityDays) || 30, JSON.stringify(features)]
+      [planId, planName, amt, hts, Number(validityDays) || 30, JSON.stringify(newPlan.features)]
     );
     return res.rows[0];
-  } else {
-    const existingIndex = plans.findIndex(p => p.id === planId);
-    const newPlan = {
-      id: planId,
-      name: planName,
-      amount: amt,
-      hits: hts,
-      validity_days: Number(validityDays) || 30,
-      features,
-      is_active: true,
-      createdAt: new Date().toISOString()
-    };
-    if (existingIndex >= 0) {
-      plans[existingIndex] = newPlan;
-    } else {
-      plans.push(newPlan);
-    }
-    plans.sort((a, b) => a.amount - b.amount);
-    fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2));
-    return newPlan;
   }
+
+  return newPlan;
 }
 
 async function deletePlan(id) {

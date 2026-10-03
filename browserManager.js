@@ -4,6 +4,7 @@ const path = require('path');
 const config = require('./config');
 const logger = require('./services/logger');
 const ezytmAccountService = require('./services/ezytmAccountService');
+const operatorCacheService = require('./services/operatorCacheService');
 
 const CACHE_FILE = path.join(__dirname, 'data', 'operator_cache.json');
 
@@ -606,10 +607,10 @@ class EzytmSessionPool {
       throw new Error('Valid 10-digit mobile number required.');
     }
 
-    // Check fast cache (<0.001 ms)
+    // Check 2-Midnight persistent cache (<0.001 ms)
     const t0 = performance.now();
-    if (this.cache.has(cleanMobile)) {
-      const cached = this.cache.get(cleanMobile);
+    const cached = await operatorCacheService.getOperator(cleanMobile);
+    if (cached) {
       const elapsedMs = (performance.now() - t0).toFixed(3);
       return {
         ...cached,
@@ -646,8 +647,7 @@ class EzytmSessionPool {
       };
 
       if (result.operator !== 'Unknown') {
-        this.cache.set(cleanMobile, result);
-        savePersistentCache(this.cache);
+        await operatorCacheService.setOperator(cleanMobile, result);
       }
 
       return result;

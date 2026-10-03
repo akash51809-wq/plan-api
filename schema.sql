@@ -115,6 +115,18 @@ CREATE TABLE IF NOT EXISTS operator_cache (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- 8b. Persistent Full-Number Operator Fetch Cache (2-Midnight Expiry)
+CREATE TABLE IF NOT EXISTS operator_fetch_cache (
+    mobile VARCHAR(20) PRIMARY KEY,
+    operator VARCHAR(100) NOT NULL,
+    circle VARCHAR(100) NOT NULL,
+    opcode VARCHAR(20),
+    circle_code VARCHAR(20),
+    cached_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_operator_fetch_cache_expires ON operator_fetch_cache(expires_at);
+
 -- 9. Mobile Plans Cache
 CREATE TABLE IF NOT EXISTS mobile_plans_cache (
     cache_key VARCHAR(100) PRIMARY KEY, -- e.g. "airtel_UP East"

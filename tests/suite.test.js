@@ -412,6 +412,69 @@ async function runTestSuite() {
     await userService.deleteUser('9999900005');
     await userService.deleteUser('9999900006');
   });
+  // ----------------------------------------------------
+  await test('12. New Plan Creation & Retrieval Integrity', async () => {
+    const testAmount = 350;
+    const testHits = 88000;
+    const createdPlan = await planService.savePlan({
+      amount: testAmount,
+      hits: testHits,
+      name: 'Special ₹350 Test Plan'
+    });
+
+    assert.ok(createdPlan, 'Plan object must be returned');
+    assert.strictEqual(Number(createdPlan.amount), testAmount);
+    assert.strictEqual(Number(createdPlan.hits), testHits);
+
+    const allPlans = await planService.getPlans();
+    const found = allPlans.find(p => Number(p.amount) === testAmount && Number(p.hits) === testHits);
+    assert.ok(found, 'Created plan must exist in allPlans list');
+
+    // Clean up created plan
+    await planService.deletePlan(createdPlan.id);
+  });
+
+  // ----------------------------------------------------
+  // TEST 13: 2-Midnight Operator Fetch Cache & Multi-User Instant Lookup
+  // ----------------------------------------------------
+  await test('13. 2-Midnight Operator Fetch Cache & Multi-User Instant Lookup', async () => {
+    const operatorCacheService = require('../services/operatorCacheService');
+    const testNum = '9876543210';
+
+    // 1. Calculate and verify 2-midnight expiry
+    const now = new Date();
+    const expiryIso = operatorCacheService.getNext2MidnightExpiry(now);
+    const expiryDate = new Date(expiryIso);
+
+    // Verify expiry is in the future and set at 00:00:00 (midnight)
+    assert.ok(expiryDate.getTime() > now.getTime(), 'Expiry must be in the future');
+    assert.strictEqual(expiryDate.getHours(), 0, 'Expiry hour must be 00 (midnight)');
+    assert.strictEqual(expiryDate.getMinutes(), 0, 'Expiry minute must be 00');
+
+    // 2. Set test operator cache
+    await operatorCacheService.setOperator(testNum, {
+      operator: 'AIRTEL',
+      circle: 'UP East',
+      opcode: '2',
+      circleCode: '54'
+    });
+
+    // 3. User 1 looks up number -> Instant cache hit
+    const t0 = performance.now();
+    const cached1 = await operatorCacheService.getOperator(testNum);
+    const elapsed1 = performance.now() - t0;
+
+    assert.ok(cached1, 'Cache record must be found');
+    assert.strictEqual(cached1.operator, 'AIRTEL');
+    assert.strictEqual(cached1.circle, 'UP East');
+    assert.strictEqual(cached1.isCacheHit, true);
+    assert.ok(elapsed1 < 50, `Lookup must be instant (<50ms), took ${elapsed1.toFixed(3)}ms`);
+
+    // 4. User 2 looks up the same number -> Also instant cache hit
+    const cached2 = await operatorCacheService.getOperator(testNum);
+    assert.ok(cached2, 'User 2 must receive same cached operator');
+    assert.strictEqual(cached2.operator, 'AIRTEL');
+  });
 
   // Clean test dummy users and payments created during test execution
   await userService.deleteUser('9999900001');

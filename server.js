@@ -19,6 +19,7 @@ const { fetchLastRechargeDetails } = require('./services/rechargeCheckService');
 const { fetchDthInfoDetails } = require('./services/dthInfoService');
 const { getClientIp } = require('./services/ipService');
 const ezytmAccountService = require('./services/ezytmAccountService');
+const operatorCacheService = require('./services/operatorCacheService');
 const browserManager = require('./browserManager');
 
 const { requestIdMiddleware, requireAdmin, requireUser } = require('./middleware/auth');
@@ -643,12 +644,13 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], apiRat
     let opCode = null;
     let circleCode = null;
 
-    if (browserManager.cache && browserManager.cache.has(cleanMobile)) {
-      const cached = browserManager.cache.get(cleanMobile);
-      operator = cached.operator;
-      circle = cached.circle;
-      opCode = getOpCode(operator);
-      circleCode = getCircleCode(circle);
+    // 1. Check 2-Midnight persistent cache across all users
+    const cachedRecord = await operatorCacheService.getOperator(cleanMobile);
+    if (cachedRecord) {
+      operator = cachedRecord.operator;
+      circle = cachedRecord.circle;
+      opCode = cachedRecord.opcode || getOpCode(operator);
+      circleCode = cachedRecord.circleCode || getCircleCode(circle);
     } else {
       try {
         const liveRes = await browserManager.lookupOperator(cleanMobile);
@@ -657,6 +659,12 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], apiRat
           circle = liveRes.circle;
           opCode = getOpCode(operator);
           circleCode = getCircleCode(circle);
+          await operatorCacheService.setOperator(cleanMobile, {
+            operator,
+            circle,
+            opcode: opCode,
+            circleCode
+          });
         }
       } catch (liveErr) {
         logger.warn('Live operator scrape notice', { mobile: cleanMobile, error: liveErr.message });
@@ -669,14 +677,12 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], apiRat
         opCode = resolved.opCode;
         circleCode = resolved.circleCode;
 
-        if (browserManager.cache) {
-          browserManager.cache.set(cleanMobile, {
-            mobile: cleanMobile,
-            operator,
-            circle,
-            cached: true
-          });
-        }
+        await operatorCacheService.setOperator(cleanMobile, {
+          operator,
+          circle,
+          opcode: opCode,
+          circleCode
+        });
       }
     }
 
@@ -1056,15 +1062,15 @@ app.post(['/api/lookup/operator', '/api/lookup/full'], async (req, res, next) =>
     }
 
     const cleanMobile = String(mobile).trim().replace(/\D/g, '').slice(-10);
-    let result;
 
-    if (browserManager.cache && browserManager.cache.has(cleanMobile)) {
-      result = browserManager.cache.get(cleanMobile);
-    } else {
+    let result = await operatorCacheService.getOperator(cleanMobile);
+
+    if (!result) {
       try {
         const liveRes = await browserManager.lookupOperator(cleanMobile);
         if (liveRes && liveRes.operator && liveRes.operator !== 'Unknown') {
           result = liveRes;
+          await operatorCacheService.setOperator(cleanMobile, result);
         }
       } catch (liveErr) {
         logger.warn(`Live scrape notice for ${cleanMobile}: ${liveErr.message}`);
@@ -1078,9 +1084,7 @@ app.post(['/api/lookup/operator', '/api/lookup/full'], async (req, res, next) =>
           circle: resolved.circle,
           cached: true
         };
-        if (browserManager.cache) {
-          browserManager.cache.set(cleanMobile, result);
-        }
+        await operatorCacheService.setOperator(cleanMobile, result);
       }
     }
 
@@ -1169,6 +1173,7 @@ if (require.main === module) {
   server = app.listen(PORT, HOST, async () => {
     try {
       await initDatabase();
+      await operatorCacheService.initOperatorCache();
     } catch (dbErr) {
       logger.error('Database initialization fatal error', { error: dbErr.message });
     }

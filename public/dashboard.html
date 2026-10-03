@@ -1421,10 +1421,10 @@
       }
 
       // User Authentication Guard
-      document.addEventListener('DOMContentLoaded', async () => {
+      document.addEventListener('DOMContentLoaded', () => {
         const stored = localStorage.getItem('planapi_user');
         if (!stored) {
-          window.location.href = 'login.html';
+          window.location.replace('login.html');
           return;
         }
 
@@ -1432,9 +1432,12 @@
           currentUser = JSON.parse(stored);
           if (!currentUser || !currentUser.mobile) {
             localStorage.removeItem('planapi_user');
-            window.location.href = 'login.html';
+            window.location.replace('login.html');
             return;
           }
+
+          // Instant synchronous UI render (<1ms)
+          renderUserProfileUI(currentUser);
 
           const modalEl = document.getElementById('modalPaymentRequest');
           if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
@@ -1442,9 +1445,12 @@
           }
 
           initCodeModals();
-          await refreshUserProfile();
+
+          // Non-blocking parallel background sync
+          refreshUserProfile();
           loadUserPlans();
           loadUserPaymentHistory();
+          if (typeof loadApiClients === 'function') loadApiClients();
 
         } catch(e) {
           console.error("Dashboard initialization error:", e);
@@ -1536,22 +1542,13 @@
         renderCircleCodesTable(filtered);
       }
 
-      async function refreshUserProfile() {
-        if (!currentUser || !currentUser.mobile) return;
-        try {
-          const refreshRes = await fetch(`/api/user/profile?mobile=${currentUser.mobile}`);
-          const refreshData = await refreshRes.json();
-          if (refreshData.success && refreshData.user) {
-            currentUser = refreshData.user;
-            localStorage.setItem('planapi_user', JSON.stringify(currentUser));
-          }
-        } catch(err) {}
-
-        const name = currentUser.name || 'User';
+      function renderUserProfileUI(user) {
+        if (!user) return;
+        const name = user.name || 'User';
         const initial = name.charAt(0).toUpperCase();
-        const userMobile = currentUser.mobile || '';
-        const userToken = currentUser.apiToken || '';
-        const hitsLeft = (currentUser.remainingHits !== undefined ? currentUser.remainingHits : 100).toLocaleString();
+        const userMobile = user.mobile || '';
+        const userToken = user.apiToken || '';
+        const hitsLeft = (user.remainingHits !== undefined ? user.remainingHits : 100).toLocaleString();
 
         setText('welcome-user-name', name);
         setText('nav-avatar-char', initial);
@@ -1581,6 +1578,19 @@
         setValue('api-planfetch-url', `${origin}/api/Mobile/Operatorplan?apimember_id=${userMobile}&api_password=${userToken}&cricle=70&operatorcode=2`);
         setValue('api-roffer-url', `${origin}/api/Mobile/RofferCheck?apimember_id=${userMobile}&api_password=${userToken}&operator_code=2&mobile_no=12XXXXXXX0`);
         setValue('api-lastrecharge-url', `${origin}/api/Mobile/DthInfoWithLastRechargeDate?apimember_id=${userMobile}&api_password=${userToken}&mobile_no=12XXXXXXX0&Opcode=2`);
+      }
+
+      async function refreshUserProfile() {
+        if (!currentUser || !currentUser.mobile) return;
+        try {
+          const refreshRes = await fetch(`/api/user/profile?mobile=${currentUser.mobile}`);
+          const refreshData = await refreshRes.json();
+          if (refreshData.success && refreshData.user) {
+            currentUser = refreshData.user;
+            localStorage.setItem('planapi_user', JSON.stringify(currentUser));
+            renderUserProfileUI(currentUser);
+          }
+        } catch(err) {}
       }
 
       function showToast(msg, bg = 'bg-primary') {

@@ -190,9 +190,7 @@
           if (data.success) {
             localStorage.setItem('planapi_user', JSON.stringify(data.user));
             showToast('Login successful! Redirecting...', 'bg-success');
-            setTimeout(() => {
-              window.location.href = 'dashboard.html';
-            }, 1000);
+            window.location.replace('dashboard.html');
           } else {
             showToast(data.message || 'Invalid OTP.', 'bg-danger');
           }

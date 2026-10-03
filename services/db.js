@@ -182,6 +182,20 @@ async function autoMigrateSeedData(client) {
       }
     }
 
+    // 5. Operator Fetch Cache Table Migration
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS operator_fetch_cache (
+        mobile VARCHAR(20) PRIMARY KEY,
+        operator VARCHAR(100) NOT NULL,
+        circle VARCHAR(100) NOT NULL,
+        opcode VARCHAR(20),
+        circle_code VARCHAR(20),
+        cached_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+        expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+      );
+      CREATE INDEX IF NOT EXISTS idx_operator_fetch_cache_expires ON operator_fetch_cache(expires_at);
+    `);
+
   } catch (err) {
     logger.warn('Seed migration notice', { error: err.message });
   }
@@ -246,5 +260,6 @@ module.exports = {
   transaction,
   initDatabase,
   closePool,
+  isDbConnected: () => isConnected,
   get isConnected() { return isConnected; }
 };
