@@ -784,8 +784,8 @@
             tbody.innerHTML = data.plans.map((p, idx) => `
               <tr>
                 <td class="fw-bold">${idx + 1}</td>
-                <td><span class="fs-5 fw-bold text-dark">₹${p.amount}</span></td>
-                <td><span class="badge bg-label-primary fs-6 px-3">${p.hits.toLocaleString()}</span></td>
+                <td><span class="fs-5 fw-bold text-dark">₹${Number(p.amount || 0)}</span></td>
+                <td><span class="badge bg-label-primary fs-6 px-3">${Number(p.hits || 0).toLocaleString()}</span></td>
                 <td><span class="badge bg-label-success">Active</span></td>
                 <td class="text-end">
                   <button class="btn btn-sm btn-outline-danger btn-delete-plan" data-id="${p.id}">
@@ -808,6 +808,11 @@
         const hits = document.getElementById('plan-input-hits').value;
         const btn = document.getElementById('btn-add-plan');
 
+        if (!amount || !hits || Number(amount) <= 0 || Number(hits) <= 0) {
+          showToast('Please provide valid positive Amount and Hits.', 'bg-danger');
+          return;
+        }
+
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Saving...';
 
@@ -815,18 +820,18 @@
           const res = await adminFetch('/api/admin/plans', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ amount, hits })
+            body: JSON.stringify({ amount: Number(amount), hits: Number(hits) })
           });
           const data = await res.json();
           if (data.success) {
             showToast('Plan added successfully!', 'bg-success');
             document.getElementById('form-add-plan').reset();
-            loadAdminPlans();
+            await loadAdminPlans();
           } else {
             showToast(data.message || 'Failed to add plan', 'bg-danger');
           }
         } catch(err) {
-          showToast('Network error adding plan', 'bg-danger');
+          showToast(err.message || 'Network error adding plan', 'bg-danger');
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-plus me-1"></i> Save Plan';
