@@ -33,7 +33,9 @@ function notifyChange(event, data) {
  * Load default fallback accounts if file or table is empty
  */
 function getDefaultSeedAccounts() {
-  const defaultUser1 = config.username || '8840457632';
+  const defaultUser1 = (config.username && /^\d{10}$/.test(config.username) && config.username !== 'admin') 
+    ? config.username 
+    : '8840457632';
   const defaultPass1 = config.password || '123456';
   const defaultUser2 = '9335819686';
   const defaultPass2 = '123456';
@@ -77,7 +79,10 @@ function readAccountsFromFile() {
   try {
     if (fs.existsSync(ACCOUNTS_JSON_PATH)) {
       const data = JSON.parse(fs.readFileSync(ACCOUNTS_JSON_PATH, 'utf8'));
-      if (Array.isArray(data) && data.length > 0) return data;
+      if (Array.isArray(data) && data.length > 0) {
+        const valid = data.filter(a => a && a.username && String(a.username).toLowerCase() !== 'admin');
+        if (valid.length > 0) return valid;
+      }
     }
   } catch (e) {
     logger.warn('Error reading ezytm_accounts.json', { error: e.message });
@@ -95,7 +100,8 @@ function saveAccountsToFile(accounts) {
   try {
     const dir = path.dirname(ACCOUNTS_JSON_PATH);
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    fs.writeFileSync(ACCOUNTS_JSON_PATH, JSON.stringify(accounts, null, 2), 'utf8');
+    const cleanAccounts = (accounts || []).filter(a => a && a.username && String(a.username).toLowerCase() !== 'admin');
+    fs.writeFileSync(ACCOUNTS_JSON_PATH, JSON.stringify(cleanAccounts, null, 2), 'utf8');
   } catch (e) {
     logger.error('Error writing ezytm_accounts.json', { error: e.message });
   }
@@ -105,18 +111,27 @@ function saveAccountsToFile(accounts) {
  * Get all accounts (Admin view) with permanent dual-sync & no-loss guarantee
  */
 async function getAllAccounts() {
+  // 0. Auto-purge any 'admin' entries from DB permanently
+  if (db.isConnected) {
+    try {
+      await db.query("DELETE FROM ezytm_accounts WHERE LOWER(username) = 'admin' OR LOWER(label) LIKE '%admin%'");
+    } catch (e) {}
+  }
+
   const defaultSeeds = getDefaultSeedAccounts();
   const fileAccounts = readAccountsFromFile();
 
   const mergedMap = new Map();
   // 1. Seed defaults first (8840457632 & 9335819686)
   for (const s of defaultSeeds) {
-    mergedMap.set(s.username, s);
+    if (s && s.username && String(s.username).toLowerCase() !== 'admin') {
+      mergedMap.set(s.username, s);
+    }
   }
 
   // 2. Overlay file accounts (preserves edits, credentials, stats)
   for (const f of fileAccounts) {
-    if (f && f.username) {
+    if (f && f.username && String(f.username).toLowerCase() !== 'admin') {
       const existing = mergedMap.get(f.username);
       mergedMap.set(f.username, existing ? { ...existing, ...f } : f);
     }
@@ -125,10 +140,10 @@ async function getAllAccounts() {
   // 3. Overlay DB accounts & sync merged items to PostgreSQL
   if (db.isConnected) {
     try {
-      const res = await db.query('SELECT * FROM ezytm_accounts ORDER BY created_at ASC');
+      const res = await db.query("SELECT * FROM ezytm_accounts WHERE LOWER(username) != 'admin' ORDER BY created_at ASC");
       if (res && Array.isArray(res.rows)) {
         for (const row of res.rows) {
-          if (row && row.username) {
+          if (row && row.username && String(row.username).toLowerCase() !== 'admin') {
             const existing = mergedMap.get(row.username);
             mergedMap.set(row.username, existing ? { ...existing, ...row } : row);
           }
@@ -167,6 +182,13 @@ async function getAllAccounts() {
     }
   }
 
+  // 4. Final safety filter to guarantee no admin entry can ever leak
+  for (const [key, acc] of mergedMap.entries()) {
+    if (String(acc.username).toLowerCase() === 'admin') {
+      mergedMap.delete(key);
+    }
+  }
+
   const finalAccounts = Array.from(mergedMap.values());
   saveAccountsToFile(finalAccounts);
   return finalAccounts;
@@ -193,6 +215,10 @@ async function addAccount({ username, password, label }) {
   }
 
   const cleanUser = String(username).trim();
+  if (cleanUser.toLowerCase() === 'admin') {
+    throw new Error('Cannot add "admin" as an EzyTM account.');
+  }
+
   const cleanPass = String(password).trim();
   const cleanLabel = String(label || `EzyTM (${cleanUser})`).trim();
   const accountId = 'EZY_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
@@ -408,7 +434,10 @@ async function recordAccountSuccess(id) {
  */
 async function recordAccountFailure(id, errorMsg) {
   if (!id) return;
-  const sanitizedErr = String(errorMsg || 'Connection timeout or authentication error').slice(0, 255);
+  let sanitizedErr = String(errorMsg || 'Connection timeout or authentication error').slice(0, 255);
+  if (sanitizedErr.includes('locator.waitFor') || sanitizedErr.includes('Timeout')) {
+    sanitizedErr = 'EzyTM Login Timeout / Portal Delay';
+  }
 
   if (db.isConnected) {
     try {

@@ -126,12 +126,24 @@ class EzytmAccountSession {
           await passInput.waitFor({ state: 'visible', timeout: 10000 });
           await passInput.fill(this.password || config.password || '123456');
 
-          await this.page.locator('#ContentPlaceHolder1_LinkButton1').click();
-          await this.page.waitForTimeout(1500);
+          await Promise.all([
+            this.page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 15000 }).catch(() => {}),
+            this.page.locator('#ContentPlaceHolder1_LinkButton1').click()
+          ]);
+          await this.page.waitForTimeout(1000);
+
+          // Check for explicit error message on login page
+          const errorMsgEl = this.page.locator('#ContentPlaceHolder1_lblMsg, #lblMsg, .alert-danger');
+          if (await errorMsgEl.first().isVisible().catch(() => false)) {
+            const msg = await errorMsgEl.first().innerText().catch(() => '');
+            if (msg && msg.trim()) {
+              throw new Error(`Login failed: ${msg.trim()}`);
+            }
+          }
 
           // 2. Pre-warm page at OperatorLook.aspx
           await this.page.goto(config.operatorLookUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
-          await this.page.locator('#ContentPlaceHolder1_TxtRechMobLoo').waitFor({ state: 'visible', timeout: 10000 });
+          await this.page.locator('#ContentPlaceHolder1_TxtRechMobLoo').waitFor({ state: 'visible', timeout: 12000 });
 
           this.sessionState = 'READY';
           this.consecutiveErrors = 0;
@@ -472,6 +484,9 @@ class EzytmSessionPool {
       } else {
         logger.info(`Found ${accounts.length} active EzyTM accounts. Initializing pool sessions in parallel...`);
         for (const acc of accounts) {
+          if (!acc || !acc.username || String(acc.username).toLowerCase() === 'admin' || !/^\d{10}$/.test(String(acc.username))) {
+            continue;
+          }
           const session = new EzytmAccountSession(acc, this);
           this.sessions.set(acc.id, session);
           // Parallel background init with error isolation

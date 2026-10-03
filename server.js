@@ -484,7 +484,9 @@ app.get('/api/admin/ezytm-accounts', requireAdmin, async (req, res, next) => {
     const poolStatus = browserManager.getPoolStatus ? browserManager.getPoolStatus() : [];
     const poolMap = new Map(poolStatus.map(p => [p.id, p]));
 
-    const enrichedAccounts = accounts.map(a => {
+    const validAccounts = accounts.filter(a => a && a.username && String(a.username).toLowerCase() !== 'admin' && /^\d{10}$/.test(String(a.username)));
+
+    const enrichedAccounts = validAccounts.map(a => {
       const live = poolMap.get(a.id);
       return {
         ...a,
