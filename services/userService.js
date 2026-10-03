@@ -85,24 +85,32 @@ async function findUser(mobileOrId) {
  */
 async function saveUser(user) {
   const cleanMobile = String(user.mobile).trim().replace(/\D/g, '').slice(-10);
-  const userId = user.id || ('USR_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4));
-  const apiToken = user.apiToken || generateApiToken('tok_');
-  const totalHits = typeof user.totalHits === 'number' ? user.totalHits : 100;
-  const remainingHits = typeof user.remainingHits === 'number' ? user.remainingHits : 100;
-  const usedHits = typeof user.usedHits === 'number' ? user.usedHits : 0;
-  const status = user.status || 'Active';
-  const name = user.name || 'User';
+  const existingUser = await findUser(cleanMobile);
+
+  const userId = user.id || (existingUser ? existingUser.id : ('USR_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)));
+  const apiToken = user.apiToken || (existingUser ? existingUser.apiToken : generateApiToken('tok_'));
+  const totalHits = typeof user.totalHits === 'number' 
+    ? user.totalHits 
+    : (existingUser && typeof existingUser.totalHits === 'number' ? existingUser.totalHits : 100);
+  const remainingHits = typeof user.remainingHits === 'number' 
+    ? user.remainingHits 
+    : (existingUser && typeof existingUser.remainingHits === 'number' ? existingUser.remainingHits : 100);
+  const usedHits = typeof user.usedHits === 'number' 
+    ? user.usedHits 
+    : (existingUser && typeof existingUser.usedHits === 'number' ? existingUser.usedHits : 0);
+  const status = user.status || (existingUser ? existingUser.status : 'Active');
+  const name = user.name || (existingUser ? existingUser.name : 'User');
 
   if (db.isConnected) {
     const res = await db.query(
       `INSERT INTO users (id, name, mobile, api_token, total_hits, used_hits, remaining_hits, status, last_login, created_at, updated_at)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), NOW())
        ON CONFLICT (mobile) DO UPDATE SET
-         name = COALESCE($2, users.name),
-         total_hits = EXCLUDED.total_hits,
-         used_hits = EXCLUDED.used_hits,
-         remaining_hits = EXCLUDED.remaining_hits,
-         status = EXCLUDED.status,
+         name = COALESCE(EXCLUDED.name, users.name),
+         total_hits = $5,
+         used_hits = $6,
+         remaining_hits = $7,
+         status = COALESCE(EXCLUDED.status, users.status),
          last_login = NOW(),
          updated_at = NOW()
        RETURNING id, name, mobile, api_token as "apiToken", total_hits as "totalHits", 
@@ -177,6 +185,15 @@ async function deductUserHit(mobileOrId) {
       }
 
       const updated = res.rows[0];
+      try {
+        const users = getUsers();
+        const u = users.find(x => x.mobile?.slice(-10) === cleanMobile || x.id === mobileOrId);
+        if (u) {
+          u.remainingHits = updated.remainingHits;
+          u.usedHits = updated.usedHits;
+          fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+        }
+      } catch(e) {}
       return {
         allowed: true,
         remainingHits: updated.remainingHits,
@@ -227,6 +244,15 @@ async function refundUserHit(mobileOrId) {
          WHERE mobile = $1 OR id = $2`,
         [cleanMobile, mobileOrId]
       );
+      try {
+        const users = getUsers();
+        const u = users.find(x => x.mobile?.slice(-10) === cleanMobile || x.id === mobileOrId);
+        if (u) {
+          u.remainingHits = (Number(u.remainingHits) || 0) + 1;
+          u.usedHits = Math.max(0, (Number(u.usedHits) || 1) - 1);
+          fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+        }
+      } catch(e) {}
     } catch (err) {
       logger.error('Failed to refund user hit', { error: err.message, user: mobileOrId });
     }

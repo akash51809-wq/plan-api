@@ -33,21 +33,38 @@ function notifyChange(event, data) {
  * Load default fallback accounts if file or table is empty
  */
 function getDefaultSeedAccounts() {
-  const defaultUser = config.username || '8840457632';
-  const defaultPass = config.password || '123456';
+  const defaultUser1 = config.username || '8840457632';
+  const defaultPass1 = config.password || '123456';
+  const defaultUser2 = '9335819686';
+  const defaultPass2 = '123456';
+
   return [
     {
       id: 'EZY_DEFAULT_1',
-      username: defaultUser,
-      password: defaultPass,
-      label: 'Primary EzyTM Node',
+      username: defaultUser1,
+      password: defaultPass1,
+      label: `Primary EzyTM Node (${defaultUser1})`,
       status: 'Active',
       total_requests: 0,
       success_requests: 0,
       failed_requests: 0,
       last_used_at: null,
       last_error: null,
-      created_at: new Date().toISOString(),
+      created_at: '2026-10-02T09:00:00.000Z',
+      updated_at: new Date().toISOString()
+    },
+    {
+      id: 'EZY_DEFAULT_2',
+      username: defaultUser2,
+      password: defaultPass2,
+      label: `Secondary EzyTM Node (${defaultUser2})`,
+      status: 'Active',
+      total_requests: 0,
+      success_requests: 0,
+      failed_requests: 0,
+      last_used_at: null,
+      last_error: null,
+      created_at: '2026-10-02T09:00:00.000Z',
       updated_at: new Date().toISOString()
     }
   ];
@@ -85,50 +102,74 @@ function saveAccountsToFile(accounts) {
 }
 
 /**
- * Get all accounts (Admin view) with dual-sync guarantee
+ * Get all accounts (Admin view) with permanent dual-sync & no-loss guarantee
  */
 async function getAllAccounts() {
-  let accountsFromDb = null;
+  const defaultSeeds = getDefaultSeedAccounts();
+  const fileAccounts = readAccountsFromFile();
+
+  const mergedMap = new Map();
+  // 1. Seed defaults first (8840457632 & 9335819686)
+  for (const s of defaultSeeds) {
+    mergedMap.set(s.username, s);
+  }
+
+  // 2. Overlay file accounts (preserves edits, credentials, stats)
+  for (const f of fileAccounts) {
+    if (f && f.username) {
+      const existing = mergedMap.get(f.username);
+      mergedMap.set(f.username, existing ? { ...existing, ...f } : f);
+    }
+  }
+
+  // 3. Overlay DB accounts & sync merged items to PostgreSQL
   if (db.isConnected) {
     try {
       const res = await db.query('SELECT * FROM ezytm_accounts ORDER BY created_at ASC');
-      if (res && Array.isArray(res.rows) && res.rows.length > 0) {
-        accountsFromDb = res.rows;
-        // Keep local file backup synced with DB
-        saveAccountsToFile(accountsFromDb);
-        return accountsFromDb;
+      if (res && Array.isArray(res.rows)) {
+        for (const row of res.rows) {
+          if (row && row.username) {
+            const existing = mergedMap.get(row.username);
+            mergedMap.set(row.username, existing ? { ...existing, ...row } : row);
+          }
+        }
+      }
+
+      // Ensure all merged accounts exist in DB
+      for (const acc of mergedMap.values()) {
+        const existRes = await db.query('SELECT id FROM ezytm_accounts WHERE username = $1', [acc.username]).catch(() => null);
+        if (existRes && existRes.rows && existRes.rows.length > 0) {
+          await db.query(
+            `UPDATE ezytm_accounts 
+             SET password = $1, label = $2, status = $3, updated_at = NOW()
+             WHERE username = $4`,
+            [acc.password, acc.label, acc.status || 'Active', acc.username]
+          ).catch(() => {});
+        } else {
+          await db.query(
+            `INSERT INTO ezytm_accounts (id, username, password, label, status, total_requests, success_requests, failed_requests, created_at, updated_at)
+             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())`,
+            [
+              acc.id || ('EZY_' + Date.now()),
+              acc.username,
+              acc.password,
+              acc.label || `EzyTM (${acc.username})`,
+              acc.status || 'Active',
+              acc.total_requests || 0,
+              acc.success_requests || 0,
+              acc.failed_requests || 0
+            ]
+          ).catch(() => {});
+        }
       }
     } catch (e) {
       logger.warn('Database query for ezytm_accounts failed, using local store', { error: e.message });
     }
   }
 
-  const fileAccounts = readAccountsFromFile();
-
-  // If DB is connected but empty, seed DB from file
-  if (db.isConnected && (!accountsFromDb || accountsFromDb.length === 0)) {
-    for (const acc of fileAccounts) {
-      try {
-        await db.query(
-          `INSERT INTO ezytm_accounts (id, username, password, label, status, total_requests, success_requests, failed_requests, created_at, updated_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
-           ON CONFLICT (id) DO NOTHING`,
-          [
-            acc.id || ('EZY_' + Date.now()),
-            acc.username,
-            acc.password,
-            acc.label || `EzyTM (${acc.username})`,
-            acc.status || 'Active',
-            acc.total_requests || 0,
-            acc.success_requests || 0,
-            acc.failed_requests || 0
-          ]
-        );
-      } catch (err) {}
-    }
-  }
-
-  return fileAccounts;
+  const finalAccounts = Array.from(mergedMap.values());
+  saveAccountsToFile(finalAccounts);
+  return finalAccounts;
 }
 
 /**

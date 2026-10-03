@@ -69,9 +69,15 @@ async function requireUser(req, res, next) {
     token = authHeader.substring(7).trim();
   } else if (req.headers['x-user-token']) {
     token = req.headers['x-user-token'];
+  } else if (req.query?.token) {
+    token = req.query.token;
   }
 
-  const userMobile = req.headers['x-user-mobile'] || req.query.userMobile || req.body?.userMobile;
+  const userMobile = req.headers['x-user-mobile'] || 
+                     req.query.userMobile || 
+                     req.query.mobile || 
+                     req.body?.userMobile || 
+                     req.body?.mobile;
 
   if (token) {
     const payload = verifySessionToken(token);

@@ -3,14 +3,28 @@
     "id": "EZY_DEFAULT_1",
     "username": "8840457632",
     "password": "123456",
-    "label": "Primary EzyTM Node",
+    "label": "Primary EzyTM Node (8840457632)",
     "status": "Active",
-    "total_requests": 7,
+    "total_requests": 10,
     "success_requests": 0,
     "failed_requests": 3,
-    "last_used_at": "2026-10-03T10:32:58.101Z",
-    "last_error": "Operation lookup_9876543210 on Primary EzyTM Node exceeded execution timeout of 25000ms.",
+    "last_used_at": "2026-10-03T11:29:37.340Z",
+    "last_error": null,
     "created_at": "2026-10-03T09:16:12.730Z",
     "updated_at": "2026-10-03T09:16:12.730Z"
+  },
+  {
+    "id": "EZY_DEFAULT_2",
+    "username": "9335819686",
+    "password": "123456",
+    "label": "Secondary EzyTM Node (9335819686)",
+    "status": "Active",
+    "total_requests": 1,
+    "success_requests": 0,
+    "failed_requests": 0,
+    "last_used_at": "2026-10-03T11:29:37.342Z",
+    "last_error": null,
+    "created_at": "2026-10-03T11:20:00.000Z",
+    "updated_at": "2026-10-03T11:20:00.000Z"
   }
 ]

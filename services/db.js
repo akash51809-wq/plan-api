@@ -156,29 +156,35 @@ async function autoMigrateSeedData(client) {
       }
     }
 
-    // 4. EzyTM Accounts Migration
-    const ezytmRes = await client.query('SELECT COUNT(*) FROM ezytm_accounts');
-    if (parseInt(ezytmRes.rows[0].count, 10) === 0) {
-      const ezytmPath = path.join(__dirname, '..', 'data', 'ezytm_accounts.json');
-      if (fs.existsSync(ezytmPath)) {
+    // 4. EzyTM Accounts Migration (Seed & Self-Heal)
+    const ezytmPath = path.join(__dirname, '..', 'data', 'ezytm_accounts.json');
+    if (fs.existsSync(ezytmPath)) {
+      try {
         const ezytmData = JSON.parse(fs.readFileSync(ezytmPath, 'utf8'));
-        for (const acc of ezytmData) {
-          await client.query(
-            `INSERT INTO ezytm_accounts (id, username, password, label, status, total_requests, success_requests, failed_requests, created_at, updated_at)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
-             ON CONFLICT (id) DO NOTHING`,
-            [
-              acc.id || ('EZY_' + Date.now()),
-              acc.username,
-              acc.password,
-              acc.label || `EzyTM (${acc.username})`,
-              acc.status || 'Active',
-              acc.total_requests || 0,
-              acc.success_requests || 0,
-              acc.failed_requests || 0
-            ]
-          );
+        if (Array.isArray(ezytmData)) {
+          for (const acc of ezytmData) {
+            const existRes = await client.query('SELECT id FROM ezytm_accounts WHERE username = $1', [acc.username]);
+            if (existRes && existRes.rows && existRes.rows.length === 0) {
+              await client.query(
+                `INSERT INTO ezytm_accounts (id, username, password, label, status, total_requests, success_requests, failed_requests, created_at, updated_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
+                 ON CONFLICT (id) DO NOTHING`,
+                [
+                  acc.id || ('EZY_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
+                  acc.username,
+                  acc.password,
+                  acc.label || `EzyTM (${acc.username})`,
+                  acc.status || 'Active',
+                  acc.total_requests || 0,
+                  acc.success_requests || 0,
+                  acc.failed_requests || 0
+                ]
+              );
+            }
+          }
         }
+      } catch (err) {
+        logger.warn('EzyTM seed migration notice', { error: err.message });
       }
     }
 

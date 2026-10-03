@@ -117,7 +117,7 @@
               <ul class="navbar-nav flex-row align-items-center ms-auto">
                 <li class="nav-item me-2">
                   <span class="badge bg-label-primary px-3 py-2 fw-bold fs-7">
-                    <i class="bx bx-bolt-circle text-primary me-1"></i> <span id="nav-remaining-hits">100</span> Hits Left
+                    <i class="bx bx-bolt-circle text-primary me-1"></i> <span id="nav-remaining-hits">-</span> Hits Left
                   </span>
                 </li>
 
@@ -201,7 +201,7 @@
 
                 <!-- Main Query Card -->
                 <div class="row">
-                  <div class="col-lg-8">
+                  <div class="col-12 col-lg-8 mx-auto">
                     <div class="card shadow-sm border mb-4">
                       <div class="card-header border-bottom d-flex justify-content-between align-items-center">
                         <h5 class="mb-0"><i class="bx bx-mobile-alt text-primary me-2"></i>Live Operator & Circle Lookup</h5>
@@ -211,7 +211,7 @@
                           <label for="lookup-mobile-input" class="form-label fw-bold">Enter 10-Digit Mobile Number</label>
                           <div class="input-group input-group-merge">
                             <span class="input-group-text"><i class="bx bx-phone text-muted"></i> +91</span>
-                            <input type="tel" id="lookup-mobile-input" class="form-control form-control-lg" placeholder="e.g. 9335819686" maxlength="10" value="9335819686" />
+                            <input type="tel" id="lookup-mobile-input" class="form-control form-control-lg" placeholder="Enter 10-digit mobile number" maxlength="10" />
                             <button class="btn btn-primary btn-lg" id="btn-run-lookup" id="btn-run-operator">
                               <i class="bx bx-bolt-circle me-1"></i> Check Operator
                             </button>
@@ -220,34 +220,6 @@
 
                         <!-- Result Box -->
                         <div id="lookup-result-container" class="mt-4" style="display: none;"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Quick Demo Testing Card -->
-                  <div class="col-lg-4">
-                    <div class="card shadow-sm border mb-4">
-                      <div class="card-header border-bottom">
-                        <h5 class="mb-0"><i class="bx bx-history text-secondary me-2"></i>Quick Test Numbers</h5>
-                      </div>
-                      <div class="card-body pt-3">
-                        <div class="list-group list-group-flush">
-                          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 py-3" data-action="set-and-query" data-mobile="9335819686">
-                            <div>
-                              <h6 class="mb-0">9335819686</h6>
-                              <small class="text-muted">Airtel • UP East</small>
-                            </div>
-                            <span class="badge bg-label-primary"><i class="bx bx-play"></i> Query</span>
-                          </button>
-
-                          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 py-3" data-action="set-and-query" data-mobile="8840457632">
-                            <div>
-                              <h6 class="mb-0">8840457632</h6>
-                              <small class="text-muted">Vodafone • UP East</small>
-                            </div>
-                            <span class="badge bg-label-primary"><i class="bx bx-play"></i> Query</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
                   </div>
@@ -263,7 +235,7 @@
                   </div>
                   <div>
                     <span class="badge bg-label-primary px-3 py-2 fs-6">
-                      Current Balance: <strong id="plan-panel-remaining-hits">100</strong> Hits
+                      Current Balance: <strong id="plan-panel-remaining-hits">-</strong> Hits
                     </span>
                   </div>
                 </div>
@@ -1421,7 +1393,7 @@
       }
 
       // User Authentication Guard
-      document.addEventListener('DOMContentLoaded', () => {
+      document.addEventListener('DOMContentLoaded', async () => {
         const stored = localStorage.getItem('planapi_user');
         if (!stored) {
           window.location.replace('login.html');
@@ -1436,7 +1408,7 @@
             return;
           }
 
-          // Instant synchronous UI render (<1ms)
+          // Initial render with stored user
           renderUserProfileUI(currentUser);
 
           const modalEl = document.getElementById('modalPaymentRequest');
@@ -1446,8 +1418,8 @@
 
           initCodeModals();
 
-          // Non-blocking parallel background sync
-          refreshUserProfile();
+          // Immediately sync with permanent database so hit count is accurate on every refresh
+          await refreshUserProfile();
           loadUserPlans();
           loadUserPaymentHistory();
           if (typeof loadApiClients === 'function') loadApiClients();
@@ -1548,7 +1520,7 @@
         const initial = name.charAt(0).toUpperCase();
         const userMobile = user.mobile || '';
         const userToken = user.apiToken || '';
-        const hitsLeft = (user.remainingHits !== undefined ? user.remainingHits : 100).toLocaleString();
+        const hitsLeft = (typeof user.remainingHits === 'number' ? user.remainingHits : 0).toLocaleString();
 
         setText('welcome-user-name', name);
         setText('nav-avatar-char', initial);
@@ -1583,14 +1555,18 @@
       async function refreshUserProfile() {
         if (!currentUser || !currentUser.mobile) return;
         try {
-          const refreshRes = await fetch(`/api/user/profile?mobile=${currentUser.mobile}`);
+          const refreshRes = await fetch(`/api/user/profile?mobile=${encodeURIComponent(currentUser.mobile)}`, {
+            headers: { 'x-user-mobile': currentUser.mobile }
+          });
           const refreshData = await refreshRes.json();
           if (refreshData.success && refreshData.user) {
-            currentUser = refreshData.user;
+            currentUser = { ...currentUser, ...refreshData.user };
             localStorage.setItem('planapi_user', JSON.stringify(currentUser));
             renderUserProfileUI(currentUser);
           }
-        } catch(err) {}
+        } catch(err) {
+          console.error("Error refreshing profile:", err);
+        }
       }
 
       function showToast(msg, bg = 'bg-primary') {
@@ -2040,14 +2016,11 @@
         }
 
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Fetching...';
-        resBox.style.display = 'block';
-        resBox.innerHTML = `
-          <div class="card bg-label-secondary border-0 p-4 text-center">
-            <div class="spinner-border text-primary mx-auto mb-2" role="status"></div>
-            <strong>Fetching live operator details...</strong>
-          </div>
-        `;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Checking...';
+        if (resBox) {
+          resBox.style.display = 'none';
+          resBox.innerHTML = '';
+        }
 
         try {
           const res = await fetch('/api/lookup/operator', {
@@ -2062,48 +2035,19 @@
 
           if (data.success && data.data) {
             const d = data.data;
-            if (d.remainingHits !== undefined) {
-              document.getElementById('nav-remaining-hits').innerText = d.remainingHits.toLocaleString();
-              document.getElementById('plan-panel-remaining-hits').innerText = d.remainingHits.toLocaleString();
+            if (d.remainingHits !== undefined && currentUser) {
+              currentUser.remainingHits = d.remainingHits;
+              localStorage.setItem('planapi_user', JSON.stringify(currentUser));
+              setText('nav-remaining-hits', d.remainingHits.toLocaleString());
+              setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
             }
-
-            resBox.innerHTML = `
-              <div class="card border border-primary shadow-none">
-                <div class="card-header bg-primary py-2 px-4 d-flex justify-content-between align-items-center text-white">
-                  <span class="fw-bold"><i class="bx bx-check-circle me-1"></i> Target: +91 ${d.mobile}</span>
-                  <span class="badge bg-white text-primary fw-bold"><i class="bx bx-check-double"></i> Live Result (${d.responseTime || 'Instant'})</span>
-                </div>
-                <div class="card-body p-4">
-                  <div class="row g-3">
-                    <div class="col-6">
-                      <div class="p-3 bg-label-primary rounded">
-                        <small class="text-uppercase fw-bold text-muted d-block">Operator Name</small>
-                        <h3 class="mb-0 text-primary mt-1">${d.operator || 'Unknown'}</h3>
-                      </div>
-                    </div>
-                    <div class="col-6">
-                      <div class="p-3 bg-label-success rounded">
-                        <small class="text-uppercase fw-bold text-muted d-block">Circle / State</small>
-                        <h3 class="mb-0 text-success mt-1">${d.circle || 'Unknown'}</h3>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            `;
+            showToast(`Operator: ${d.operator || 'Unknown'} | Circle: ${d.circle || 'Unknown'}`, 'bg-success');
+            refreshUserProfile();
           } else {
-            resBox.innerHTML = `
-              <div class="alert alert-danger mb-0">
-                <i class="bx bx-error-circle me-1"></i> ${data.message || 'Lookup failed.'}
-              </div>
-            `;
+            showToast(data.message || 'Lookup failed.', 'bg-danger');
           }
         } catch(e) {
-          resBox.innerHTML = `
-            <div class="alert alert-danger mb-0">
-              <i class="bx bx-error-circle me-1"></i> Network error connecting to backend.
-            </div>
-          `;
+          showToast('Network error connecting to backend.', 'bg-danger');
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-bolt-circle me-1"></i> Check Operator';
@@ -2187,8 +2131,13 @@
             currentActivePlanCategory = 'ALL';
 
             if (d.remainingHits !== undefined) {
+              if (currentUser) {
+                currentUser.remainingHits = d.remainingHits;
+                localStorage.setItem('planapi_user', JSON.stringify(currentUser));
+              }
               setText('nav-remaining-hits', d.remainingHits.toLocaleString());
               setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
+              refreshUserProfile();
             }
 
             // Set Header Badges
@@ -2410,8 +2359,13 @@
             const d = data.data;
 
             if (d.remainingHits !== undefined) {
+              if (currentUser) {
+                currentUser.remainingHits = d.remainingHits;
+                localStorage.setItem('planapi_user', JSON.stringify(currentUser));
+              }
               setText('nav-remaining-hits', d.remainingHits.toLocaleString());
               setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
+              refreshUserProfile();
             }
 
             setText('roffer-badge-mobile', mobile);
@@ -2549,8 +2503,13 @@
             const d = data.data;
 
             if (d.remainingHits !== undefined) {
+              if (currentUser) {
+                currentUser.remainingHits = d.remainingHits;
+                localStorage.setItem('planapi_user', JSON.stringify(currentUser));
+              }
               setText('nav-remaining-hits', d.remainingHits.toLocaleString());
               setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
+              refreshUserProfile();
             }
 
             setText('lastrecharge-badge-vc', mobile);
@@ -2717,8 +2676,13 @@
             const d = data.data;
 
             if (d.remainingHits !== undefined) {
+              if (currentUser) {
+                currentUser.remainingHits = d.remainingHits;
+                localStorage.setItem('planapi_user', JSON.stringify(currentUser));
+              }
               setText('nav-remaining-hits', d.remainingHits.toLocaleString());
               setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
+              refreshUserProfile();
             }
 
             setText('dthinfo-badge-vc', dthNumber);
