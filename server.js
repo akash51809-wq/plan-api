@@ -1,20 +1,33 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const helmet = require('helmet');
+const cors = require('cors');
+
+const logger = require('./services/logger');
+const { initDatabase, closePool } = require('./services/db');
 const { getSettings, saveSettings, sendWhatsAppMessage } = require('./services/whatsappService');
-const { getUsers, saveUser, findUserByMobile, validateApiUser, generateOTP, verifyOTP } = require('./services/userService');
+const { getUsers, saveUser, findUser, deductUserHit, refundUserHit } = require('./services/userService');
+const { createApiClient, getApiClients, updateApiClient, regenerateApiClientToken, revokeApiClient, authenticateApiRequest } = require('./services/clientService');
+const { generateAndSaveOtp, verifyOtp } = require('./services/otpService');
+const { loginAdmin } = require('./services/adminService');
+const { getPlans, savePlan, deletePlan, getPayments, createPaymentRequest, approvePayment, rejectPayment } = require('./services/planService');
 const { resolveTelecomDetails, OPERATOR_CODE_MAP, CIRCLE_CODE_MAP } = require('./services/seriesEngine');
-const { getPlans, savePlan, deletePlan, getPayments, createPaymentRequest, approvePayment, rejectPayment, deductUserHit } = require('./services/planService');
 const { fetchOperatorPlans, OPERATORS_LIST, CIRCLES_LIST } = require('./services/mobilePlanService');
-const { fetchRofferDetails, resolveRofferOperator } = require('./services/rofferService');
+const { fetchRofferDetails } = require('./services/rofferService');
 const { fetchLastRechargeDetails } = require('./services/rechargeCheckService');
-const { fetchDthInfoDetails, resolveDthOpCode, DTH_OPERATOR_MAP } = require('./services/dthInfoService');
-const { initDatabase } = require('./services/db');
+const { fetchDthInfoDetails } = require('./services/dthInfoService');
+const { getClientIp } = require('./services/ipService');
 const browserManager = require('./browserManager');
+
+const { requestIdMiddleware, requireAdmin, requireUser } = require('./middleware/auth');
+const { otpRateLimiter, verifyOtpLimiter, adminLoginLimiter, apiRateLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '0.0.0.0';
 
+// Helper code mappings
 function getOpCode(operatorName) {
   if (!operatorName) return '2';
   const clean = operatorName.toUpperCase().trim();
@@ -33,15 +46,57 @@ function getCircleCode(circleName) {
   return '51';
 }
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ---------------- GLOBAL MIDDLEWARE ---------------- //
+
+// Trust proxy if configured
+if (process.env.TRUST_PROXY === 'true' || process.env.TRUST_PROXY === '1') {
+  app.set('trust proxy', 1);
+}
+
+// Helmet Security Headers (Configured for inline dashboard assets and fonts)
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net"],
+        styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
+        imgSrc: ["'self'", "data:", "https:", "blob:"],
+        connectSrc: ["'self'", "https:", "http:"]
+      }
+    },
+    crossOriginEmbedderPolicy: false
+  })
+);
+
+// CORS
+const allowedOrigins = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(s => s.trim()) : '*';
+app.use(cors({ origin: allowedOrigins, credentials: true }));
+
+// Body Parsers with strict size limits
+app.use(express.json({ limit: '2mb' }));
+app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+
+// Request ID and Logger
+app.use(requestIdMiddleware);
+
+// Static Assets
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ---------------- AUTH ROUTES ---------------- //
+// ---------------- HEALTH CHECK ROUTE ---------------- //
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
 
-// 1. Send OTP for Signup / Login
-app.post('/api/auth/send-otp', async (req, res) => {
+// ---------------- AUTHENTICATION ROUTES ---------------- //
+
+// 1. Send OTP (Rate-limited, cryptographic, hashed storage)
+app.post('/api/auth/send-otp', otpRateLimiter, async (req, res, next) => {
   try {
     const { name, mobile, type } = req.body;
     if (!mobile || String(mobile).trim().length < 10) {
@@ -49,9 +104,9 @@ app.post('/api/auth/send-otp', async (req, res) => {
     }
 
     const cleanMobile = String(mobile).trim().replace(/\D/g, '').slice(-10);
-    const existingUser = findUserByMobile(cleanMobile);
+    const existingUser = await findUser(cleanMobile);
 
-    // Signup validation: Check if user already exists
+    // Signup validation
     if (type === 'signup' && existingUser) {
       return res.status(400).json({
         success: false,
@@ -59,7 +114,7 @@ app.post('/api/auth/send-otp', async (req, res) => {
       });
     }
 
-    // Login validation: Check if user is registered
+    // Login validation
     if (type === 'login' && !existingUser) {
       return res.status(404).json({
         success: false,
@@ -69,60 +124,49 @@ app.post('/api/auth/send-otp', async (req, res) => {
 
     const userName = (name && String(name).trim()) || (existingUser ? existingUser.name : 'User');
 
-    // Generate 6-digit OTP
-    const otp = generateOTP(cleanMobile, userName);
+    // Cryptographic OTP generation and storage
+    const otp = await generateAndSaveOtp(cleanMobile, userName);
 
     // Format WhatsApp message
     const settings = getSettings();
-    const message = (settings.otpTemplate || 'Your OTP is {OTP}')
+    const message = (settings.otpTemplate || 'Hello {NAME}, your verification OTP for PlanAPI is *{OTP}*. This OTP is valid for 10 minutes.')
       .replace(/{NAME}/g, userName)
       .replace(/{OTP}/g, otp);
 
-    // Send WhatsApp Message
     const waResult = await sendWhatsAppMessage(cleanMobile, message);
 
-    if (waResult.success) {
-      return res.json({
-        success: true,
-        message: `OTP sent successfully via WhatsApp to +91 ${cleanMobile}`
-      });
-    } else {
-      return res.json({
-        success: true,
-        message: `OTP generated (${otp}), but WhatsApp dispatch returned a notice. Check WhatsApp settings.`,
-        details: waResult
-      });
-    }
+    return res.json({
+      success: true,
+      message: `OTP sent successfully to +91 ${cleanMobile}`
+    });
   } catch (error) {
-    console.error('Error in send-otp:', error);
-    res.status(500).json({ success: false, message: 'Internal server error while sending OTP.' });
+    next(error);
   }
 });
 
-// 2. Verify OTP and Complete Signup / Login
-app.post('/api/auth/verify-otp', async (req, res) => {
+// 2. Verify OTP (Rate-limited, constant-time verification)
+app.post('/api/auth/verify-otp', verifyOtpLimiter, async (req, res, next) => {
   try {
     const { name, mobile, otp } = req.body;
     if (!mobile || !otp) {
-      return res.status(400).json({ success: false, message: 'Mobile and OTP are required.' });
+      return res.status(400).json({ success: false, message: 'Mobile number and OTP are required.' });
     }
 
     const cleanMobile = String(mobile).trim().replace(/\D/g, '').slice(-10);
-    const verification = verifyOTP(cleanMobile, otp);
+    const verification = await verifyOtp(cleanMobile, otp);
 
     if (!verification.valid) {
       return res.status(400).json({ success: false, message: verification.message });
     }
 
     // Save or update user
-    const existingUser = findUserByMobile(cleanMobile);
+    const existingUser = await findUser(cleanMobile);
     const finalName = name && String(name).trim() ? String(name).trim() : (existingUser ? existingUser.name : verification.name || 'User');
 
-    const user = saveUser({
+    const user = await saveUser({
       name: finalName,
       mobile: cleanMobile,
-      status: 'Active',
-      lastLogin: new Date().toISOString()
+      status: 'Active'
     });
 
     res.json({
@@ -131,68 +175,106 @@ app.post('/api/auth/verify-otp', async (req, res) => {
       user
     });
   } catch (error) {
-    console.error('Error in verify-otp:', error);
-    res.status(500).json({ success: false, message: 'Internal server error while verifying OTP.' });
+    next(error);
   }
 });
 
-// 3. Simple Login Check / Profile Refresh
-app.all(['/api/auth/login-check', '/api/user/profile'], (req, res) => {
-  const mobile = req.query.mobile || req.body.mobile;
-  if (!mobile) return res.status(400).json({ success: false, message: 'Mobile number is required.' });
-  const user = findUserByMobile(mobile);
-  if (!user) {
-    return res.status(404).json({ success: false, message: 'User not found. Please sign up first.' });
+// 3. User Profile Route (Protected)
+app.all(['/api/auth/login-check', '/api/user/profile'], requireUser, (req, res) => {
+  res.json({ success: true, user: req.user });
+});
+
+// ---------------- API CLIENTS / MULTI-APPLICATION MANAGEMENT ---------------- //
+
+// 1. Get all API Clients for Logged-In User
+app.get('/api/user/clients', requireUser, async (req, res, next) => {
+  try {
+    const clients = await getApiClients(req.user.id);
+    res.json({ success: true, clients });
+  } catch (error) {
+    next(error);
   }
-  res.json({ success: true, user });
+});
+
+// 2. Create new API Client / Application
+app.post('/api/user/clients', requireUser, async (req, res, next) => {
+  try {
+    const { clientName, allowedIps } = req.body;
+    if (!clientName || String(clientName).trim().length === 0) {
+      return res.status(400).json({ success: false, message: 'Application/Client Name is required.' });
+    }
+
+    const client = await createApiClient(req.user.id, { clientName, allowedIps });
+    res.status(201).json({
+      success: true,
+      message: 'API Client application created successfully! Please copy your API Token now.',
+      client
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 3. Update API Client (Allowed IPs / Name)
+app.put('/api/user/clients/:id', requireUser, async (req, res, next) => {
+  try {
+    const { clientName, allowedIps, status } = req.body;
+    const updated = await updateApiClient(req.params.id, req.user.id, { clientName, allowedIps, status });
+    res.json({ success: true, message: 'API Client updated successfully.', client: updated });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 4. Regenerate API Client Token
+app.post('/api/user/clients/:id/regenerate', requireUser, async (req, res, next) => {
+  try {
+    const regenerated = await regenerateApiClientToken(req.params.id, req.user.id);
+    res.json({
+      success: true,
+      message: 'API Token regenerated successfully! The previous token has been revoked.',
+      client: regenerated
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 5. Revoke API Client
+app.delete('/api/user/clients/:id', requireUser, async (req, res, next) => {
+  try {
+    await revokeApiClient(req.params.id, req.user.id);
+    res.json({ success: true, message: 'API Client revoked successfully.' });
+  } catch (error) {
+    next(error);
+  }
 });
 
 // ---------------- PLANS & BILLING ROUTES ---------------- //
 
-// 1. Get All Plans (Public / User)
-app.get('/api/plans', (req, res) => {
-  const plans = getPlans();
-  res.json({ success: true, plans });
-});
-
-// 2. Add New Plan (Admin)
-app.post('/api/admin/plans', (req, res) => {
+// 1. Get All Active Plans (Public)
+app.get('/api/plans', async (req, res, next) => {
   try {
-    const { amount, hits } = req.body;
-    const plan = savePlan({ amount, hits });
-    res.json({ success: true, message: 'Plan added successfully!', plan });
+    const plans = await getPlans();
+    res.json({ success: true, plans });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    next(error);
   }
 });
 
-// 3. Delete Plan (Admin)
-app.delete('/api/admin/plans/:id', (req, res) => {
+// 2. Submit Payment Request (Protected User Route with server-side plan authority)
+app.post('/api/payments/request', requireUser, async (req, res, next) => {
   try {
-    deletePlan(req.params.id);
-    res.json({ success: true, message: 'Plan deleted successfully.' });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
+    const { planId, utr, paymentDate, paymentProof } = req.body;
+    const request = await createPaymentRequest({
+      userMobile: req.user.mobile,
+      userName: req.user.name,
+      planId,
+      utr,
+      paymentDate,
+      paymentProof
+    });
 
-// 4. Get Payment Requests (Admin or User specific)
-app.get('/api/payments', (req, res) => {
-  const { mobile } = req.query;
-  const payments = getPayments();
-  if (mobile) {
-    const cleanMobile = String(mobile).trim().replace(/\D/g, '').slice(-10);
-    const userPayments = payments.filter(p => p.userMobile === cleanMobile);
-    return res.json({ success: true, payments: userPayments });
-  }
-  res.json({ success: true, payments });
-});
-
-// 5. Submit Payment Request (User)
-app.post('/api/payments/request', (req, res) => {
-  try {
-    const { userMobile, userName, planId, amount, hits, utr, paymentDate } = req.body;
-    const request = createPaymentRequest({ userMobile, userName, planId, amount, hits, utr, paymentDate });
     res.json({
       success: true,
       message: 'Payment request submitted successfully! Admin will verify and activate your plan shortly.',
@@ -203,13 +285,105 @@ app.post('/api/payments/request', (req, res) => {
   }
 });
 
-// 6. Approve Payment Request (Admin)
-app.post('/api/admin/payments/approve', (req, res) => {
+// 3. Get User Payments
+app.get('/api/payments', requireUser, async (req, res, next) => {
+  try {
+    const payments = await getPayments(req.user.mobile);
+    res.json({ success: true, payments });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// ---------------- ADMIN ROUTES (PROTECTED) ---------------- //
+
+// 1. Admin Login (Rate-limited)
+app.post('/api/admin/login', adminLoginLimiter, async (req, res, next) => {
+  try {
+    const { username, password } = req.body;
+    const result = await loginAdmin(username, password);
+
+    if (!result.success) {
+      return res.status(401).json(result);
+    }
+    res.json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 2. Admin Settings
+app.get('/api/admin/settings', requireAdmin, async (req, res, next) => {
+  try {
+    const settings = getSettings();
+    const payments = await getPayments();
+    const pendingPayments = payments.filter(p => p.status === 'Pending').length;
+    const users = getUsers();
+
+    res.json({
+      success: true,
+      settings: {
+        baseUrl: settings.baseUrl,
+        token: settings.token,
+        otpTemplate: settings.otpTemplate,
+        adminUsername: settings.adminUsername
+      },
+      totalUsers: users.length,
+      pendingPayments
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/api/admin/settings', requireAdmin, (req, res) => {
+  try {
+    const { baseUrl, token, otpTemplate } = req.body;
+    const updated = saveSettings({
+      ...(baseUrl && { baseUrl }),
+      ...(token && { token }),
+      ...(otpTemplate && { otpTemplate })
+    });
+    res.json({ success: true, message: 'Settings saved successfully!', settings: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Failed to save settings.' });
+  }
+});
+
+// 3. Admin Plans Management
+app.post('/api/admin/plans', requireAdmin, async (req, res, next) => {
+  try {
+    const { amount, hits, name, validityDays, features } = req.body;
+    const plan = await savePlan({ amount, hits, name, validityDays, features });
+    res.json({ success: true, message: 'Plan created successfully!', plan });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+app.delete('/api/admin/plans/:id', requireAdmin, async (req, res, next) => {
+  try {
+    await deletePlan(req.params.id);
+    res.json({ success: true, message: 'Plan deactivated successfully.' });
+  } catch (error) {
+    next(error);
+  }
+});
+
+// 4. Admin Payments Management
+app.get('/api/admin/payments', requireAdmin, async (req, res, next) => {
+  try {
+    const payments = await getPayments();
+    res.json({ success: true, payments });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post('/api/admin/payments/approve', requireAdmin, async (req, res, next) => {
   try {
     const { paymentId } = req.body;
-    if (!paymentId) return res.status(400).json({ success: false, message: 'Payment ID is required.' });
-
-    const result = approvePayment(paymentId);
+    const result = await approvePayment(paymentId, req.admin.username);
     res.json({
       success: true,
       message: `Payment request approved! ${result.payment.hits.toLocaleString()} hits credited to +91 ${result.payment.userMobile}.`,
@@ -220,13 +394,10 @@ app.post('/api/admin/payments/approve', (req, res) => {
   }
 });
 
-// 7. Reject Payment Request (Admin)
-app.post('/api/admin/payments/reject', (req, res) => {
+app.post('/api/admin/payments/reject', requireAdmin, async (req, res, next) => {
   try {
     const { paymentId, reason } = req.body;
-    if (!paymentId) return res.status(400).json({ success: false, message: 'Payment ID is required.' });
-
-    const rejected = rejectPayment(paymentId, reason);
+    const rejected = await rejectPayment(paymentId, reason, req.admin.username);
     res.json({
       success: true,
       message: 'Payment request marked as Rejected.',
@@ -237,19 +408,27 @@ app.post('/api/admin/payments/reject', (req, res) => {
   }
 });
 
-// ---------------- USER EXTERNAL API ENDPOINT (WITH HIT LIMIT DEDUCTION) ---------------- //
-// Endpoint: /api/Mobile/OperatorFetchNew?ApiUserID={registered_mobile}&token={user_token}&Mobileno={target_mobile}
+// 5. Admin Users List
+app.get('/api/admin/users', requireAdmin, (req, res) => {
+  const users = getUsers();
+  res.json({ success: true, users });
+});
 
-app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async (req, res) => {
+// ---------------- PUBLIC DEVELOPER API ENDPOINTS (RATE-LIMITED & CONCURRENCY-SAFE) ---------------- //
+
+// 1. Operator Fetch API Endpoint
+app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], apiRateLimiter, async (req, res) => {
   const t0 = performance.now();
-  const apiUserId = req.query.ApiUserID || req.query.apiuserid || req.query.apiUserId || req.query.ApiUserId || (req.body && (req.body.ApiUserID || req.body.apiuserid));
-  const token = req.query.token || req.query.Token || (req.body && (req.body.token || req.body.Token));
-  const mobileNo = req.query.Mobileno || req.query.mobileno || req.query.MobileNo || req.query.mobile || (req.body && (req.body.Mobileno || req.body.mobileno || req.body.mobile));
+  const clientIp = getClientIp(req);
+  const params = { ...req.query, ...req.body };
 
-  // Authentication check
-  const authenticatedUser = validateApiUser(apiUserId, token);
+  const apiUserId = params.ApiUserID || params.apiuserid || params.apiUserId || params.userMobile || params.apimember_id;
+  const token = params.token || params.Token || params.api_password;
+  const mobileNo = params.Mobileno || params.mobileno || params.MobileNo || params.mobile;
 
-  if (!authenticatedUser) {
+  // 1. Authenticate Request (Supports Multi-Client & IP Whitelisting)
+  const auth = await authenticateApiRequest(apiUserId, token, clientIp);
+  if (!auth.authenticated) {
     return res.status(200).json({
       "ERROR": "3",
       "STATUS": "3",
@@ -258,12 +437,12 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async 
       "OpCode ": "null",
       "Circle": "null",
       "CircleCode": "null",
-      "Message": "Authentication failed"
+      "Message": auth.isIpBlocked ? "IP address not authorized for this API client" : "Authentication failed"
     });
   }
 
-  // Hit Limit Check & Deduction
-  const hitCheck = deductUserHit(authenticatedUser.mobile);
+  // 2. Atomic Concurrency-Safe Hit Deduction
+  const hitCheck = await deductUserHit(auth.user.id);
   if (!hitCheck.allowed) {
     return res.status(200).json({
       "ERROR": "4",
@@ -277,7 +456,7 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async 
     });
   }
 
-  // Mobile number validation
+  // 3. Parameter Validation
   if (!mobileNo || String(mobileNo).trim().replace(/\D/g, '').length < 10) {
     return res.status(200).json({
       "ERROR": "2",
@@ -294,7 +473,6 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async 
   const cleanMobile = String(mobileNo).trim().replace(/\D/g, '').slice(-10);
 
   try {
-    // 1. Fast Memory Cache Check (<0.001 ms)
     let operator = null;
     let circle = null;
     let opCode = null;
@@ -307,7 +485,6 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async 
       opCode = getOpCode(operator);
       circleCode = getCircleCode(circle);
     } else {
-      // 2. Fetch LIVE directly from PlanAPI (https://planapi.in/OperatorLook.aspx)
       try {
         const liveRes = await browserManager.lookupOperator(cleanMobile);
         if (liveRes && liveRes.operator && liveRes.operator !== 'Unknown') {
@@ -317,10 +494,9 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async 
           circleCode = getCircleCode(circle);
         }
       } catch (liveErr) {
-        console.warn(`[PlanAPI Live Scrape Notice for ${cleanMobile}]:`, liveErr.message);
+        logger.warn(`Live scrape notice for ${cleanMobile}: ${liveErr.message}`);
       }
 
-      // 3. Fallback to Series Engine only if PlanAPI live portal is unreachable
       if (!operator || operator === 'Unknown') {
         const resolved = resolveTelecomDetails(cleanMobile);
         operator = resolved.operator;
@@ -340,8 +516,6 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async 
     }
 
     const elapsedMs = (performance.now() - t0).toFixed(4);
-    console.log(`⚡ [API ${elapsedMs}ms | Hits Left: ${hitCheck.remainingHits}] ${cleanMobile} -> ${operator} (${circle})`);
-
     return res.status(200).json({
       "ERROR": "0",
       "STATUS": "1",
@@ -353,7 +527,9 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async 
       "Message": "Successfully"
     });
   } catch (error) {
-    console.error('Error during API OperatorFetchNew:', error);
+    // Upstream error: atomic hit refund
+    await refundUserHit(auth.user.id);
+    logger.error('Error during OperatorFetchNew', { error: error.message, mobile: cleanMobile });
     return res.status(200).json({
       "ERROR": "1",
       "STATUS": "0",
@@ -367,56 +543,10 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], async 
   }
 });
 
-// ---------------- MOBILE RECHARGE PLANS API ROUTES ---------------- //
-
-// 1. Get Operators and Circles Metadata for Dropdowns
-app.get('/api/plans/mobile/meta', (req, res) => {
-  res.json({
-    success: true,
-    operators: OPERATORS_LIST,
-    circles: CIRCLES_LIST
-  });
-});
-
-// 2. User Dashboard Interactive Plan Query
-app.post('/api/plans/mobile/query', (req, res) => {
+// 2. Mobile Plans Fetch API Endpoint
+app.all(['/api/Mobile/Operatorplan', '/api/Mobile/PlanFetch'], apiRateLimiter, async (req, res) => {
   const t0 = performance.now();
-  const { operatorCode, circleCode, userMobile } = req.body;
-
-  if (!operatorCode || !circleCode) {
-    return res.status(400).json({ success: false, message: 'Operator and Circle are required.' });
-  }
-
-  // Deduct 1 hit if user logged in
-  let hitInfo = null;
-  if (userMobile) {
-    hitInfo = deductUserHit(userMobile);
-    if (!hitInfo.allowed) {
-      return res.status(403).json({
-        success: false,
-        message: 'Insufficient hits remaining. Please recharge your plan from the Buy Plan page.'
-      });
-    }
-  }
-
-  const result = fetchOperatorPlans(operatorCode, circleCode);
-  const elapsedMs = (performance.now() - t0).toFixed(4);
-
-  res.json({
-    success: true,
-    data: {
-      operator: result.operator,
-      circle: result.circle,
-      plans: result.plans,
-      responseTime: `${elapsedMs} ms`,
-      remainingHits: hitInfo ? hitInfo.remainingHits : undefined
-    }
-  });
-});
-
-// 3. Official PlanAPI Plan Fetch Endpoint (GET / POST)
-app.all(['/api/Mobile/Operatorplan', '/api/Mobile/PlanFetch'], (req, res) => {
-  const t0 = performance.now();
+  const clientIp = getClientIp(req);
   const params = { ...req.query, ...req.body };
 
   const apiUserId = params.ApiUserID || params.apiUserId || params.apimember_id || params.userMobile;
@@ -424,29 +554,19 @@ app.all(['/api/Mobile/Operatorplan', '/api/Mobile/PlanFetch'], (req, res) => {
   const opCode = params.operatorcode || params.OpCode || params.operatorCode || params.opcode;
   const circleCode = params.cricle || params.circle || params.Circle || params.CircleCode || params.circleCode;
 
-  // Authentication check
-  let authenticatedUser = null;
-  if (apiUserId && token) {
-    const cleanUserMobile = String(apiUserId).trim().replace(/\D/g, '').slice(-10);
-    const user = findUserByMobile(cleanUserMobile);
-    if (user && user.apiToken === String(token).trim()) {
-      authenticatedUser = user;
-    }
-  }
-
-  if (!authenticatedUser) {
+  const auth = await authenticateApiRequest(apiUserId, token, clientIp);
+  if (!auth.authenticated) {
     return res.status(200).json({
       "ERROR": "3",
       "STATUS": "3",
       "Operator": "null",
       "Circle": "null",
       "RDATA": null,
-      "MESSAGE": "Authentication failed"
+      "MESSAGE": auth.isIpBlocked ? "IP address not authorized for this API client" : "Authentication failed"
     });
   }
 
-  // Hit Limit Check & Deduction
-  const hitCheck = deductUserHit(authenticatedUser.mobile);
+  const hitCheck = await deductUserHit(auth.user.id);
   if (!hitCheck.allowed) {
     return res.status(200).json({
       "ERROR": "4",
@@ -471,9 +591,6 @@ app.all(['/api/Mobile/Operatorplan', '/api/Mobile/PlanFetch'], (req, res) => {
 
   try {
     const result = fetchOperatorPlans(opCode, circleCode || '70');
-    const elapsedMs = (performance.now() - t0).toFixed(4);
-    console.log(`⚡ [PlanFetch API ${elapsedMs}ms | Hits Left: ${hitCheck.remainingHits}] ${result.operator} - ${result.circle}`);
-
     return res.status(200).json({
       "ERROR": "0",
       "STATUS": "0",
@@ -483,7 +600,7 @@ app.all(['/api/Mobile/Operatorplan', '/api/Mobile/PlanFetch'], (req, res) => {
       "MESSAGE": "Operator Plan Successfully"
     });
   } catch (error) {
-    console.error('Error in Operatorplan API:', error);
+    await refundUserHit(auth.user.id);
     return res.status(200).json({
       "ERROR": "1",
       "STATUS": "0",
@@ -495,49 +612,9 @@ app.all(['/api/Mobile/Operatorplan', '/api/Mobile/PlanFetch'], (req, res) => {
   }
 });
 
-// ---------------- R-OFFER CHECK API ROUTES ---------------- //
-
-// 1. Dashboard Interactive R-Offer Query
-app.post('/api/roffer/query', async (req, res) => {
-  const t0 = performance.now();
-  const { mobile, operatorCode, userMobile } = req.body;
-
-  if (!mobile || String(mobile).trim().length < 10) {
-    return res.status(400).json({ success: false, message: 'Valid 10-digit mobile number is required.' });
-  }
-
-  // Deduct 1 hit if user logged in
-  let hitInfo = null;
-  if (userMobile) {
-    hitInfo = deductUserHit(userMobile);
-    if (!hitInfo.allowed) {
-      return res.status(403).json({
-        success: false,
-        message: 'Insufficient hits remaining. Please recharge your plan from the Buy Plan page.'
-      });
-    }
-  }
-
-  try {
-    const result = await fetchRofferDetails(mobile, operatorCode);
-    const elapsedMs = (performance.now() - t0).toFixed(2);
-
-    res.json({
-      success: true,
-      data: result,
-      responseTime: `${elapsedMs} ms`,
-      remainingHits: hitInfo ? hitInfo.remainingHits : undefined
-    });
-  } catch (error) {
-    console.error('Error during roffer query:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch R-Offers.' });
-  }
-});
-
-// 2. Official PlanAPI R-Offer Check Endpoint (GET / POST)
-// Endpoint: https://planapi.in/api/Mobile/RofferCheck?apimember_id=5411&api_password=123456&operator_code=[OpCode]&mobile_no=12XXXXXXX0
-app.all(['/api/Mobile/RofferCheck', '/api/Mobile/roffercheck', '/api/mobile/roffercheck', '/api/Mobile/RofferData', '/api/Mobile/ROffersCheck'], async (req, res) => {
-  const t0 = performance.now();
+// 3. R-Offer Check API Endpoint
+app.all(['/api/Mobile/RofferCheck', '/api/Mobile/roffercheck', '/api/mobile/roffercheck', '/api/Mobile/RofferData', '/api/Mobile/ROffersCheck'], apiRateLimiter, async (req, res) => {
+  const clientIp = getClientIp(req);
   const params = { ...req.query, ...req.body };
 
   const apiUserId = params.apimember_id || params.ApiUserID || params.apiuserid || params.userMobile;
@@ -545,28 +622,18 @@ app.all(['/api/Mobile/RofferCheck', '/api/Mobile/roffercheck', '/api/mobile/roff
   const opCode = params.operator_code || params.OpCode || params.operatorcode || params.opcode || params.operatorCode;
   const mobileNo = params.mobile_no || params.Mobileno || params.mobileno || params.mobile || params.MobileNo;
 
-  // Authentication check
-  let authenticatedUser = null;
-  if (apiUserId && token) {
-    const cleanUserMobile = String(apiUserId).trim().replace(/\D/g, '').slice(-10);
-    const user = findUserByMobile(cleanUserMobile);
-    if (user && (user.apiToken === String(token).trim() || user.mobile === cleanUserMobile)) {
-      authenticatedUser = user;
-    }
-  }
-
-  if (!authenticatedUser) {
+  const auth = await authenticateApiRequest(apiUserId, token, clientIp);
+  if (!auth.authenticated) {
     return res.status(200).json({
       "ERROR": "3",
       "STATUS": "3",
       "MOBILENO": mobileNo ? String(mobileNo).trim() : "null",
       "RDATA": null,
-      "MESSAGE": "Authentication failed"
+      "MESSAGE": auth.isIpBlocked ? "IP address not authorized for this API client" : "Authentication failed"
     });
   }
 
-  // Hit Limit Check & Deduction
-  const hitCheck = deductUserHit(authenticatedUser.mobile);
+  const hitCheck = await deductUserHit(auth.user.id);
   if (!hitCheck.allowed) {
     return res.status(200).json({
       "ERROR": "4",
@@ -577,7 +644,6 @@ app.all(['/api/Mobile/RofferCheck', '/api/Mobile/roffercheck', '/api/mobile/roff
     });
   }
 
-  // Mobile number validation
   if (!mobileNo || String(mobileNo).trim().replace(/\D/g, '').length < 10) {
     return res.status(200).json({
       "ERROR": "2",
@@ -592,12 +658,9 @@ app.all(['/api/Mobile/RofferCheck', '/api/Mobile/roffercheck', '/api/mobile/roff
 
   try {
     const result = await fetchRofferDetails(cleanMobile, opCode);
-    const elapsedMs = (performance.now() - t0).toFixed(4);
-    console.log(`🎁 [R-Offer API ${elapsedMs}ms | Hits Left: ${hitCheck.remainingHits}] ${cleanMobile} (OpCode: ${opCode || 'auto'}) -> ${result.RDATA ? result.RDATA.length : 0} offers`);
-
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Error in RofferCheck API:', error);
+    await refundUserHit(auth.user.id);
     return res.status(200).json({
       "ERROR": "1",
       "STATUS": "0",
@@ -608,84 +671,7 @@ app.all(['/api/Mobile/RofferCheck', '/api/Mobile/roffercheck', '/api/mobile/roff
   }
 });
 
-// ---------------- DTH INFO & LAST RECHARGE CHECK API ROUTES ---------------- //
-
-// 1. Dashboard Interactive DTH Info Query (Scraped live from https://planapi.in/DTHinfoDetails.aspx)
-app.post('/api/dth/query', async (req, res) => {
-  const t0 = performance.now();
-  const { dthNumber, operatorCode, userMobile } = req.body;
-
-  if (!dthNumber || String(dthNumber).trim().length < 8) {
-    return res.status(400).json({ success: false, message: 'Valid DTH VC / Customer Number is required.' });
-  }
-
-  // Deduct 1 hit if user logged in
-  let hitInfo = null;
-  if (userMobile) {
-    hitInfo = deductUserHit(userMobile);
-    if (!hitInfo.allowed) {
-      return res.status(403).json({
-        success: false,
-        message: 'Insufficient hits remaining. Please recharge your plan from the Buy Plan page.'
-      });
-    }
-  }
-
-  try {
-    const result = await fetchDthInfoDetails(dthNumber, operatorCode);
-    const elapsedMs = (performance.now() - t0).toFixed(2);
-
-    res.json({
-      success: true,
-      data: result,
-      responseTime: `${elapsedMs} ms`,
-      remainingHits: hitInfo ? hitInfo.remainingHits : undefined
-    });
-  } catch (error) {
-    console.error('Error during DTH query:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to fetch DTH information.' });
-  }
-});
-
-// 2. Dashboard Interactive Recharge Check Query (Scraped live from https://planapi.in/RechargeCheck.aspx)
-app.post('/api/recharge/query', async (req, res) => {
-  const t0 = performance.now();
-  const { mobile, operatorCode, userMobile } = req.body;
-
-  if (!mobile || String(mobile).trim().length < 8) {
-    return res.status(400).json({ success: false, message: 'Valid Mobile number or DTH VC number is required.' });
-  }
-
-  // Deduct 1 hit if user logged in
-  let hitInfo = null;
-  if (userMobile) {
-    hitInfo = deductUserHit(userMobile);
-    if (!hitInfo.allowed) {
-      return res.status(403).json({
-        success: false,
-        message: 'Insufficient hits remaining. Please recharge your plan from the Buy Plan page.'
-      });
-    }
-  }
-
-  try {
-    const result = await fetchLastRechargeDetails(mobile, operatorCode);
-    const elapsedMs = (performance.now() - t0).toFixed(2);
-
-    res.json({
-      success: true,
-      data: result,
-      responseTime: `${elapsedMs} ms`,
-      remainingHits: hitInfo ? hitInfo.remainingHits : undefined
-    });
-  } catch (error) {
-    console.error('Error during recharge query:', error);
-    res.status(500).json({ success: false, message: error.message || 'Failed to check last recharge.' });
-  }
-});
-
-// 3. Official PlanAPI DTH Info With Last Recharge Date Endpoint (GET / POST)
-// Endpoint: https://planapi.in/api/Mobile/DthInfoWithLastRechargeDate?apimember_id=5411&api_password=123456&mobile_no=12XXXXXXX0&Opcode=[OpCode]
+// 4. DTH Info With Last Recharge Date API Endpoint
 app.all([
   '/api/Mobile/DthInfoWithLastRechargeDate',
   '/api/Mobile/dthinfowithlastrechargedate',
@@ -695,8 +681,8 @@ app.all([
   '/api/Mobile/LastRechargeCheck',
   '/api/Mobile/RechargeCheck',
   '/api/Mobile/LastRecharge'
-], async (req, res) => {
-  const t0 = performance.now();
+], apiRateLimiter, async (req, res) => {
+  const clientIp = getClientIp(req);
   const params = { ...req.query, ...req.body };
 
   const apiUserId = params.apimember_id || params.ApiUserID || params.apiuserid || params.userMobile;
@@ -704,26 +690,16 @@ app.all([
   const opCode = params.Opcode || params.opcode || params.operator_code || params.operatorcode || params.OpCode;
   const mobileNo = params.mobile_no || params.Mobileno || params.mobileno || params.mobile || params.MobileNo || params.VC || params.vc;
 
-  // Authentication check
-  let authenticatedUser = null;
-  if (apiUserId && token) {
-    const cleanUserMobile = String(apiUserId).trim().replace(/\D/g, '').slice(-10);
-    const user = findUserByMobile(cleanUserMobile);
-    if (user && (user.apiToken === String(token).trim() || user.mobile === cleanUserMobile)) {
-      authenticatedUser = user;
-    }
-  }
-
-  if (!authenticatedUser) {
+  const auth = await authenticateApiRequest(apiUserId, token, clientIp);
+  if (!auth.authenticated) {
     return res.status(200).json({
       "error": "3",
       "DATA": null,
-      "Message": "Authentication failed"
+      "Message": auth.isIpBlocked ? "IP address not authorized for this API client" : "Authentication failed"
     });
   }
 
-  // Hit Limit Check & Deduction
-  const hitCheck = deductUserHit(authenticatedUser.mobile);
+  const hitCheck = await deductUserHit(auth.user.id);
   if (!hitCheck.allowed) {
     return res.status(200).json({
       "error": "4",
@@ -732,7 +708,6 @@ app.all([
     });
   }
 
-  // Number validation
   if (!mobileNo || String(mobileNo).trim().replace(/\D/g, '').length < 8) {
     return res.status(200).json({
       "error": "2",
@@ -745,7 +720,6 @@ app.all([
 
   try {
     let result;
-    // If DTH operator code (24, 25, 27, 28, 29) or DTH in path, query DTHinfoDetails
     const dthCodes = ['24', '25', '27', '28', '29', '21'];
     const cleanOpStr = String(opCode || '').trim();
 
@@ -755,12 +729,9 @@ app.all([
       result = await fetchLastRechargeDetails(cleanNumber, opCode);
     }
 
-    const elapsedMs = (performance.now() - t0).toFixed(4);
-    console.log(`📡 [DTH/Recharge API ${elapsedMs}ms | Hits Left: ${hitCheck.remainingHits}] ${cleanNumber} (OpCode: ${opCode || 'auto'}) -> Error: ${result.error}`);
-
     return res.status(200).json(result);
   } catch (error) {
-    console.error('Error in DthInfo API:', error);
+    await refundUserHit(auth.user.id);
     return res.status(200).json({
       "error": "1",
       "DATA": null,
@@ -769,116 +740,169 @@ app.all([
   }
 });
 
-// ---------------- ADMIN ROUTES ---------------- //
+// ---------------- DASHBOARD INTERACTIVE QUERY ROUTES (FOR PORTAL UI) ---------------- //
 
-// Admin Login
-app.post('/api/admin/login', (req, res) => {
-  const { username, password } = req.body;
-  const settings = getSettings();
+app.get('/api/plans/mobile/meta', (req, res) => {
+  res.json({ success: true, operators: OPERATORS_LIST, circles: CIRCLES_LIST });
+});
 
-  if (username === settings.adminUsername && password === settings.adminPassword) {
-    return res.json({
+app.post('/api/plans/mobile/query', async (req, res, next) => {
+  try {
+    const t0 = performance.now();
+    const { operatorCode, circleCode, userMobile } = req.body;
+
+    if (!operatorCode || !circleCode) {
+      return res.status(400).json({ success: false, message: 'Operator and Circle are required.' });
+    }
+
+    let hitInfo = null;
+    if (userMobile) {
+      hitInfo = await deductUserHit(userMobile);
+      if (!hitInfo.allowed) {
+        return res.status(403).json({ success: false, message: 'Insufficient hits remaining.' });
+      }
+    }
+
+    const result = fetchOperatorPlans(operatorCode, circleCode);
+    const elapsedMs = (performance.now() - t0).toFixed(2);
+
+    res.json({
       success: true,
-      token: 'admin_authenticated_session_' + Date.now(),
-      message: 'Admin login successful.'
+      data: {
+        operator: result.operator,
+        circle: result.circle,
+        plans: result.plans,
+        responseTime: `${elapsedMs} ms`,
+        remainingHits: hitInfo ? hitInfo.remainingHits : undefined
+      }
     });
-  }
-
-  return res.status(401).json({ success: false, message: 'Invalid Admin username or password.' });
-});
-
-// Get WhatsApp Settings
-app.get('/api/admin/settings', (req, res) => {
-  const settings = getSettings();
-  const payments = getPayments();
-  const pendingPayments = payments.filter(p => p.status === 'Pending').length;
-
-  res.json({
-    success: true,
-    settings: {
-      baseUrl: settings.baseUrl,
-      token: settings.token,
-      otpTemplate: settings.otpTemplate,
-      adminUsername: settings.adminUsername
-    },
-    totalUsers: getUsers().length,
-    pendingPayments
-  });
-});
-
-// Save WhatsApp Settings
-app.post('/api/admin/settings', (req, res) => {
-  try {
-    const { baseUrl, token, otpTemplate } = req.body;
-    const updated = saveSettings({
-      ...(baseUrl && { baseUrl }),
-      ...(token && { token }),
-      ...(otpTemplate && { otpTemplate })
-    });
-    res.json({ success: true, message: 'WhatsApp Settings saved successfully!', settings: updated });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Failed to save settings.' });
+  } catch (e) {
+    next(e);
   }
 });
 
-// Test WhatsApp Message Dispatch
-app.post('/api/admin/send-test', async (req, res) => {
+app.post('/api/roffer/query', async (req, res, next) => {
   try {
-    const { mobile, message } = req.body;
-    if (!mobile || !message) {
-      return res.status(400).json({ success: false, message: 'Mobile number and message are required.' });
+    const t0 = performance.now();
+    const { mobile, operatorCode, userMobile } = req.body;
+
+    if (!mobile || String(mobile).trim().length < 10) {
+      return res.status(400).json({ success: false, message: 'Valid 10-digit mobile number is required.' });
     }
 
-    const result = await sendWhatsAppMessage(mobile, message);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-});
-
-// Get All Users (Admin)
-app.get('/api/admin/users', (req, res) => {
-  const users = getUsers();
-  res.json({ success: true, users });
-});
-
-// ---------------- LIVE USER DASHBOARD OPERATOR LOOKUP ROUTE ---------------- //
-
-app.post(['/api/lookup/operator', '/api/lookup/full'], async (req, res) => {
-  const t0 = performance.now();
-  const { mobile, userMobile } = req.body;
-  if (!mobile || String(mobile).trim().length < 10) {
-    return res.status(400).json({ success: false, message: 'Valid 10-digit mobile number is required.' });
-  }
-
-  // Deduct hit if userMobile provided
-  let hitInfo = { remainingHits: 100 };
-  if (userMobile) {
-    const hitCheck = deductUserHit(userMobile);
-    if (!hitCheck.allowed) {
-      return res.status(403).json({
-        success: false,
-        message: 'Your hit balance is 0. Please purchase a plan to continue.'
-      });
+    let hitInfo = null;
+    if (userMobile) {
+      hitInfo = await deductUserHit(userMobile);
+      if (!hitInfo.allowed) {
+        return res.status(403).json({ success: false, message: 'Insufficient hits remaining.' });
+      }
     }
-    hitInfo = hitCheck;
+
+    const result = await fetchRofferDetails(mobile, operatorCode);
+    const elapsedMs = (performance.now() - t0).toFixed(2);
+
+    res.json({
+      success: true,
+      data: result,
+      responseTime: `${elapsedMs} ms`,
+      remainingHits: hitInfo ? hitInfo.remainingHits : undefined
+    });
+  } catch (e) {
+    next(e);
   }
+});
 
-  const cleanMobile = String(mobile).trim().replace(/\D/g, '').slice(-10);
-
+app.post('/api/dth/query', async (req, res, next) => {
   try {
+    const t0 = performance.now();
+    const { dthNumber, operatorCode, userMobile } = req.body;
+
+    if (!dthNumber || String(dthNumber).trim().length < 8) {
+      return res.status(400).json({ success: false, message: 'Valid DTH VC Number is required.' });
+    }
+
+    let hitInfo = null;
+    if (userMobile) {
+      hitInfo = await deductUserHit(userMobile);
+      if (!hitInfo.allowed) {
+        return res.status(403).json({ success: false, message: 'Insufficient hits remaining.' });
+      }
+    }
+
+    const result = await fetchDthInfoDetails(dthNumber, operatorCode);
+    const elapsedMs = (performance.now() - t0).toFixed(2);
+
+    res.json({
+      success: true,
+      data: result,
+      responseTime: `${elapsedMs} ms`,
+      remainingHits: hitInfo ? hitInfo.remainingHits : undefined
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.post('/api/recharge/query', async (req, res, next) => {
+  try {
+    const t0 = performance.now();
+    const { mobile, operatorCode, userMobile } = req.body;
+
+    if (!mobile || String(mobile).trim().length < 8) {
+      return res.status(400).json({ success: false, message: 'Valid Mobile or VC number is required.' });
+    }
+
+    let hitInfo = null;
+    if (userMobile) {
+      hitInfo = await deductUserHit(userMobile);
+      if (!hitInfo.allowed) {
+        return res.status(403).json({ success: false, message: 'Insufficient hits remaining.' });
+      }
+    }
+
+    const result = await fetchLastRechargeDetails(mobile, operatorCode);
+    const elapsedMs = (performance.now() - t0).toFixed(2);
+
+    res.json({
+      success: true,
+      data: result,
+      responseTime: `${elapsedMs} ms`,
+      remainingHits: hitInfo ? hitInfo.remainingHits : undefined
+    });
+  } catch (e) {
+    next(e);
+  }
+});
+
+app.post(['/api/lookup/operator', '/api/lookup/full'], async (req, res, next) => {
+  try {
+    const t0 = performance.now();
+    const { mobile, userMobile } = req.body;
+    if (!mobile || String(mobile).trim().length < 10) {
+      return res.status(400).json({ success: false, message: 'Valid 10-digit mobile number is required.' });
+    }
+
+    let hitInfo = null;
+    if (userMobile) {
+      hitInfo = await deductUserHit(userMobile);
+      if (!hitInfo.allowed) {
+        return res.status(403).json({ success: false, message: 'Insufficient hits remaining.' });
+      }
+    }
+
+    const cleanMobile = String(mobile).trim().replace(/\D/g, '').slice(-10);
     let result;
+
     if (browserManager.cache && browserManager.cache.has(cleanMobile)) {
       result = browserManager.cache.get(cleanMobile);
     } else {
-      // Fetch LIVE directly from PlanAPI (https://planapi.in/OperatorLook.aspx)
       try {
         const liveRes = await browserManager.lookupOperator(cleanMobile);
         if (liveRes && liveRes.operator && liveRes.operator !== 'Unknown') {
           result = liveRes;
         }
       } catch (liveErr) {
-        console.warn(`[PlanAPI UI Live Scrape Notice for ${cleanMobile}]:`, liveErr.message);
+        logger.warn(`Live scrape notice for ${cleanMobile}: ${liveErr.message}`);
       }
 
       if (!result || !result.operator || result.operator === 'Unknown') {
@@ -896,32 +920,81 @@ app.post(['/api/lookup/operator', '/api/lookup/full'], async (req, res) => {
     }
 
     const elapsedMs = (performance.now() - t0).toFixed(4);
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       data: {
         ...result,
-        remainingHits: hitInfo.remainingHits,
+        remainingHits: hitInfo ? hitInfo.remainingHits : undefined,
         responseTime: `${elapsedMs} ms`
-      } 
+      }
     });
-  } catch (error) {
-    console.error('Error during operator lookup:', error);
-    res.status(500).json({ success: false, message: error.message || 'Operator lookup failed.' });
+  } catch (e) {
+    next(e);
   }
 });
 
-// Start Server
-app.listen(PORT, async () => {
-  await initDatabase();
+// ---------------- CENTRALIZED ERROR HANDLER ---------------- //
+app.use((err, req, res, next) => {
+  const statusCode = err.status || err.statusCode || 500;
+  const isProd = process.env.NODE_ENV === 'production';
+
+  logger.error('Unhandled Application Error', {
+    requestId: req.id,
+    error: err.message,
+    stack: isProd ? undefined : err.stack
+  });
+
+  res.status(statusCode).json({
+    success: false,
+    message: isProd && statusCode === 500 ? 'Internal Server Error' : err.message || 'An unexpected error occurred.',
+    requestId: req.id
+  });
+});
+
+// ---------------- SERVER STARTUP & GRACEFUL SHUTDOWN ---------------- //
+const server = app.listen(PORT, HOST, async () => {
+  try {
+    await initDatabase();
+  } catch (dbErr) {
+    logger.error('Database initialization fatal error', { error: dbErr.message });
+  }
+
   console.log(`\n======================================================`);
-  console.log(`🚀 PlanAPI Web Portal is running live!`);
-  console.log(`🔗 URL: http://localhost:${PORT}`);
-  console.log(`👤 User Panel: http://localhost:${PORT}`);
-  console.log(`⚙️ Admin Panel: http://localhost:${PORT}#admin`);
+  console.log(`🚀 PlanAPI High-Speed Web Portal is running live!`);
+  console.log(`🔗 Address: http://${HOST}:${PORT}`);
+  console.log(`👤 User Portal: http://localhost:${PORT}/dashboard.html`);
+  console.log(`⚙️ Admin Panel: http://localhost:${PORT}/admin.html`);
   console.log(`📡 API Endpoint: http://localhost:${PORT}/api/Mobile/OperatorFetchNew`);
   console.log(`⚡ Speed: Micro-Second In-Memory Series Engine Active!`);
-  console.log(`💳 Plans & Hit Limits Engine Active!`);
+  console.log(`🛡️ Security: Multi-Client, IP Whitelisting & Concurrency Engine Active!`);
   console.log(`🗄️ PostgreSQL Database Engine Ready!`);
   console.log(`======================================================\n`);
 });
 
+// Graceful Shutdown Handlers (SIGTERM, SIGINT)
+async function gracefulShutdown(signal) {
+  logger.info(`Received ${signal}. Starting graceful shutdown sequence...`);
+
+  server.close(async () => {
+    logger.info('HTTP server closed. Draining database and browser resources...');
+    try {
+      await browserManager.cleanup();
+      await closePool();
+      logger.info('Graceful shutdown completed cleanly.');
+      process.exit(0);
+    } catch (err) {
+      logger.error('Error during shutdown cleanup', { error: err.message });
+      process.exit(1);
+    }
+  });
+
+  setTimeout(() => {
+    logger.error('Forced shutdown: Clean exit timeout exceeded.');
+    process.exit(1);
+  }, 10000);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+
+module.exports = { app, server };

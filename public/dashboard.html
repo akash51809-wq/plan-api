@@ -108,6 +108,14 @@
               </a>
             </li>
 
+            <li class="menu-item" id="menu-clients">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('clients')">
+                <i class="menu-icon tf-icons bx bx-key text-primary"></i>
+                <div>API Keys & Whitelist</div>
+                <div class="badge bg-label-primary fs-tiny rounded-pill ms-auto">Multi-App</div>
+              </a>
+            </li>
+
             <li class="menu-item" id="menu-profile">
               <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('profile')">
                 <i class="menu-icon tf-icons bx bx-user-circle text-info"></i>
@@ -1448,6 +1456,48 @@
 
               </div>
 
+              <!-- ================= USER TAB: API APPLICATIONS & IP WHITELIST ================= -->
+              <div id="user-panel-clients" class="user-panel">
+                <div class="row">
+                  <div class="col-12 mb-4">
+                    <div class="card shadow-sm border">
+                      <div class="card-header d-flex justify-content-between align-items-center bg-light">
+                        <div>
+                          <h5 class="mb-1"><i class="bx bx-key text-primary me-2"></i>API Applications & Multi-Website Keys</h5>
+                          <p class="text-muted small mb-0">Create isolated API keys for each of your websites/servers and configure optional IP Whitelisting.</p>
+                        </div>
+                        <button class="btn btn-primary" onclick="openCreateClientModal()">
+                          <i class="bx bx-plus me-1"></i> Create New Application Key
+                        </button>
+                      </div>
+                      <div class="card-body pt-4">
+                        <div class="table-responsive text-nowrap">
+                          <table class="table table-hover align-middle">
+                            <thead class="table-light">
+                              <tr>
+                                <th>Application Name</th>
+                                <th>API Key / Token</th>
+                                <th>Allowed IP(s)</th>
+                                <th>Status</th>
+                                <th>Last Used</th>
+                                <th>Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody id="api-clients-tbody">
+                              <tr>
+                                <td colspan="6" class="text-center py-4 text-muted">
+                                  <span class="spinner-border spinner-border-sm me-2" role="status"></span> Loading API Applications...
+                                </td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               <!-- ================= USER TAB 3: PROFILE ================= -->
               <div id="user-panel-profile" class="user-panel">
                 <div class="card col-lg-8 mx-auto shadow-sm border">
@@ -1687,9 +1737,88 @@
     <!-- Toast Notification -->
     <div class="toast-container position-fixed bottom-0 end-0 p-3">
       <div id="toastNotification" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-          <div class="toast-body" id="toastMessage">Done!</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    <!-- Create API Application Modal -->
+    <div class="modal fade" id="modalCreateClient" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title text-white"><i class="bx bx-plus-circle me-2"></i>Create New API Application Key</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form onsubmit="submitCreateClient(event)">
+            <div class="modal-body pt-4">
+              <div class="mb-3">
+                <label class="form-label fw-bold">Application / Website Name <span class="text-danger">*</span></label>
+                <input type="text" id="new-client-name" class="form-control" placeholder="e.g. My WordPress Store, Android App" required />
+                <small class="text-muted">Give a descriptive name to identify which server or website uses this key.</small>
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Allowed IP Addresses / Subnets (Optional)</label>
+                <textarea id="new-client-ips" class="form-control font-monospace" rows="3" placeholder="e.g. 103.21.244.10, 192.168.1.0/24&#10;(Leave blank to allow all IPs)"></textarea>
+                <small class="text-muted">Separate multiple IPs with commas or new lines. Supports CIDR notation (e.g. <code>103.21.244.0/24</code>).</small>
+              </div>
+            </div>
+            <div class="modal-footer bg-light">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary" id="btn-create-client"><i class="bx bx-check me-1"></i> Generate API Key</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Allowed IPs Modal -->
+    <div class="modal fade" id="modalEditClientIps" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border">
+          <div class="modal-header bg-info text-white">
+            <h5 class="modal-title text-white"><i class="bx bx-shield-quarter me-2"></i>Configure Allowed IPs (Whitelist)</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form onsubmit="submitEditIps(event)">
+            <div class="modal-body pt-4">
+              <input type="hidden" id="edit-client-id" />
+              <div class="mb-3">
+                <label class="form-label fw-bold">Application Name</label>
+                <input type="text" id="edit-client-name" class="form-control" readonly />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-bold">Allowed IP Addresses / CIDRs</label>
+                <textarea id="edit-client-ips" class="form-control font-monospace" rows="4" placeholder="103.21.244.10&#10;192.168.1.0/24&#10;(Leave blank for unrestricted access)"></textarea>
+                <small class="text-muted">Only requests originating from these IP addresses will be accepted for this key.</small>
+              </div>
+            </div>
+            <div class="modal-footer bg-light">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-info text-white" id="btn-save-ips"><i class="bx bx-save me-1"></i> Save IP Whitelist</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Display Newly Generated Token Modal -->
+    <div class="modal fade" id="modalShowNewToken" tabindex="-1" aria-hidden="true" data-bs-backdrop="static">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border">
+          <div class="modal-header bg-success text-white">
+            <h5 class="modal-title text-white"><i class="bx bx-key me-2"></i>Your API Key is Ready!</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body pt-4 text-center">
+            <div class="alert alert-warning text-start mb-3">
+              <i class="bx bx-alarm-exclamation me-1"></i>
+              <strong>Security Notice:</strong> Please copy this API Token and store it securely now. For your security, this full token will <strong>not be displayed again</strong>.
+            </div>
+
+            <div class="input-group mb-3">
+              <input type="text" id="display-new-token" class="form-control font-monospace fw-bold text-success text-center" readonly />
+              <button class="btn btn-outline-success" type="button" onclick="copyNewToken()"><i class="bx bx-copy"></i> Copy</button>
+            </div>
+          </div>
+          <div class="modal-footer bg-light">
+            <button type="button" class="btn btn-success" data-bs-dismiss="modal">I Have Saved My Key</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1907,7 +2036,261 @@
         if (panelId === 'buy-plan') {
           loadUserPlans();
           loadUserPaymentHistory();
+        } else if (panelId === 'clients') {
+          loadUserApiClients();
         }
+      }
+
+      // ---------------- API CLIENTS / MULTI-APPLICATION JS ---------------- //
+
+      let createClientModalInstance = null;
+      let editIpsModalInstance = null;
+      let showTokenModalInstance = null;
+
+      async function loadUserApiClients() {
+        const tbody = document.getElementById('api-clients-tbody');
+        if (!tbody || !currentUser || !currentUser.mobile) return;
+
+        try {
+          const res = await fetch('/api/user/clients', {
+            headers: {
+              'x-user-mobile': currentUser.mobile
+            }
+          });
+          const data = await res.json();
+
+          if (data.success && data.clients && data.clients.length > 0) {
+            tbody.innerHTML = data.clients.map(c => {
+              const ips = (c.allowed_ips && c.allowed_ips.length > 0)
+                ? c.allowed_ips.map(ip => `<span class="badge bg-label-info font-monospace me-1 mb-1">${ip}</span>`).join('')
+                : '<span class="badge bg-label-secondary">All IPs Allowed (Unrestricted)</span>';
+
+              const statusBadge = c.status === 'Active'
+                ? '<span class="badge bg-label-success"><i class="bx bx-check-circle me-1"></i>Active</span>'
+                : '<span class="badge bg-label-danger"><i class="bx bx-x-circle me-1"></i>Revoked</span>';
+
+              const lastUsed = c.last_used_at
+                ? `<small class="text-dark fw-bold">${new Date(c.last_used_at).toLocaleDateString()}</small><br><small class="text-muted font-monospace">${c.last_used_ip || ''}</small>`
+                : '<small class="text-muted">Never used</small>';
+
+              const ipsJson = encodeURIComponent(JSON.stringify(c.allowed_ips || []));
+
+              return `
+                <tr>
+                  <td>
+                    <strong class="text-dark fs-6">${c.client_name}</strong>
+                    <div class="text-muted small">ID: <code>${c.id}</code></div>
+                  </td>
+                  <td>
+                    <div class="d-flex align-items-center gap-2">
+                      <code class="fw-bold">${c.api_token_preview}</code>
+                    </div>
+                  </td>
+                  <td style="max-width: 250px; white-space: normal;">
+                    ${ips}
+                  </td>
+                  <td>${statusBadge}</td>
+                  <td>${lastUsed}</td>
+                  <td>
+                    <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-info" title="Configure Allowed IPs" onclick="openEditIpsModal('${c.id}', '${encodeURIComponent(c.client_name)}', '${ipsJson}')">
+                        <i class="bx bx-shield"></i> IPs
+                      </button>
+                      <button class="btn btn-outline-warning" title="Regenerate Token" onclick="regenerateClientKey('${c.id}', '${encodeURIComponent(c.client_name)}')">
+                        <i class="bx bx-refresh"></i> Reset
+                      </button>
+                      ${c.status === 'Active' ? `
+                      <button class="btn btn-outline-danger" title="Revoke Key" onclick="revokeClient('${c.id}', '${encodeURIComponent(c.client_name)}')">
+                        <i class="bx bx-trash"></i>
+                      </button>` : ''}
+                    </div>
+                  </td>
+                </tr>
+              `;
+            }).join('');
+          } else {
+            tbody.innerHTML = `
+              <tr>
+                <td colspan="6" class="text-center py-4">
+                  <div class="text-muted mb-2">No custom API applications created yet.</div>
+                  <button class="btn btn-sm btn-primary" onclick="openCreateClientModal()">
+                    <i class="bx bx-plus"></i> Create First Application Key
+                  </button>
+                </td>
+              </tr>
+            `;
+          }
+        } catch (e) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Failed to load API clients.</td></tr>';
+        }
+      }
+
+      function openCreateClientModal() {
+        document.getElementById('new-client-name').value = '';
+        document.getElementById('new-client-ips').value = '';
+        if (!createClientModalInstance) {
+          const el = document.getElementById('modalCreateClient');
+          if (el && typeof bootstrap !== 'undefined') createClientModalInstance = new bootstrap.Modal(el);
+        }
+        if (createClientModalInstance) createClientModalInstance.show();
+      }
+
+      async function submitCreateClient(e) {
+        e.preventDefault();
+        const clientName = document.getElementById('new-client-name').value.trim();
+        const rawIps = document.getElementById('new-client-ips').value.trim();
+        const allowedIps = rawIps ? rawIps.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean) : [];
+        const btn = document.getElementById('btn-create-client');
+
+        if (!clientName) return;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Generating...';
+
+        try {
+          const res = await fetch('/api/user/clients', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-mobile': currentUser.mobile
+            },
+            body: JSON.stringify({ clientName, allowedIps })
+          });
+
+          const data = await res.json();
+          if (data.success && data.client) {
+            if (createClientModalInstance) createClientModalInstance.hide();
+            loadUserApiClients();
+
+            // Display newly generated token in secure modal
+            document.getElementById('display-new-token').value = data.client.rawToken;
+            if (!showTokenModalInstance) {
+              const el = document.getElementById('modalShowNewToken');
+              if (el && typeof bootstrap !== 'undefined') showTokenModalInstance = new bootstrap.Modal(el);
+            }
+            if (showTokenModalInstance) showTokenModalInstance.show();
+          } else {
+            showToast(data.message || 'Failed to create application.', 'bg-danger');
+          }
+        } catch (err) {
+          showToast('Error creating API client.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-check me-1"></i> Generate API Key';
+        }
+      }
+
+      function openEditIpsModal(id, encodedName, encodedIpsJson) {
+        const name = decodeURIComponent(encodedName);
+        const ips = JSON.parse(decodeURIComponent(encodedIpsJson) || '[]');
+
+        document.getElementById('edit-client-id').value = id;
+        document.getElementById('edit-client-name').value = name;
+        document.getElementById('edit-client-ips').value = ips.join('\n');
+
+        if (!editIpsModalInstance) {
+          const el = document.getElementById('modalEditClientIps');
+          if (el && typeof bootstrap !== 'undefined') editIpsModalInstance = new bootstrap.Modal(el);
+        }
+        if (editIpsModalInstance) editIpsModalInstance.show();
+      }
+
+      async function submitEditIps(e) {
+        e.preventDefault();
+        const clientId = document.getElementById('edit-client-id').value;
+        const rawIps = document.getElementById('edit-client-ips').value.trim();
+        const allowedIps = rawIps ? rawIps.split(/[\n,;]+/).map(s => s.trim()).filter(Boolean) : [];
+        const btn = document.getElementById('btn-save-ips');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Saving...';
+
+        try {
+          const res = await fetch(`/api/user/clients/${clientId}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-user-mobile': currentUser.mobile
+            },
+            body: JSON.stringify({ allowedIps })
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            showToast('IP Whitelist updated successfully!', 'bg-success');
+            if (editIpsModalInstance) editIpsModalInstance.hide();
+            loadUserApiClients();
+          } else {
+            showToast(data.message || 'Failed to update IP whitelist.', 'bg-danger');
+          }
+        } catch (err) {
+          showToast('Error updating IP whitelist.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-save me-1"></i> Save IP Whitelist';
+        }
+      }
+
+      async function regenerateClientKey(clientId, encodedName) {
+        const name = decodeURIComponent(encodedName);
+        if (!confirm(`Are you sure you want to regenerate the API key for "${name}"?\n\nThe existing key will stop working immediately!`)) {
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/user/clients/${clientId}/regenerate`, {
+            method: 'POST',
+            headers: {
+              'x-user-mobile': currentUser.mobile
+            }
+          });
+          const data = await res.json();
+          if (data.success && data.client) {
+            loadUserApiClients();
+            document.getElementById('display-new-token').value = data.client.rawToken;
+            if (!showTokenModalInstance) {
+              const el = document.getElementById('modalShowNewToken');
+              if (el && typeof bootstrap !== 'undefined') showTokenModalInstance = new bootstrap.Modal(el);
+            }
+            if (showTokenModalInstance) showTokenModalInstance.show();
+          } else {
+            showToast(data.message || 'Failed to regenerate key.', 'bg-danger');
+          }
+        } catch (e) {
+          showToast('Error regenerating key.', 'bg-danger');
+        }
+      }
+
+      async function revokeClient(clientId, encodedName) {
+        const name = decodeURIComponent(encodedName);
+        if (!confirm(`Are you sure you want to revoke the application "${name}"?\n\nThis API key will be permanently disabled.`)) {
+          return;
+        }
+
+        try {
+          const res = await fetch(`/api/user/clients/${clientId}`, {
+            method: 'DELETE',
+            headers: {
+              'x-user-mobile': currentUser.mobile
+            }
+          });
+          const data = await res.json();
+          if (data.success) {
+            showToast('Application revoked successfully.', 'bg-success');
+            loadUserApiClients();
+          } else {
+            showToast(data.message || 'Failed to revoke application.', 'bg-danger');
+          }
+        } catch (e) {
+          showToast('Error revoking application.', 'bg-danger');
+        }
+      }
+
+      function copyNewToken() {
+        const input = document.getElementById('display-new-token');
+        input.select();
+        navigator.clipboard.writeText(input.value);
+        showToast('API Key copied to clipboard!', 'bg-success');
       }
 
       function logoutUser() {

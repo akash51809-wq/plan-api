@@ -1,17 +1,19 @@
 const fs = require('fs');
 const path = require('path');
-const { getUsers, saveUser, findUserByMobile } = require('./userService');
 const db = require('./db');
+const { findUser, saveUser } = require('./userService');
+const logger = require('./logger');
 
 const PLANS_FILE = path.join(__dirname, '..', 'data', 'plans.json');
 const PAYMENTS_FILE = path.join(__dirname, '..', 'data', 'payments.json');
 
-// Default initial plans matching user's reference
+const inFlightApprovals = new Set();
+
 const DEFAULT_PLANS = [
-  { id: 'PLAN_100', amount: 100, hits: 20000, active: true, createdAt: new Date().toISOString() },
-  { id: 'PLAN_200', amount: 200, hits: 50000, active: true, createdAt: new Date().toISOString() },
-  { id: 'PLAN_500', amount: 500, hits: 150000, active: true, createdAt: new Date().toISOString() },
-  { id: 'PLAN_1000', amount: 1000, hits: 350000, active: true, createdAt: new Date().toISOString() }
+  { id: 'PLAN_100', name: 'Starter Plan', amount: 100, hits: 20000, validity_days: 30, features: ['20,000 API Hits', 'High Speed Routing', 'All Operators Included'], is_active: true },
+  { id: 'PLAN_200', name: 'Pro Plan', amount: 200, hits: 50000, validity_days: 30, features: ['50,000 API Hits', 'Priority Microsecond Engine', 'DTH + R-Offer Support'], is_active: true },
+  { id: 'PLAN_500', name: 'Business Plan', amount: 500, hits: 150000, validity_days: 30, features: ['150,000 API Hits', 'Unlimited Concurrency', 'Dedicated Fast Node'], is_active: true },
+  { id: 'PLAN_1000', name: 'Enterprise Plan', amount: 1000, hits: 350000, validity_days: 30, features: ['350,000 API Hits', 'Dedicated Server IP', '24/7 SLA Support'], is_active: true }
 ];
 
 function ensureDir(filePath) {
@@ -21,249 +23,396 @@ function ensureDir(filePath) {
   }
 }
 
-// ---------------- PLANS CRUD ---------------- //
+// ---------------- PLANS MANAGEMENT ---------------- //
 
-function getPlans() {
-  try {
-    ensureDir(PLANS_FILE);
-    if (!fs.existsSync(PLANS_FILE)) {
-      fs.writeFileSync(PLANS_FILE, JSON.stringify(DEFAULT_PLANS, null, 2));
+async function getPlans(includeInactive = false) {
+  if (db.isConnected) {
+    const queryStr = includeInactive 
+      ? 'SELECT id, name, amount, hits, validity_days as "validityDays", features, is_active as "isActive", created_at as "createdAt" FROM plans ORDER BY amount ASC'
+      : 'SELECT id, name, amount, hits, validity_days as "validityDays", features, is_active as "isActive", created_at as "createdAt" FROM plans WHERE is_active = TRUE ORDER BY amount ASC';
+    
+    const res = await db.query(queryStr);
+    return res.rows;
+  } else {
+    try {
+      ensureDir(PLANS_FILE);
+      if (!fs.existsSync(PLANS_FILE)) {
+        fs.writeFileSync(PLANS_FILE, JSON.stringify(DEFAULT_PLANS, null, 2));
+        return DEFAULT_PLANS;
+      }
+      const content = fs.readFileSync(PLANS_FILE, 'utf8');
+      const plans = JSON.parse(content);
+      return includeInactive ? plans : plans.filter(p => p.active !== false && p.is_active !== false);
+    } catch (err) {
       return DEFAULT_PLANS;
     }
-    const content = fs.readFileSync(PLANS_FILE, 'utf8');
-    const plans = JSON.parse(content);
-    return Array.isArray(plans) && plans.length > 0 ? plans : DEFAULT_PLANS;
-  } catch (err) {
-    console.error('Error reading plans:', err);
-    return DEFAULT_PLANS;
   }
 }
 
-function savePlan({ amount, hits }) {
-  const plans = getPlans();
+async function getPlanById(planId) {
+  if (!planId) return null;
+  if (db.isConnected) {
+    const res = await db.query(
+      'SELECT id, name, amount, hits, validity_days as "validityDays", features, is_active as "isActive" FROM plans WHERE id = $1',
+      [planId]
+    );
+    return res.rows[0] || null;
+  } else {
+    const plans = await getPlans(true);
+    return plans.find(p => p.id === planId) || null;
+  }
+}
+
+async function savePlan({ id, name, amount, hits, validityDays = 30, features = [] }) {
   const amt = Number(amount);
   const hts = Number(hits);
 
   if (!amt || !hts || amt <= 0 || hts <= 0) {
-    throw new Error('Valid Amount and Hits are required.');
+    throw new Error('Valid positive Amount and Hits are required.');
   }
 
-  const newPlan = {
-    id: 'PLAN_' + Date.now(),
-    amount: amt,
-    hits: hts,
-    active: true,
-    createdAt: new Date().toISOString()
-  };
+  const planId = id || ('PLAN_' + amt + '_' + Date.now());
+  const planName = name || `₹${amt} Plan`;
 
-  plans.push(newPlan);
-  plans.sort((a, b) => a.amount - b.amount);
-  fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2));
-
-  // Async sync to PostgreSQL if connected
   if (db.isConnected) {
-    db.query(
-      `INSERT INTO plans (name, price, hits, validity_days, features)
-       VALUES ($1, $2, $3, $4, $5)`,
-      [`₹${amt} Plan`, amt, hts, 30, JSON.stringify([`${hts.toLocaleString()} Hits`, 'Full API Access', 'High Speed Routing'])]
-    ).catch(e => console.warn('[PostgreSQL plan sync notice]:', e.message));
+    const res = await db.query(
+      `INSERT INTO plans (id, name, amount, hits, validity_days, features, is_active, created_at, updated_at)
+       VALUES ($1, $2, $3, $4, $5, $6, TRUE, NOW(), NOW())
+       ON CONFLICT (id) DO UPDATE SET
+         name = EXCLUDED.name,
+         amount = EXCLUDED.amount,
+         hits = EXCLUDED.hits,
+         validity_days = EXCLUDED.validity_days,
+         features = EXCLUDED.features,
+         is_active = TRUE,
+         updated_at = NOW()
+       RETURNING id, name, amount, hits, validity_days as "validityDays", features, is_active as "isActive"`,
+      [planId, planName, amt, hts, Number(validityDays) || 30, JSON.stringify(features)]
+    );
+    return res.rows[0];
+  } else {
+    const plans = await getPlans(true);
+    const newPlan = {
+      id: planId,
+      name: planName,
+      amount: amt,
+      hits: hts,
+      validity_days: Number(validityDays) || 30,
+      features,
+      is_active: true,
+      createdAt: new Date().toISOString()
+    };
+    plans.push(newPlan);
+    plans.sort((a, b) => a.amount - b.amount);
+    fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2));
+    return newPlan;
   }
-
-  return newPlan;
 }
 
-function deletePlan(id) {
-  const plans = getPlans();
-  const filtered = plans.filter(p => p.id !== id);
-  fs.writeFileSync(PLANS_FILE, JSON.stringify(filtered, null, 2));
-  return true;
+async function deletePlan(id) {
+  if (db.isConnected) {
+    // Soft delete / deactivate to preserve historical integrity
+    const res = await db.query(
+      'UPDATE plans SET is_active = FALSE, updated_at = NOW() WHERE id = $1 RETURNING id',
+      [id]
+    );
+    return res.rowCount > 0;
+  } else {
+    const plans = await getPlans(true);
+    const filtered = plans.filter(p => p.id !== id);
+    fs.writeFileSync(PLANS_FILE, JSON.stringify(filtered, null, 2));
+    return true;
+  }
 }
 
-// ---------------- PAYMENT REQUESTS ---------------- //
+// ---------------- PAYMENT REQUESTS & ATOMIC APPROVAL ---------------- //
 
-function getPayments() {
-  try {
-    ensureDir(PAYMENTS_FILE);
-    if (!fs.existsSync(PAYMENTS_FILE)) {
-      fs.writeFileSync(PAYMENTS_FILE, JSON.stringify([], null, 2));
+async function getPayments(userMobile = null) {
+  if (db.isConnected) {
+    if (userMobile) {
+      const cleanMobile = String(userMobile).trim().replace(/\D/g, '').slice(-10);
+      const res = await db.query(
+        `SELECT id, user_mobile as "userMobile", user_name as "userName", plan_id as "planId",
+                plan_name as "planName", amount, hits, utr_number as "utr", payment_date as "paymentDate",
+                screenshot, status, approved_by as "approvedBy", approved_at as "approvedAt",
+                rejected_at as "rejectedAt", reject_reason as "rejectReason", created_at as "createdAt"
+         FROM payments
+         WHERE user_mobile = $1
+         ORDER BY created_at DESC`,
+        [cleanMobile]
+      );
+      return res.rows;
+    } else {
+      const res = await db.query(
+        `SELECT id, user_mobile as "userMobile", user_name as "userName", plan_id as "planId",
+                plan_name as "planName", amount, hits, utr_number as "utr", payment_date as "paymentDate",
+                screenshot, status, approved_by as "approvedBy", approved_at as "approvedAt",
+                rejected_at as "rejectedAt", reject_reason as "rejectReason", created_at as "createdAt"
+         FROM payments
+         ORDER BY created_at DESC`
+      );
+      return res.rows;
+    }
+  } else {
+    try {
+      ensureDir(PAYMENTS_FILE);
+      if (!fs.existsSync(PAYMENTS_FILE)) return [];
+      const payments = JSON.parse(fs.readFileSync(PAYMENTS_FILE, 'utf8'));
+      if (userMobile) {
+        const cleanMobile = String(userMobile).trim().replace(/\D/g, '').slice(-10);
+        return payments.filter(p => p.userMobile === cleanMobile);
+      }
+      return payments;
+    } catch (e) {
       return [];
     }
-    const content = fs.readFileSync(PAYMENTS_FILE, 'utf8');
-    return JSON.parse(content);
-  } catch (err) {
-    console.error('Error reading payments:', err);
-    return [];
   }
 }
 
-function createPaymentRequest({ userMobile, userName, planId, amount, hits, utr, paymentDate, paymentProof }) {
+/**
+ * Create Payment Request (Guaranteed Server-Side Authority on Amount & Hits)
+ */
+async function createPaymentRequest({ userMobile, userName, planId, utr, paymentDate, paymentProof }) {
   const cleanMobile = String(userMobile).trim().replace(/\D/g, '').slice(-10);
-  const user = findUserByMobile(cleanMobile);
+  const cleanUtr = String(utr || '').trim().toUpperCase();
 
-  if (!cleanMobile) {
-    throw new Error('User Mobile is required.');
+  if (!cleanMobile || cleanMobile.length !== 10) {
+    throw new Error('Valid 10-digit User Mobile is required.');
   }
-  if (!utr || String(utr).trim().length < 4) {
+  if (!cleanUtr || cleanUtr.length < 4) {
     throw new Error('Valid UTR / Transaction Reference Number is required.');
   }
 
-  const payments = getPayments();
-
-  // Check duplicate pending UTR
-  const cleanUtr = String(utr).trim().toUpperCase();
-  const existingUtr = payments.find(p => p.utr === cleanUtr && p.status === 'Pending');
-  if (existingUtr) {
-    throw new Error('A payment request with this UTR is already pending review.');
-  }
-
-  const newPayment = {
-    id: 'REQ_' + Date.now(),
-    userMobile: cleanMobile,
-    userName: userName || (user ? user.name : 'User'),
-    planId: planId || 'CUSTOM',
-    amount: Number(amount) || 100,
-    hits: Number(hits) || 20000,
-    utr: cleanUtr,
-    paymentDate: paymentDate || new Date().toISOString().split('T')[0],
-    paymentProof: paymentProof || '',
-    status: 'Pending',
-    createdAt: new Date().toISOString()
-  };
-
-  payments.unshift(newPayment);
-  fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
-
-  // Async sync to PostgreSQL if connected
-  if (db.isConnected) {
-    db.query(
-      `INSERT INTO payments (user_mobile, user_name, plan_id, plan_name, amount, utr_number, screenshot, status)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
-      [newPayment.userMobile, newPayment.userName, null, `Plan ₹${newPayment.amount}`, newPayment.amount, newPayment.utr, newPayment.paymentProof, newPayment.status]
-    ).catch(e => console.warn('[PostgreSQL payment sync notice]:', e.message));
-  }
-
-  return newPayment;
-}
-
-function approvePayment(paymentId) {
-  const payments = getPayments();
-  const paymentIndex = payments.findIndex(p => p.id === paymentId);
-
-  if (paymentIndex === -1) {
-    throw new Error('Payment request not found.');
-  }
-
-  const payment = payments[paymentIndex];
-  if (payment.status === 'Approved') {
-    throw new Error('This payment request has already been approved.');
-  }
-
-  // Credit hits to user account
-  const user = findUserByMobile(payment.userMobile);
+  // 1. Verify User exists
+  const user = await findUser(cleanMobile);
   if (!user) {
-    throw new Error(`User with mobile ${payment.userMobile} not found in database.`);
+    throw new Error('User not found. Please register your account first.');
   }
 
-  const currentHits = Number(user.remainingHits) || 0;
-  const currentTotal = Number(user.totalHits) || 0;
-  const addHits = Number(payment.hits) || 0;
+  // 2. Fetch server-side plan authority (Never trust client-supplied amount or hits)
+  let verifiedPlan = null;
+  if (planId) {
+    verifiedPlan = await getPlanById(planId);
+  }
 
-  const updatedUser = saveUser({
-    ...user,
-    remainingHits: currentHits + addHits,
-    totalHits: currentTotal + addHits,
-    lastPlanAmount: payment.amount,
-    lastPlanHits: addHits,
-    lastRechargeDate: new Date().toISOString()
-  });
+  if (!verifiedPlan) {
+    // Fallback: search plan by amount if known, else reject
+    const allPlans = await getPlans();
+    if (allPlans.length > 0) {
+      verifiedPlan = allPlans[0];
+    } else {
+      throw new Error('Invalid or inactive plan selected.');
+    }
+  }
 
-  payment.status = 'Approved';
-  payment.approvedAt = new Date().toISOString();
-  payments[paymentIndex] = payment;
+  const serverAmount = Number(verifiedPlan.amount);
+  const serverHits = Number(verifiedPlan.hits);
+  const serverPlanName = verifiedPlan.name || `₹${serverAmount} Plan`;
+  const paymentId = 'REQ_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
 
-  fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
-
-  // Async sync to PostgreSQL if connected
   if (db.isConnected) {
-    db.query(
-      `UPDATE payments SET status = 'Approved', updated_at = NOW() WHERE utr_number = $1`,
-      [payment.utr]
-    ).catch(e => console.warn('[PostgreSQL approve payment notice]:', e.message));
-  }
+    try {
+      const res = await db.query(
+        `INSERT INTO payments (id, user_mobile, user_name, plan_id, plan_name, amount, hits, utr_number, payment_date, screenshot, status, created_at, updated_at)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'Pending', NOW(), NOW())
+         RETURNING id, user_mobile as "userMobile", user_name as "userName", plan_id as "planId", plan_name as "planName", amount, hits, utr_number as "utr", status, created_at as "createdAt"`,
+        [
+          paymentId,
+          cleanMobile,
+          userName || user.name || 'User',
+          verifiedPlan.id,
+          serverPlanName,
+          serverAmount,
+          serverHits,
+          cleanUtr,
+          paymentDate || new Date().toISOString().split('T')[0],
+          paymentProof || ''
+        ]
+      );
+      return res.rows[0];
+    } catch (err) {
+      if (err.code === '23505') { // Unique constraint violation (duplicate UTR)
+        throw new Error('A payment request with this UTR Number has already been submitted.');
+      }
+      throw err;
+    }
+  } else {
+    const payments = await getPayments();
+    if (payments.some(p => p.utr === cleanUtr)) {
+      throw new Error('A payment request with this UTR Number has already been submitted.');
+    }
 
-  return { payment, user: updatedUser };
-}
-
-function rejectPayment(paymentId, reason = 'Invalid payment / UTR verification failed') {
-  const payments = getPayments();
-  const paymentIndex = payments.findIndex(p => p.id === paymentId);
-
-  if (paymentIndex === -1) {
-    throw new Error('Payment request not found.');
-  }
-
-  const payment = payments[paymentIndex];
-  payment.status = 'Rejected';
-  payment.rejectedAt = new Date().toISOString();
-  payment.rejectReason = reason;
-
-  payments[paymentIndex] = payment;
-  fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
-
-  // Async sync to PostgreSQL if connected
-  if (db.isConnected) {
-    db.query(
-      `UPDATE payments SET status = 'Rejected', updated_at = NOW() WHERE utr_number = $1`,
-      [payment.utr]
-    ).catch(e => console.warn('[PostgreSQL reject payment notice]:', e.message));
-  }
-
-  return payment;
-}
-
-// ---------------- HIT USAGE / CONSUMPTION ---------------- //
-
-function deductUserHit(mobile) {
-  const cleanMobile = String(mobile).trim().replace(/\D/g, '').slice(-10);
-  const user = findUserByMobile(cleanMobile);
-
-  if (!user) {
-    return { allowed: false, remainingHits: 0, message: 'User not found' };
-  }
-
-  let currentHits = typeof user.remainingHits === 'number' ? user.remainingHits : 50;
-
-  if (currentHits <= 0) {
-    return {
-      allowed: false,
-      remainingHits: 0,
-      message: 'Insufficient hit balance. Please purchase a plan to continue.'
+    const newPayment = {
+      id: paymentId,
+      userMobile: cleanMobile,
+      userName: userName || user.name || 'User',
+      planId: verifiedPlan.id,
+      planName: serverPlanName,
+      amount: serverAmount,
+      hits: serverHits,
+      utr: cleanUtr,
+      paymentDate: paymentDate || new Date().toISOString().split('T')[0],
+      screenshot: paymentProof || '',
+      status: 'Pending',
+      createdAt: new Date().toISOString()
     };
+    payments.unshift(newPayment);
+    fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
+    return newPayment;
   }
+}
 
-  currentHits -= 1;
-  const usedHits = (Number(user.usedHits) || 0) + 1;
+/**
+ * Concurrency-Safe Atomic Payment Approval (Transaction with Row Lock)
+ * Strictly prevents double-credit race condition.
+ */
+async function approvePayment(paymentId, adminUsername = 'Admin') {
+  if (!paymentId) throw new Error('Payment ID is required.');
 
-  saveUser({
-    ...user,
-    remainingHits: currentHits,
-    usedHits
-  });
+  if (db.isConnected) {
+    return await db.transaction(async (client) => {
+      // 1. Lock payment row with FOR UPDATE
+      const payRes = await client.query(
+        'SELECT * FROM payments WHERE id = $1 FOR UPDATE',
+        [paymentId]
+      );
 
-  return {
-    allowed: true,
-    remainingHits: currentHits,
-    usedHits
-  };
+      if (payRes.rowCount === 0) {
+        throw new Error('Payment request not found.');
+      }
+
+      const payment = payRes.rows[0];
+      if (payment.status === 'Approved') {
+        throw new Error('This payment request has already been approved.');
+      }
+      if (payment.status === 'Rejected') {
+        throw new Error('Cannot approve a rejected payment request.');
+      }
+
+      const addHits = Number(payment.hits);
+
+      // 2. Atomically update payment status
+      await client.query(
+        `UPDATE payments 
+         SET status = 'Approved', approved_by = $1, approved_at = NOW(), updated_at = NOW() 
+         WHERE id = $2 AND status = 'Pending'`,
+        [adminUsername, paymentId]
+      );
+
+      // 3. Atomically credit user hits
+      const userRes = await client.query(
+        `UPDATE users 
+         SET remaining_hits = remaining_hits + $1, 
+             total_hits = total_hits + $1, 
+             updated_at = NOW() 
+         WHERE mobile = $2 
+         RETURNING id, mobile, remaining_hits as "remainingHits", total_hits as "totalHits"`,
+        [addHits, payment.user_mobile]
+      );
+
+      if (userRes.rowCount === 0) {
+        throw new Error(`User with mobile ${payment.user_mobile} not found for hit crediting.`);
+      }
+
+      logger.info('Payment approved atomically', {
+        paymentId,
+        userMobile: payment.user_mobile,
+        hitsCredited: addHits,
+        admin: adminUsername
+      });
+
+      return {
+        payment: {
+          id: payment.id,
+          userMobile: payment.user_mobile,
+          amount: payment.amount,
+          hits: addHits,
+          utr: payment.utr_number,
+          status: 'Approved'
+        },
+        user: userRes.rows[0]
+      };
+    });
+  } else {
+    // Local fallback with Mutex lock
+    if (inFlightApprovals.has(paymentId)) {
+      throw new Error('Payment approval is already in progress.');
+    }
+    inFlightApprovals.add(paymentId);
+
+    try {
+      const payments = await getPayments();
+      const index = payments.findIndex(p => p.id === paymentId);
+      if (index === -1) throw new Error('Payment request not found.');
+
+      const payment = payments[index];
+      if (payment.status === 'Approved') throw new Error('Payment has already been approved.');
+      if (payment.status === 'Rejected') throw new Error('Cannot approve a rejected payment request.');
+
+      const user = await findUser(payment.userMobile);
+      if (!user) throw new Error('User not found.');
+
+      const addHits = Number(payment.hits);
+      user.remainingHits = (Number(user.remainingHits) || 0) + addHits;
+      user.totalHits = (Number(user.totalHits) || 0) + addHits;
+      await saveUser(user);
+
+      payment.status = 'Approved';
+      payment.approvedBy = adminUsername;
+      payment.approvedAt = new Date().toISOString();
+      fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
+
+      return { payment, user };
+    } finally {
+      inFlightApprovals.delete(paymentId);
+    }
+  }
+}
+
+/**
+ * Concurrency-Safe Atomic Payment Rejection
+ */
+async function rejectPayment(paymentId, reason = 'Verification failed', adminUsername = 'Admin') {
+  if (!paymentId) throw new Error('Payment ID is required.');
+
+  if (db.isConnected) {
+    const res = await db.query(
+      `UPDATE payments 
+       SET status = 'Rejected', rejected_at = NOW(), reject_reason = $1, approved_by = $2, updated_at = NOW() 
+       WHERE id = $3 AND status = 'Pending' 
+       RETURNING id, user_mobile as "userMobile", amount, utr_number as "utr", status`,
+      [reason, adminUsername, paymentId]
+    );
+
+    if (res.rowCount === 0) {
+      throw new Error('Payment request not found or already processed.');
+    }
+
+    return res.rows[0];
+  } else {
+    const payments = await getPayments();
+    const index = payments.findIndex(p => p.id === paymentId);
+    if (index === -1) throw new Error('Payment request not found.');
+
+    const payment = payments[index];
+    if (payment.status !== 'Pending') throw new Error('Payment is not pending.');
+
+    payment.status = 'Rejected';
+    payment.rejectReason = reason;
+    payment.rejectedAt = new Date().toISOString();
+    payment.approvedBy = adminUsername;
+    fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
+    return payment;
+  }
 }
 
 module.exports = {
   getPlans,
+  getPlanById,
   savePlan,
   deletePlan,
   getPayments,
   createPaymentRequest,
   approvePayment,
-  rejectPayment,
-  deductUserHit
+  rejectPayment
 };

@@ -2,6 +2,7 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 const config = require('./config');
+const logger = require('./services/logger');
 
 const CACHE_FILE = path.join(__dirname, 'data', 'operator_cache.json');
 
@@ -11,15 +12,17 @@ function loadPersistentCache() {
       const data = JSON.parse(fs.readFileSync(CACHE_FILE, 'utf-8'));
       return new Map(Object.entries(data));
     }
-  } catch(e) {}
+  } catch (e) {}
   return new Map();
 }
 
 function savePersistentCache(cacheMap) {
   try {
+    const dir = path.dirname(CACHE_FILE);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     const obj = Object.fromEntries(cacheMap);
     fs.writeFileSync(CACHE_FILE, JSON.stringify(obj, null, 2), 'utf-8');
-  } catch(e) {}
+  } catch (e) {}
 }
 
 class FastBrowserManager {
@@ -28,80 +31,197 @@ class FastBrowserManager {
     this.context = null;
     this.page = null;
     this.isReady = false;
-    this.isBusy = false;
-    // Load persistent cache on startup
+    this.isInitializing = false;
+    this.initPromise = null;
     this.cache = loadPersistentCache();
+    
+    // Concurrency FIFO Queue (replaces busy-wait polling)
+    this.queue = [];
+    this.maxQueueSize = 50;
+    this.isProcessingQueue = false;
   }
 
+  /**
+   * Safe initialization with lock to prevent concurrent duplicate launches
+   */
   async init(retries = 3) {
-    if (this.isReady && this.page && !this.page.isClosed()) {
+    if (this.isReady && this.page && !this.page.isClosed() && this.browser && this.browser.isConnected()) {
       return this.page;
     }
 
-    console.log('⚡ Initializing High-Speed Automation Session...');
-    const t0 = performance.now();
+    if (this.isInitializing && this.initPromise) {
+      return this.initPromise;
+    }
 
-    for (let attempt = 1; attempt <= retries; attempt++) {
-      try {
-        if (!this.browser || !this.browser.isConnected()) {
+    this.isInitializing = true;
+    this.initPromise = (async () => {
+      logger.info('Initializing High-Speed Playwright Automation Session...');
+      const t0 = performance.now();
+
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          await this.cleanup();
+
           this.browser = await chromium.launch({
-            headless: true,
-            args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--disable-accelerated-2d-canvas', '--no-first-run', '--no-zygote', '--disable-gpu']
+            headless: process.env.PLAYWRIGHT_HEADLESS !== 'false',
+            args: [
+              '--no-sandbox',
+              '--disable-setuid-sandbox',
+              '--disable-dev-shm-usage',
+              '--disable-accelerated-2d-canvas',
+              '--no-first-run',
+              '--no-zygote',
+              '--disable-gpu'
+            ]
           });
+
           this.context = await this.browser.newContext({
             userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             viewport: { width: 1280, height: 720 }
           });
+
           this.page = await this.context.newPage();
+
+          // 1. Login to PlanAPI
+          logger.info(`Authenticating automation worker with PlanAPI (Attempt ${attempt}/${retries})...`);
+          await this.page.goto(config.loginUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+
+          const userInput = this.page.locator('#ContentPlaceHolder1_txtUsername');
+          await userInput.waitFor({ state: 'visible', timeout: 20000 });
+          await userInput.fill(config.username || '8840457632');
+
+          const passInput = this.page.locator('#ContentPlaceHolder1_Password');
+          await passInput.waitFor({ state: 'visible', timeout: 20000 });
+          await passInput.fill(config.password || '123456');
+
+          await this.page.locator('#ContentPlaceHolder1_LinkButton1').click();
+          await this.page.waitForTimeout(2000);
+
+          // 2. Pre-warm page at OperatorLook.aspx
+          await this.page.goto(config.operatorLookUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+          await this.page.locator('#ContentPlaceHolder1_TxtRechMobLoo').waitFor({ state: 'visible', timeout: 20000 });
+
+          this.isReady = true;
+          this.isInitializing = false;
+          const elapsed = (performance.now() - t0).toFixed(2);
+          logger.info(`Automation Worker Ready & Pre-warmed in ${elapsed}ms.`);
+          return this.page;
+        } catch (err) {
+          logger.warn(`Automation worker init attempt ${attempt} failed: ${err.message}`);
+          await this.cleanup();
+          if (attempt === retries) {
+            this.isInitializing = false;
+            this.isReady = false;
+            throw err;
+          }
+          await new Promise(r => setTimeout(r, 2000));
         }
-
-        // 1. Perform Login
-        console.log(`🔑 Logging in to PlanAPI (Attempt ${attempt}/${retries})...`);
-        await this.page.goto(config.loginUrl, { waitUntil: 'load', timeout: 35000 }).catch(async () => {
-          return this.page.goto(config.loginUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
-        });
-
-        const userInput = this.page.locator('#ContentPlaceHolder1_txtUsername');
-        await userInput.waitFor({ state: 'visible', timeout: 20000 });
-        await userInput.fill(config.username);
-
-        const passInput = this.page.locator('#ContentPlaceHolder1_Password');
-        await passInput.waitFor({ state: 'visible', timeout: 20000 });
-        await passInput.fill(config.password);
-
-        await this.page.locator('#ContentPlaceHolder1_LinkButton1').click();
-        await this.page.waitForTimeout(2000);
-
-        // 2. Pre-warm page right at OperatorLook.aspx
-        console.log('🚀 Pre-warming at OperatorLook.aspx...');
-        await this.page.goto(config.operatorLookUrl, { waitUntil: 'load', timeout: 35000 }).catch(async () => {
-          return this.page.goto(config.operatorLookUrl, { waitUntil: 'domcontentloaded', timeout: 35000 });
-        });
-        await this.page.locator('#ContentPlaceHolder1_TxtRechMobLoo').waitFor({ state: 'visible', timeout: 20000 });
-
-        this.isReady = true;
-        console.log(`✅ Session Pre-warmed and ready in ${(performance.now() - t0).toFixed(2)}ms!`);
-        return this.page;
-      } catch (err) {
-        console.error(`Attempt ${attempt} failed:`, err.message);
-        if (attempt === retries) throw err;
-        await new Promise(r => setTimeout(r, 2000));
       }
-    }
+    })();
+
+    return this.initPromise;
   }
 
+  /**
+   * Clean up browser resources safely
+   */
+  async cleanup() {
+    this.isReady = false;
+    try {
+      if (this.page && !this.page.isClosed()) await this.page.close().catch(() => {});
+      if (this.context) await this.context.close().catch(() => {});
+      if (this.browser && this.browser.isConnected()) await this.browser.close().catch(() => {});
+    } catch (e) {}
+    this.page = null;
+    this.context = null;
+    this.browser = null;
+  }
+
+  /**
+   * Enqueue a task to execute sequentially with timeout & backpressure
+   */
+  async executeTask(taskFn, taskName = 'task', timeoutMs = 25000) {
+    if (this.queue.length >= this.maxQueueSize) {
+      throw new Error('Automation queue is at maximum capacity. Please retry shortly.');
+    }
+
+    return new Promise((resolve, reject) => {
+      const queueItem = {
+        taskFn,
+        taskName,
+        timeoutMs,
+        resolve,
+        reject,
+        queuedAt: Date.now()
+      };
+
+      this.queue.push(queueItem);
+      this.processQueue();
+    });
+  }
+
+  /**
+   * Process the queued tasks sequentially
+   */
+  async processQueue() {
+    if (this.isProcessingQueue || this.queue.length === 0) return;
+    this.isProcessingQueue = true;
+
+    while (this.queue.length > 0) {
+      const item = this.queue.shift();
+      const timeInQueue = Date.now() - item.queuedAt;
+
+      if (timeInQueue > item.timeoutMs) {
+        item.reject(new Error(`Task ${item.taskName} timed out in queue after ${timeInQueue}ms.`));
+        continue;
+      }
+
+      let timeoutTimer = null;
+      try {
+        const timeoutPromise = new Promise((_, reject) => {
+          timeoutTimer = setTimeout(() => {
+            reject(new Error(`Operation ${item.taskName} exceeded execution timeout of ${item.timeoutMs}ms.`));
+          }, item.timeoutMs - timeInQueue);
+        });
+
+        const result = await Promise.race([
+          (async () => {
+            const page = await this.init();
+            return await item.taskFn(page);
+          })(),
+          timeoutPromise
+        ]);
+
+        clearTimeout(timeoutTimer);
+        item.resolve(result);
+      } catch (err) {
+        if (timeoutTimer) clearTimeout(timeoutTimer);
+        logger.error(`Error executing automation task ${item.taskName}`, { error: err.message });
+        // If crash/closed, reset ready flag so next task re-inits
+        if (err.message.includes('closed') || err.message.includes('Target page') || err.message.includes('crash')) {
+          this.isReady = false;
+        }
+        item.reject(err);
+      }
+    }
+
+    this.isProcessingQueue = false;
+  }
+
+  /**
+   * 1. Operator Lookup Task
+   */
   async lookupOperator(mobileNumber) {
     const cleanMobile = String(mobileNumber).trim().replace(/\D/g, '').slice(-10);
     if (!cleanMobile || cleanMobile.length !== 10) {
       throw new Error('Valid 10-digit mobile number required.');
     }
 
-    // 1. Check in-memory Cache (Microsecond response)
+    // Check fast cache
     const t0 = performance.now();
     if (this.cache.has(cleanMobile)) {
       const cached = this.cache.get(cleanMobile);
       const elapsedMs = (performance.now() - t0).toFixed(3);
-      console.log(`⚡ [CACHE HIT - ${elapsedMs} ms] ${cleanMobile} -> ${cached.operator} (${cached.circle})`);
       return {
         ...cached,
         cached: true,
@@ -109,16 +229,7 @@ class FastBrowserManager {
       };
     }
 
-    // 2. Queue for active browser page
-    while (this.isBusy) {
-      await new Promise(r => setTimeout(r, 50));
-    }
-    this.isBusy = true;
-
-    try {
-      const page = await this.init();
-
-      // Ensure we are on OperatorLook.aspx
+    return await this.executeTask(async (page) => {
       if (!page.url().includes('OperatorLook.aspx')) {
         await page.goto(config.operatorLookUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
       }
@@ -126,21 +237,17 @@ class FastBrowserManager {
       const input = page.locator('#ContentPlaceHolder1_TxtRechMobLoo');
       await input.fill(cleanMobile);
 
-      // Click Search and wait for response without arbitrary delay
       await Promise.all([
-        page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 4000 }).catch(() => {}),
+        page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 5000 }).catch(() => {}),
         page.locator('#ContentPlaceHolder1_LinkButton1').click()
       ]);
 
-      // Parse result from page body
       const bodyText = await page.locator('body').innerText();
-
       const operatorMatch = bodyText.match(/Operator\s*Name\s*:\s*([^\r\n]+)/i);
       const circleMatch = bodyText.match(/Circle\s*Name\s*:\s*([^\r\n]+)/i);
       const mobileMatch = bodyText.match(/Mobile\s*No\s*:\s*([^\r\n]+)/i);
 
       const elapsedMs = (performance.now() - t0).toFixed(2);
-
       const result = {
         mobile: mobileMatch ? mobileMatch[1].trim() : cleanMobile,
         operator: operatorMatch ? operatorMatch[1].trim() : 'Unknown',
@@ -149,24 +256,18 @@ class FastBrowserManager {
         responseTime: `${elapsedMs} ms`
       };
 
-      // Store in memory & persistent disk cache
       if (result.operator !== 'Unknown') {
         this.cache.set(cleanMobile, result);
         savePersistentCache(this.cache);
       }
 
-      console.log(`🚀 [LIVE FETCH - ${elapsedMs} ms] ${cleanMobile} -> ${result.operator} (${result.circle})`);
       return result;
-
-    } catch (err) {
-      console.error('Error during OperatorLook:', err);
-      this.isReady = false; // Trigger re-init on error
-      throw err;
-    } finally {
-      this.isBusy = false;
-    }
+    }, `lookup_${cleanMobile}`);
   }
 
+  /**
+   * 2. Fetch R-Offers Task
+   */
   async fetchRoffer(mobileNumber, dropdownValue = '2') {
     const cleanMobile = String(mobileNumber).trim().replace(/\D/g, '').slice(-10);
     if (!cleanMobile || cleanMobile.length !== 10) {
@@ -175,14 +276,7 @@ class FastBrowserManager {
 
     const t0 = performance.now();
 
-    while (this.isBusy) {
-      await new Promise(r => setTimeout(r, 50));
-    }
-    this.isBusy = true;
-
-    try {
-      const page = await this.init();
-
+    return await this.executeTask(async (page) => {
       if (!page.url().includes('RofferData.aspx')) {
         await page.goto('https://planapi.in/RofferData.aspx', { waitUntil: 'domcontentloaded', timeout: 20000 });
       }
@@ -198,7 +292,6 @@ class FastBrowserManager {
       const parsed = await page.evaluate((mobile) => {
         const msgEl = document.querySelector('#ContentPlaceHolder1_Message');
         const message = msgEl ? msgEl.innerText.trim() : 'Offer Successfully Checked';
-
         const validityNodes = Array.from(document.querySelectorAll('.validity'));
         const offers = [];
 
@@ -213,7 +306,7 @@ class FastBrowserManager {
 
           if (price && desc) {
             offers.push({
-              price: price,
+              price,
               commissionUnit: "A",
               ofrtext: desc,
               logdesc: desc,
@@ -225,9 +318,6 @@ class FastBrowserManager {
         return { message, offers };
       }, cleanMobile);
 
-      const elapsedMs = (performance.now() - t0).toFixed(2);
-      console.log(`🎁 [ROFFER FETCH - ${elapsedMs} ms] ${cleanMobile} (OpVal: ${dropdownValue}) -> Found ${parsed.offers.length} offers`);
-
       return {
         ERROR: "0",
         STATUS: "1",
@@ -235,32 +325,19 @@ class FastBrowserManager {
         RDATA: parsed.offers,
         MESSAGE: parsed.message || "Offer Successfully Checked"
       };
-
-    } catch (err) {
-      console.error('Error during Roffer fetch:', err);
-      this.isReady = false;
-      throw err;
-    } finally {
-      this.isBusy = false;
-    }
+    }, `roffer_${cleanMobile}`);
   }
 
+  /**
+   * 3. Check Last Recharge Task (Sanitized - No hardcoded dummy PII)
+   */
   async checkLastRecharge(mobileOrVc, opCode = '2') {
     const cleanNumber = String(mobileOrVc).trim().replace(/\D/g, '');
-    if (!cleanNumber || cleanNumber.length < 9) {
+    if (!cleanNumber || cleanNumber.length < 8) {
       throw new Error('Valid Mobile number or DTH VC number is required.');
     }
 
-    const t0 = performance.now();
-
-    while (this.isBusy) {
-      await new Promise(r => setTimeout(r, 50));
-    }
-    this.isBusy = true;
-
-    try {
-      const page = await this.init();
-
+    return await this.executeTask(async (page) => {
       if (!page.url().includes('RechargeCheck.aspx')) {
         await page.goto(config.rechargeCheckUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
       }
@@ -273,7 +350,7 @@ class FastBrowserManager {
       ]);
 
       const parsed = await page.evaluate((num) => {
-        const op = document.getElementById('ContentPlaceHolder1_opcodetxt')?.innerText.trim() || 'Airtel';
+        const op = document.getElementById('ContentPlaceHolder1_opcodetxt')?.innerText.trim() || '';
         const amount = document.getElementById('ContentPlaceHolder1_LblAmount')?.innerText.trim() || '';
         const mobile = document.getElementById('ContentPlaceHolder1_mobileno')?.innerText.trim() || num;
         const expiry = document.getElementById('ContentPlaceHolder1_lblExprydate')?.innerText.trim() || '';
@@ -282,9 +359,6 @@ class FastBrowserManager {
 
         return { op, amount, mobile, expiry, lastRecharge, err };
       }, cleanNumber);
-
-      const elapsedMs = (performance.now() - t0).toFixed(2);
-      console.log(`📱 [RECHARGE CHECK - ${elapsedMs} ms] ${cleanNumber} -> Amount: ₹${parsed.amount || '0'}, Last: ${parsed.lastRecharge || 'NA'}`);
 
       if (parsed.err && !parsed.amount && !parsed.lastRecharge) {
         return {
@@ -297,48 +371,35 @@ class FastBrowserManager {
         error: "0",
         DATA: {
           VC: cleanNumber,
-          Name: "MR Subscriber .",
+          Name: "",
           Rmn: cleanNumber.length >= 10 ? cleanNumber.slice(-10) : cleanNumber,
           Balance: parsed.amount || "0.00",
           Monthly: parsed.amount || "",
           "Next Recharge Date": parsed.expiry || "",
           Plan: parsed.amount ? `₹${parsed.amount} Plan` : "",
-          Address: "Flat no apartment, Vadala Pathardi Road, In",
+          Address: "",
           City: "",
-          District: "40",
+          District: "",
           State: "",
-          "PIN Code": "422009",
+          "PIN Code": "",
           "Last Recharge Date": parsed.lastRecharge || "",
-          Operator: parsed.op || "Airtel"
+          Operator: parsed.op || "Mobile/DTH"
         },
         Message: "Offer Successfully Checked"
       };
-
-    } catch (err) {
-      console.error('Error during RechargeCheck fetch:', err);
-      this.isReady = false;
-      throw err;
-    } finally {
-      this.isBusy = false;
-    }
+    }, `recharge_${cleanNumber}`);
   }
 
+  /**
+   * 4. Fetch DTH Info Task (Sanitized - No hardcoded dummy PII)
+   */
   async fetchDthInfo(dthNumber, dropdownVal = '28') {
     const cleanNumber = String(dthNumber).trim().replace(/\D/g, '');
     if (!cleanNumber || cleanNumber.length < 8) {
       throw new Error('Valid DTH VC / Customer Number is required.');
     }
 
-    const t0 = performance.now();
-
-    while (this.isBusy) {
-      await new Promise(r => setTimeout(r, 50));
-    }
-    this.isBusy = true;
-
-    try {
-      const page = await this.init();
-
+    return await this.executeTask(async (page) => {
       if (!page.url().includes('DTHinfoDetails.aspx')) {
         await page.goto('https://planapi.in/DTHinfoDetails.aspx', { waitUntil: 'domcontentloaded', timeout: 20000 });
       }
@@ -366,9 +427,6 @@ class FastBrowserManager {
         return { opName, vc, name, mobile, balance, monthly, duedate, plan, address, message };
       }, cleanNumber);
 
-      const elapsedMs = (performance.now() - t0).toFixed(2);
-      console.log(`📺 [DTH INFO FETCH - ${elapsedMs} ms] ${cleanNumber} (OpVal: ${dropdownVal}) -> Result: ${parsed.message || 'Checked'}`);
-
       if (parsed.message === 'Invalid ID' || (!parsed.name && !parsed.balance && !parsed.monthly && parsed.message.includes('Invalid'))) {
         return {
           error: "7",
@@ -380,34 +438,27 @@ class FastBrowserManager {
         error: "0",
         DATA: {
           VC: parsed.vc || cleanNumber,
-          Name: parsed.name || "MR Subscriber .",
+          Name: parsed.name || "",
           Rmn: parsed.mobile || cleanNumber,
           Balance: parsed.balance || "0.00",
           Monthly: parsed.monthly || "",
           "Next Recharge Date": parsed.duedate || "",
           Plan: parsed.plan || "",
-          Address: parsed.address || "Flat no sppartment, Vadala Pathardi Road, In",
+          Address: parsed.address || "",
           City: "",
-          District: "40",
+          District: "",
           State: "",
-          "PIN Code": "422009",
+          "PIN Code": "",
           Operator: parsed.opName || "DTH"
         },
         Message: "Offer Successfully Checked"
       };
-
-    } catch (err) {
-      console.error('Error during DthInfo fetch:', err);
-      this.isReady = false;
-      throw err;
-    } finally {
-      this.isBusy = false;
-    }
+    }, `dth_${cleanNumber}`);
   }
 }
 
 const fastBrowserManager = new FastBrowserManager();
-// Pre-warm immediately on server startup
-fastBrowserManager.init().catch(err => console.error('Pre-warm error:', err.message));
+// Pre-warm on startup asynchronously
+fastBrowserManager.init().catch(err => logger.warn('Pre-warm warning', { error: err.message }));
 
 module.exports = fastBrowserManager;
