@@ -306,11 +306,70 @@ async function runTestSuite() {
     await ezytmAccountService.deleteAccount(acc2.id);
   });
 
+  // ----------------------------------------------------
+  // TEST 10: Duplicate Plan Creation Prevention
+  // ----------------------------------------------------
+  await test('10. Duplicate Plan Creation Prevention (Same Amount & Same Hits)', async () => {
+    // Attempting to create duplicate ₹100 / 20000 hits plan
+    let duplicateRejected = false;
+    try {
+      await planService.savePlan({
+        amount: 100,
+        hits: 20000,
+        name: 'Duplicate Starter Plan'
+      });
+    } catch (err) {
+      duplicateRejected = true;
+      assert.ok(err.message.includes('already exists'), 'Must reject duplicate plan with clear message');
+    }
+    assert.strictEqual(duplicateRejected, true, 'Duplicate plan creation must be rejected');
+  });
+
+  // ----------------------------------------------------
+  // TEST 11: Global Duplicate UTR Rejection Across Users
+  // ----------------------------------------------------
+  await test('11. Global Duplicate UTR Rejection Across Users', async () => {
+    const userA = await userService.saveUser({ name: 'User A', mobile: '9999900005' });
+    const userB = await userService.saveUser({ name: 'User B', mobile: '9999900006' });
+
+    const sharedUtr = 'UTR_GLOBAL_TEST_' + Date.now();
+
+    // User A submits payment with sharedUtr
+    const reqA = await planService.createPaymentRequest({
+      userMobile: userA.mobile,
+      userName: userA.name,
+      planId: 'PLAN_100',
+      utr: sharedUtr
+    });
+    assert.ok(reqA.id, 'User A request should be created');
+
+    // User B tries to submit payment with the exact same UTR
+    let duplicateUtrRejected = false;
+    try {
+      await planService.createPaymentRequest({
+        userMobile: userB.mobile,
+        userName: userB.name,
+        planId: 'PLAN_100',
+        utr: sharedUtr
+      });
+    } catch (err) {
+      duplicateUtrRejected = true;
+      assert.ok(err.message.includes('already been used'), 'Must reject previously used UTR');
+    }
+    assert.strictEqual(duplicateUtrRejected, true, 'User B must be rejected from using User A UTR');
+
+    // Clean up
+    await userService.deleteUser('9999900005');
+    await userService.deleteUser('9999900006');
+  });
+
   // Clean test dummy users and payments created during test execution
   await userService.deleteUser('9999900001');
   await userService.deleteUser('9999900002');
   await userService.deleteUser('9999900003');
   await userService.deleteUser('9999900004');
+  await userService.deleteUser('9999900005');
+  await userService.deleteUser('9999900006');
   await planService.deletePaymentsByMobile('99999');
 
   console.log('\n====================================================');

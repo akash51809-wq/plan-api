@@ -71,6 +71,28 @@ async function savePlan({ id, name, amount, hits, validityDays = 30, features = 
     throw new Error('Valid positive Amount and Hits are required.');
   }
 
+  // Duplicate plan check: reject same amount + same hits
+  if (db.isConnected) {
+    const dupCheck = await db.query(
+      'SELECT id, name, amount, hits FROM plans WHERE amount = $1 AND hits = $2 AND is_active = TRUE AND id != $3',
+      [amt, hts, id || '']
+    );
+    if (dupCheck.rows.length > 0) {
+      throw new Error(`A plan with amount ₹${amt} and ${hts.toLocaleString()} hits already exists. Duplicate plans are not allowed.`);
+    }
+  }
+
+  const existingPlans = await getPlans(true);
+  const duplicate = existingPlans.find(p => 
+    p.is_active !== false && 
+    (p.id !== id) && 
+    Number(p.amount) === amt && 
+    Number(p.hits) === hts
+  );
+  if (duplicate) {
+    throw new Error(`A plan with amount ₹${amt} and ${hts.toLocaleString()} hits already exists. Duplicate plans are not allowed.`);
+  }
+
   const planId = id || ('PLAN_' + amt + '_' + Date.now());
   const planName = name || `₹${amt} Plan`;
 
@@ -91,7 +113,7 @@ async function savePlan({ id, name, amount, hits, validityDays = 30, features = 
     );
     return res.rows[0];
   } else {
-    const plans = await getPlans(true);
+    const existingIndex = plans.findIndex(p => p.id === planId);
     const newPlan = {
       id: planId,
       name: planName,
@@ -102,7 +124,11 @@ async function savePlan({ id, name, amount, hits, validityDays = 30, features = 
       is_active: true,
       createdAt: new Date().toISOString()
     };
-    plans.push(newPlan);
+    if (existingIndex >= 0) {
+      plans[existingIndex] = newPlan;
+    } else {
+      plans.push(newPlan);
+    }
     plans.sort((a, b) => a.amount - b.amount);
     fs.writeFileSync(PLANS_FILE, JSON.stringify(plans, null, 2));
     return newPlan;
@@ -210,6 +236,23 @@ async function createPaymentRequest({ userMobile, userName, planId, utr, payment
   const serverPlanName = verifiedPlan.name || `₹${serverAmount} Plan`;
   const paymentId = 'REQ_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
 
+  // 3. Strict Global UTR Uniqueness Check (Never accept previously used UTR from any user)
+  if (db.isConnected) {
+    const existingUtr = await db.query(
+      'SELECT id, user_mobile as "userMobile", status FROM payments WHERE UPPER(TRIM(utr_number)) = $1',
+      [cleanUtr]
+    );
+    if (existingUtr.rows.length > 0) {
+      throw new Error('This UTR number has already been used in the system. Duplicate UTR reference is not allowed.');
+    }
+  }
+
+  const allPayments = await getPayments();
+  const utrExists = allPayments.some(p => String(p.utr || '').trim().toUpperCase() === cleanUtr);
+  if (utrExists) {
+    throw new Error('This UTR number has already been used in the system. Duplicate UTR reference is not allowed.');
+  }
+
   if (db.isConnected) {
     try {
       const res = await db.query(
@@ -232,16 +275,11 @@ async function createPaymentRequest({ userMobile, userName, planId, utr, payment
       return res.rows[0];
     } catch (err) {
       if (err.code === '23505') { // Unique constraint violation (duplicate UTR)
-        throw new Error('A payment request with this UTR Number has already been submitted.');
+        throw new Error('This UTR number has already been used in the system. Duplicate UTR reference is not allowed.');
       }
       throw err;
     }
   } else {
-    const payments = await getPayments();
-    if (payments.some(p => p.utr === cleanUtr)) {
-      throw new Error('A payment request with this UTR Number has already been submitted.');
-    }
-
     const newPayment = {
       id: paymentId,
       userMobile: cleanMobile,
@@ -256,8 +294,8 @@ async function createPaymentRequest({ userMobile, userName, planId, utr, payment
       status: 'Pending',
       createdAt: new Date().toISOString()
     };
-    payments.unshift(newPayment);
-    fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(payments, null, 2));
+    allPayments.unshift(newPayment);
+    fs.writeFileSync(PAYMENTS_FILE, JSON.stringify(allPayments, null, 2));
     return newPayment;
   }
 }
