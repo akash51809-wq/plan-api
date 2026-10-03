@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#07080d">
+<meta name="description" content="Easy Recharge Solution — modern recharge API infrastructure for businesses.">
+<title>Easy Recharge Solution | Recharge API Infrastructure</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<style>
+:root{--bg:#07080d;--panel:#10121a;--panel2:#141722;--text:#f7f8fb;--muted:#a8adba;--orange:#38bdf8;--orange2:#8b5cf6;--line:rgba(255,255,255,.09);--glow:rgba(56,189,248,.28);--green:#25e59a}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 15% 10%,rgba(56,189,248,.16),transparent 25%),radial-gradient(circle at 90% 25%,rgba(139,92,246,.16),transparent 28%),var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;overflow-x:hidden}a{text-decoration:none;color:inherit}button{font:inherit}.container{width:min(1180px,calc(100% - 36px));margin:auto}.nav{position:fixed;z-index:50;top:16px;left:50%;transform:translateX(-50%);width:min(1160px,calc(100% - 28px));height:68px;border:1px solid var(--line);background:rgba(10,11,17,.68);backdrop-filter:blur(18px);border-radius:22px;display:flex;align-items:center;justify-content:space-between;padding:0 12px 0 20px;box-shadow:0 16px 60px rgba(0,0,0,.35)}.brand{display:flex;gap:11px;align-items:center;font-family:"Space Grotesk";font-weight:700}.brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(145deg,#67e8f9,#7c3aed);box-shadow:0 0 30px var(--glow);position:relative;transform:rotate(-8deg)}.brand-mark:after{content:"";position:absolute;width:13px;height:13px;border:3px solid #fff;border-radius:50%;left:11px;top:9px}.brand span{color:#fff}.nav-links{display:flex;gap:5px}.nav-links a{padding:11px 14px;color:#aeb3c0;font-size:13px;border-radius:12px;transition:.25s}.nav-links a:hover{color:#fff;background:rgba(255,255,255,.06)}.nav-cta{padding:12px 17px;border-radius:14px;background:#fff;color:#0a0b0f;font-weight:800;font-size:13px;box-shadow:0 0 25px rgba(255,255,255,.1);transition:.25s;display:inline-flex;align-items:center;gap:6px}.nav-cta:hover{background:#38bdf8;color:#07080d;transform:translateY(-1px)}.menu{display:none;background:none;border:0;color:#fff;font-size:25px}
+.hero{min-height:920px;padding:170px 0 90px;position:relative;display:flex;align-items:center}.hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center}.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);border-radius:999px;color:#cbd0da;font-size:12px;letter-spacing:.04em}.pulse{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 15px var(--green);animation:pulse 1.5s infinite}@keyframes pulse{50%{opacity:.35;transform:scale(.65)}}h1{font-family:"Space Grotesk";font-size:clamp(52px,7vw,94px);line-height:.94;letter-spacing:-.065em;margin:25px 0 24px;max-width:760px}h1 .accent{color:var(--orange2);text-shadow:0 0 40px rgba(56,189,248,.25)}.hero-copy{color:var(--muted);font-size:17px;line-height:1.8;max-width:610px}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:15px 20px;border-radius:15px;border:1px solid var(--line);font-weight:800;font-size:14px;transition:.25s;cursor:pointer}.btn.primary{background:linear-gradient(135deg,#67e8f9,#6366f1);color:#15100a;border:0;box-shadow:0 15px 45px rgba(59,130,246,.22)}.btn.primary:hover{transform:translateY(-3px);box-shadow:0 22px 60px rgba(99,102,241,.32)}.btn.ghost{background:rgba(255,255,255,.035)}.btn.ghost:hover{background:rgba(255,255,255,.08);transform:translateY(-3px)}.trust{display:flex;gap:24px;flex-wrap:wrap;margin-top:38px;color:#777d8a;font-size:11px;text-transform:uppercase;letter-spacing:.14em}.visual{height:560px;position:relative;perspective:1200px}.orb{position:absolute;width:430px;height:430px;right:25px;top:45px;border-radius:50%;background:radial-gradient(circle at 34% 30%,#a5f3fc,transparent 10%,#38bdf8 27%,#312e81 57%,#16102b 72%,transparent 73%);filter:blur(.2px);box-shadow:0 0 90px rgba(56,189,248,.18);animation:float 6s ease-in-out infinite}.orb:before,.orb:after{content:"";position:absolute;inset:-35px;border:1px solid rgba(103,232,249,.2);border-radius:50%;transform:rotateX(68deg) rotateZ(15deg)}.orb:after{inset:-80px;transform:rotateY(67deg) rotateZ(-12deg);border-color:rgba(255,255,255,.08)}@keyframes float{50%{transform:translateY(-16px) rotate(4deg)}}.core-card{position:absolute;z-index:3;right:45px;top:120px;width:350px;height:390px;border-radius:32px;border:1px solid rgba(255,255,255,.13);background:linear-gradient(145deg,rgba(30,32,42,.88),rgba(10,11,17,.78));backdrop-filter:blur(20px);box-shadow:0 40px 100px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,.08);transform:rotateY(-13deg) rotateX(6deg);animation:cardfloat 7s ease-in-out infinite}.core-card:before{content:"";position:absolute;inset:0;border-radius:32px;background:linear-gradient(135deg,rgba(255,255,255,.1),transparent 30%);pointer-events:none}@keyframes cardfloat{50%{transform:rotateY(-8deg) rotateX(3deg) translateY(-13px)}}.card-top{display:flex;justify-content:space-between;padding:23px}.mini-brand{font-size:11px;color:#9ca1af;letter-spacing:.12em;text-transform:uppercase}.live{color:var(--green);font-size:11px;display:flex;gap:6px;align-items:center}.screen{margin:0 17px;padding:19px;border-radius:22px;background:#090b11;border:1px solid rgba(255,255,255,.07);height:270px}.route{font:600 12px ui-monospace,monospace;color:#67e8f9}.code{margin-top:15px;color:#778092;font:500 11px/1.75 ui-monospace,monospace}.code b{color:#f2f5fa;font-weight:500}.meter{height:7px;border-radius:99px;background:#1d202a;margin-top:18px;overflow:hidden}.meter i{display:block;width:72%;height:100%;background:linear-gradient(90deg,#ff5c0a,#a78bfa);border-radius:99px;animation:meter 3s ease-in-out infinite}@keyframes meter{50%{width:90%}}.stat-row{display:flex;justify-content:space-between;padding:17px 22px;color:#747a88;font-size:11px}.stat-row strong{color:#fff;font-size:13px}.float-tag{position:absolute;z-index:4;padding:12px 14px;border:1px solid rgba(255,255,255,.11);background:rgba(12,14,21,.75);backdrop-filter:blur(15px);border-radius:15px;font-size:11px;box-shadow:0 20px 50px rgba(0,0,0,.35);animation:tag 5s ease-in-out infinite}.tag1{left:5px;top:95px}.tag2{right:-5px;bottom:70px;animation-delay:1s}.tag3{left:25px;bottom:90px;animation-delay:2s}@keyframes tag{50%{transform:translateY(-12px) rotate(2deg)}}.grid-bg{position:absolute;inset:0;z-index:-1;opacity:.27;background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);background-size:70px 70px;mask-image:linear-gradient(to bottom,black,transparent 75%)}.marquee{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;background:rgba(255,255,255,.015)}.marquee-track{display:flex;width:max-content;animation:marquee 28s linear infinite;padding:18px 0}.marquee span{font:600 12px "Space Grotesk";letter-spacing:.18em;color:#656b78;text-transform:uppercase;margin:0 28px}.marquee span b{color:#67e8f9}@keyframes marquee{to{transform:translateX(-50%)}}section{padding:120px 0}.section-head{display:flex;justify-content:space-between;gap:30px;align-items:end;margin-bottom:48px}.kicker{color:#8b5cf6;text-transform:uppercase;font-size:11px;letter-spacing:.2em;font-weight:800}.section-head h2{font:700 clamp(38px,5vw,65px)/.98 "Space Grotesk";letter-spacing:-.055em;margin:12px 0 0;max-width:700px}.section-head p{max-width:420px;color:var(--muted);line-height:1.75;font-size:14px}.feature-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.feature{min-height:290px;padding:28px;border-radius:26px;border:1px solid var(--line);background:linear-gradient(145deg,rgba(255,255,255,.055),rgba(255,255,255,.018));position:relative;overflow:hidden;transition:.35s;transform-style:preserve-3d}.feature:hover{transform:translateY(-8px) rotateX(2deg);border-color:rgba(255,144,70,.32);box-shadow:0 30px 80px rgba(0,0,0,.28)}.feature:after{content:"";position:absolute;width:180px;height:180px;right:-80px;top:-80px;background:var(--glow);filter:blur(45px);border-radius:50%}.icon{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(255,172,95,.2),rgba(255,91,8,.04));border:1px solid rgba(255,160,85,.18);color:#67e8f9;font-size:21px}.feature h3{font:700 22px "Space Grotesk";margin:24px 0 10px}.feature p{color:#9298a6;font-size:13px;line-height:1.75}.number{position:absolute;right:24px;bottom:20px;color:#343844;font:700 34px "Space Grotesk"}.flow{display:grid;grid-template-columns:1fr 1fr;gap:25px;align-items:center}.terminal{border:1px solid var(--line);border-radius:28px;background:#090b10;box-shadow:0 30px 90px rgba(0,0,0,.4);overflow:hidden}.terminal-bar{height:52px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:7px;padding:0 18px}.dot{width:8px;height:8px;border-radius:50%;background:#343844}.terminal-body{padding:25px;font:500 12px/2 ui-monospace,monospace;color:#858c9b;min-height:330px}.terminal-body .orange{color:#67e8f9}.terminal-body .white{color:#eef0f5}.terminal-body .green{color:#40e6a1}.steps{display:grid;gap:13px}.step{padding:20px;border:1px solid var(--line);border-radius:20px;background:rgba(255,255,255,.025);display:grid;grid-template-columns:42px 1fr;gap:15px;transition:.25s}.step:hover{background:rgba(255,255,255,.055);transform:translateX(5px)}.step-num{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;background:#171a23;color:#67e8f9;font-weight:800}.step h4{margin:0 0 6px;font-size:14px}.step p{margin:0;color:#858b99;font-size:12px;line-height:1.6}.showcase{position:relative;border:1px solid var(--line);border-radius:35px;padding:55px;overflow:hidden;background:radial-gradient(circle at 75% 35%,rgba(255,123,24,.13),transparent 30%),linear-gradient(135deg,#11131c,#090a0f)}.showcase h2{font:700 clamp(38px,5vw,70px)/.96 "Space Grotesk";letter-spacing:-.06em;max-width:680px;margin:12px 0 18px}.showcase p{color:var(--muted);max-width:610px;line-height:1.8;font-size:14px}.node-field{height:260px;position:relative;margin-top:35px}.node{position:absolute;padding:14px 17px;border:1px solid rgba(255,255,255,.12);background:rgba(15,17,25,.84);backdrop-filter:blur(14px);border-radius:17px;font-size:12px;box-shadow:0 15px 45px rgba(0,0,0,.3);animation:nodefloat 4s ease-in-out infinite}.node:nth-child(1){left:4%;top:35%;}.node:nth-child(2){left:34%;top:8%;animation-delay:.7s}.node:nth-child(3){left:57%;top:55%;animation-delay:1.3s}.node:nth-child(4){right:3%;top:18%;animation-delay:1.8s}.node:nth-child(5){right:18%;bottom:0;animation-delay:2.3s}.node b{color:#a78bfa}.line{position:absolute;height:1px;background:linear-gradient(90deg,transparent,#38bdf8,transparent);transform-origin:left;opacity:.55}.l1{left:17%;top:46%;width:20%;transform:rotate(-19deg)}.l2{left:44%;top:25%;width:18%;transform:rotate(35deg)}.l3{left:64%;top:48%;width:17%;transform:rotate(-19deg)}.l4{left:72%;top:68%;width:12%;transform:rotate(40deg)}@keyframes nodefloat{50%{transform:translateY(-10px)}}.contact{display:grid;grid-template-columns:1fr .8fr;gap:20px}.contact-card{padding:35px;border-radius:28px;border:1px solid var(--line);background:rgba(255,255,255,.03)}.contact-card h3{font:700 30px "Space Grotesk";margin:0 0 15px}.contact-card p{color:var(--muted);line-height:1.8;font-size:14px}.contact-line{display:flex;gap:14px;padding:17px 0;border-bottom:1px solid var(--line);font-size:13px}.contact-line:last-child{border:0}.contact-line span{color:#777e8d;width:90px}.contact-line b{color:#f1f3f7}.footer{padding:35px 0 50px;border-top:1px solid var(--line);color:#707684;font-size:11px}.footer-inner{display:flex;justify-content:space-between;gap:20px;align-items:center}.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease,transform .8s ease}.reveal.show{opacity:1;transform:none}.cursor{position:fixed;z-index:100;width:18px;height:18px;border:1px solid rgba(255,167,95,.7);border-radius:50%;pointer-events:none;mix-blend-mode:screen;transform:translate(-50%,-50%);transition:width .2s,height .2s;display:none}.toast{position:fixed;z-index:80;bottom:24px;left:50%;transform:translate(-50%,30px);padding:12px 17px;border:1px solid var(--line);background:#12151e;color:#dce0e8;border-radius:13px;font-size:12px;opacity:0;transition:.3s}.toast.show{opacity:1;transform:translate(-50%,0)}
+@media(max-width:900px){.nav-links{display:none}.menu{display:block}.nav-cta{margin-left:auto;margin-right:8px}.hero{min-height:auto;padding-top:145px}.hero-grid,.flow,.contact{grid-template-columns:1fr}.visual{height:510px}.core-card{right:50%;transform:translateX(50%) rotateY(-8deg) rotateX(4deg)}.orb{right:50%;transform:translateX(50%)}.float-tag{display:none}.feature-grid{grid-template-columns:1fr 1fr}.section-head{display:block}.section-head p{margin-top:18px}.showcase{padding:35px 24px}.node-field{height:220px}}@media(max-width:600px){.container{width:min(100% - 24px,1180px)}.nav{top:8px;width:calc(100% - 16px);height:60px}.brand{font-size:13px}.brand-mark{width:34px;height:34px}.nav-cta{padding:10px 12px;font-size:11px}.hero{padding-top:120px}.hero-copy{font-size:15px}.actions .btn{width:100%}h1{font-size:54px}.visual{height:445px}.orb{width:330px;height:330px;top:40px}.core-card{width:300px;height:350px;top:90px}.screen{height:230px}.feature-grid{grid-template-columns:1fr}.feature{min-height:250px}section{padding:85px 0}.showcase h2{font-size:44px}.node-field{transform:scale(.85);transform-origin:left top;width:118%}.contact-line{display:block}.contact-line span{display:block;margin-bottom:5px}.footer-inner{display:block;line-height:1.8}.cursor{display:none}}
+@media(pointer:fine){.cursor{display:block}}
+</style>
+</head>
+<body>
+<div class="cursor" id="cursor"></div>
+<div class="grid-bg"></div>
+
+<header class="nav">
+  <a class="brand" href="#home"><i class="brand-mark"></i><span>Easy Recharge Solution</span></a>
+  <nav class="nav-links">
+    <a href="#platform">Platform</a>
+    <a href="#capabilities">Capabilities</a>
+    <a href="#flow">Integration</a>
+    <a href="#about">About</a>
+    <a href="#contact">Contact</a>
+    <a href="dashboard.html" style="color:#67e8f9;font-weight:600;"><i class="fa-solid fa-code me-1"></i> API Docs</a>
+  </nav>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <a class="nav-cta" id="nav-login-btn" href="login.html"><i class="fa-solid fa-user-lock"></i> LOGIN</a>
+  </div>
+  <button class="menu" id="menu" aria-label="Open navigation">☰</button>
+</header>
+
+<main id="home">
+<section class="hero">
+  <div class="container hero-grid">
+    <div class="reveal">
+      <div class="eyebrow"><i class="pulse"></i> Recharge API infrastructure • built for businesses</div>
+      <h1>Turn every recharge into a <span class="accent">connected experience.</span></h1>
+      <p class="hero-copy">Easy Recharge Solution gives businesses a clean API layer for recharge-plan data and connected transaction workflows — designed for speed, scale and straightforward integration.</p>
+      <div class="actions">
+        <a class="btn primary" id="hero-login-btn" href="login.html"><i class="fa-solid fa-arrow-right-to-bracket"></i> Open Partner Login ↗</a>
+        <a class="btn ghost" href="dashboard.html"><i class="fa-solid fa-bolt"></i> Developer Portal ↓</a>
+      </div>
+      <div class="trust"><span>API First</span><span>Developer Ready</span><span>Business Focused</span><span>Prayagraj, India</span></div>
+    </div>
+    <div class="visual reveal">
+      <div class="orb"></div>
+      <div class="float-tag tag1">⚡ Fast request path</div>
+      <div class="float-tag tag2">✓ API response ready</div>
+      <div class="float-tag tag3">⌁ Built to scale</div>
+      <div class="core-card">
+        <div class="card-top"><div class="mini-brand">ERS / API CORE</div><div class="live"><i class="pulse"></i> LIVE</div></div>
+        <div class="screen">
+          <div class="route">POST /v1/recharge</div>
+          <div class="code"><b>{</b><br>&nbsp;&nbsp;"status": <span style="color:#7ce7b7">"success"</span>,<br>&nbsp;&nbsp;"reference": <span style="color:#a78bfa">"ERS_8F21A"</span>,<br>&nbsp;&nbsp;"operator": <span style="color:#c6a8ff">"MOBILE"</span>,<br>&nbsp;&nbsp;"response": <span style="color:#7ce7b7">"accepted"</span><br><b>}</b></div>
+          <div class="meter"><i></i></div>
+        </div>
+        <div class="stat-row"><span>Gateway status <strong>Operational</strong></span><span>99.9%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee"><div class="marquee-track"><span><b>ERS</b> API LAYER</span><span>REAL-TIME WORKFLOWS</span><span>DEVELOPER READY</span><span>RECHARGE DATA</span><span>SECURE ACCESS</span><span>SCALABLE DESIGN</span><span><b>ERS</b> API LAYER</span><span>REAL-TIME WORKFLOWS</span><span>DEVELOPER READY</span><span>RECHARGE DATA</span><span>SECURE ACCESS</span><span>SCALABLE DESIGN</span></div></div>
+
+<section id="platform">
+  <div class="container">
+    <div class="section-head reveal"><div><div class="kicker">The platform</div><h2>A new visual language for recharge APIs.</h2></div><p>Instead of a crowded catalogue, the interface explains the API journey visually: request → processing → response → business workflow.</p></div>
+    <div class="feature-grid">
+      <article class="feature reveal"><div class="icon">↯</div><h3>Recharge Data</h3><p>Build experiences around operator-aware recharge information and plan discovery through a developer-friendly API layer.</p><div class="number">01</div></article>
+      <article class="feature reveal"><div class="icon">◎</div><h3>Clean Integration</h3><p>Keep your own application in control while Easy Recharge Solution acts as the connection layer behind your workflow.</p><div class="number">02</div></article>
+      <article class="feature reveal"><div class="icon">◇</div><h3>Scale Ready</h3><p>Structure your integration so growing request volume, multiple products and future API modules can fit the same architecture.</p><div class="number">03</div></article>
+      <article class="feature reveal"><div class="icon">⌁</div><h3>Fast Feedback</h3><p>Design request and response handling around clear status states, reference IDs and predictable developer workflows.</p><div class="number">04</div></article>
+      <article class="feature reveal"><div class="icon">◈</div><h3>Business Access</h3><p>Give your team a dedicated partner entry point with the existing Easy Recharge Solution login portal one click away.</p><div class="number">05</div></article>
+      <article class="feature reveal"><div class="icon">∞</div><h3>Future Modular</h3><p>The visual system is intentionally modular, so additional API capabilities can be added without rebuilding the brand experience.</p><div class="number">06</div></article>
+    </div>
+  </div>
+</section>
+
+<section id="capabilities">
+  <div class="container">
+    <div class="showcase reveal">
+      <div class="kicker">Connected architecture</div>
+      <h2>Your software stays in control. The API does the heavy lifting.</h2>
+      <p>Use the Easy Recharge Solution layer as the bridge between your product and recharge services. The website communicates this as a live network instead of a static list of features.</p>
+      <div class="node-field">
+        <div class="node"><b>YOUR APP</b><br>Web / Mobile / ERP</div>
+        <div class="node"><b>REQUEST</b><br>Authenticated call</div>
+        <div class="node"><b>ERS CORE</b><br>API processing</div>
+        <div class="node"><b>RECHARGE</b><br>Operator workflow</div>
+        <div class="node"><b>RESPONSE</b><br>Status + reference</div>
+        <i class="line l1"></i><i class="line l2"></i><i class="line l3"></i><i class="line l4"></i>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="container">
+    <div class="section-head reveal"><div><div class="kicker">Integration flow</div><h2>From endpoint to customer screen.</h2></div><p>A simple four-stage mental model makes the platform easier to understand for developers, operators and business owners.</p></div>
+    <div class="flow">
+      <div class="terminal reveal">
+        <div class="terminal-bar"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span style="margin-left:auto;color:#5d6472;font-size:10px">ers-api / request</span></div>
+        <div class="terminal-body">
+          <span class="orange">POST</span> <span class="white">/v1/recharge</span><br><br>
+          {<br>
+          &nbsp;&nbsp;<span class="orange">"mobile"</span>: <span class="green">"98XXXXXXXX"</span>,<br>
+          &nbsp;&nbsp;<span class="orange">"operator"</span>: <span class="green">"operator_code"</span>,<br>
+          &nbsp;&nbsp;<span class="orange">"amount"</span>: <span class="green">299</span>,<br>
+          &nbsp;&nbsp;<span class="orange">"client_ref"</span>: <span class="green">"ORDER_10291"</span><br>
+          }<br><br>
+          <span class="green">✓ response received</span>
+        </div>
+      </div>
+      <div class="steps">
+        <div class="step reveal"><div class="step-num">01</div><div><h4>Authenticate</h4><p>Your application sends the required credentials with the request.</p></div></div>
+        <div class="step reveal"><div class="step-num">02</div><div><h4>Process</h4><p>Easy Recharge Solution handles the API-side workflow and request routing.</p></div></div>
+        <div class="step reveal"><div class="step-num">03</div><div><h4>Receive</h4><p>Your software gets a structured response with status and reference information.</p></div></div>
+        <div class="step reveal"><div class="step-num">04</div><div><h4>Deliver</h4><p>Your own app decides how the result is shown to the final customer.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="about">
+  <div class="container">
+    <div class="section-head reveal"><div><div class="kicker">Easy Recharge Solution</div><h2>Technology that feels simple on the outside.</h2></div><p>Practical API infrastructure for businesses that want a direct, modern and maintainable recharge integration.</p></div>
+    <div class="feature-grid">
+      <article class="feature reveal"><div class="icon">01</div><h3>API-first thinking</h3><p>Every part of the experience starts from the integration workflow instead of decorative service lists.</p></article>
+      <article class="feature reveal"><div class="icon">02</div><h3>Modern partner experience</h3><p>A focused portal entry point and clear calls-to-action keep business users moving without unnecessary friction.</p></article>
+      <article class="feature reveal"><div class="icon">03</div><h3>Prayagraj based</h3><p>Easy Recharge Solution — represented here by Prince Goyal — is positioned for businesses looking for a practical recharge API partner.</p></article>
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="container">
+    <div class="contact">
+      <div class="contact-card reveal">
+        <div class="kicker">Contact</div>
+        <h3>Let’s connect your next recharge workflow.</h3>
+        <p>For partnership, API access or integration discussion, contact Easy Recharge Solution directly.</p>
+        <div class="actions">
+          <a class="btn primary" href="tel:+919335819686"><i class="fa-solid fa-phone me-1"></i> Call 9335819686</a>
+          <a class="btn ghost" href="login.html" id="contact-login-btn"><i class="fa-solid fa-right-to-bracket me-1"></i> Partner Login ↗</a>
+        </div>
+      </div>
+      <div class="contact-card reveal">
+        <div class="contact-line"><span>Contact</span><b>Prince Goyal</b></div>
+        <div class="contact-line"><span>Phone</span><b>+91 9335819686</b></div>
+        <div class="contact-line"><span>Location</span><b>Prayagraj, Uttar Pradesh</b></div>
+        <div class="contact-line"><span>Portal</span><b>plan.easyrechargesolution.com</b></div>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner"><div>© <span id="year"></span> Easy Recharge Solution. All rights reserved.</div><div>Recharge API Infrastructure • Prayagraj</div></div>
+</footer>
+<div class="toast" id="toast">Navigation opened</div>
+
+<script>
+const cursor=document.getElementById('cursor');
+if(cursor && matchMedia('(pointer:fine)').matches){
+ document.addEventListener('pointermove',e=>{cursor.style.left=e.clientX+'px';cursor.style.top=e.clientY+'px'});
+ document.querySelectorAll('a,.feature,.step,.btn').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cursor.style.width='34px';cursor.style.height='34px'});
+  el.addEventListener('mouseleave',()=>{cursor.style.width='18px';cursor.style.height='18px'});
+ });
+}
+const obs=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('show')}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+document.getElementById('year').textContent=new Date().getFullYear();
+
+// Check logged in user status and update login buttons dynamically
+try {
+  const savedUser = localStorage.getItem('planapi_user');
+  if (savedUser) {
+    const user = JSON.parse(savedUser);
+    const navBtn = document.getElementById('nav-login-btn');
+    const heroBtn = document.getElementById('hero-login-btn');
+    const contactBtn = document.getElementById('contact-login-btn');
+    
+    if (navBtn) {
+      navBtn.innerHTML = '<i class="fa-solid fa-gauge me-1"></i> DASHBOARD';
+      navBtn.href = 'dashboard.html';
+      navBtn.style.background = '#38bdf8';
+      navBtn.style.color = '#07080d';
+    }
+    if (heroBtn) {
+      heroBtn.innerHTML = '<i class="fa-solid fa-gauge me-1"></i> Open Dashboard (' + (user.name || 'User') + ') ↗';
+      heroBtn.href = 'dashboard.html';
+    }
+    if (contactBtn) {
+      contactBtn.innerHTML = '<i class="fa-solid fa-gauge me-1"></i> Open Dashboard ↗';
+      contactBtn.href = 'dashboard.html';
+    }
+  }
+} catch (e) {}
+
+const menu=document.getElementById('menu');
+menu?.addEventListener('click',()=>{
+ const nav=document.querySelector('.nav-links');
+ if(!nav)return;
+ const open=getComputedStyle(nav).display==='flex';
+ nav.style.display=open?'none':'flex';
+ nav.style.position='absolute';nav.style.top='68px';nav.style.left='10px';nav.style.right='10px';nav.style.padding='10px';nav.style.flexDirection='column';nav.style.background='rgba(10,11,17,.95)';nav.style.border='1px solid rgba(255,255,255,.1)';nav.style.borderRadius='16px';
+});
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',()=>{const n=document.querySelector('.nav-links');if(innerWidth<=900)n.style.display='none'}));
+</script>
+</body>
+</html>

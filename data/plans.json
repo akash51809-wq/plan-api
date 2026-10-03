@@ -1,0 +1,30 @@
+[
+  {
+    "id": "PLAN_100",
+    "amount": 100,
+    "hits": 20000,
+    "active": true,
+    "createdAt": "2026-10-02T11:01:35.466Z"
+  },
+  {
+    "id": "PLAN_200",
+    "amount": 200,
+    "hits": 50000,
+    "active": true,
+    "createdAt": "2026-10-02T11:01:35.467Z"
+  },
+  {
+    "id": "PLAN_500",
+    "amount": 500,
+    "hits": 150000,
+    "active": true,
+    "createdAt": "2026-10-02T11:01:35.467Z"
+  },
+  {
+    "id": "PLAN_1000",
+    "amount": 1000,
+    "hits": 350000,
+    "active": true,
+    "createdAt": "2026-10-02T11:01:35.467Z"
+  }
+]

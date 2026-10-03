@@ -1,0 +1,7 @@
+{
+  "baseUrl": "https://local-whatsapp.onrender.com/send-text",
+  "token": "wa_bf0383b7377b59bfde846ab9",
+  "otpTemplate": "Hello {NAME}, your verification OTP for PlanAPI is *{OTP}*. This OTP is valid for 10 minutes. Do not share it with anyone.",
+  "adminUsername": "admin",
+  "adminPassword": "admin123"
+}

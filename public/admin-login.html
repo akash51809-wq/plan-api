@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en" class="layout-wide customizer-hide" data-assets-path="assets/" data-template="vertical-menu-template-free">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>Admin Login - PlanAPI Portal | Sneat</title>
+
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/vendor/fonts/iconify-icons.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="assets/vendor/css/core.css" />
+    <link rel="stylesheet" href="assets/css/demo.css" />
+    <link rel="stylesheet" href="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+    <link rel="stylesheet" href="assets/vendor/css/pages/page-auth.css" />
+
+    <script src="assets/vendor/js/helpers.js"></script>
+    <script src="assets/js/config.js"></script>
+  </head>
+
+  <body>
+    <div class="container-xxl">
+      <div class="authentication-wrapper authentication-basic container-p-y">
+        <div class="authentication-inner">
+          <!-- Admin Login Card -->
+          <div class="card px-sm-6 px-0 shadow-sm border">
+            <div class="card-body">
+              <div class="app-brand justify-content-center mb-6">
+                <a href="index.html" class="app-brand-link gap-2">
+                  <span class="app-brand-logo demo text-danger">
+                    <i class="fa-solid fa-shield-halved fa-2x"></i>
+                  </span>
+                  <span class="app-brand-text demo text-heading fw-bold ms-1">Admin Portal</span>
+                </a>
+              </div>
+
+              <h4 class="mb-1">Admin Access Control 🔐</h4>
+              <p class="mb-6 text-muted">Sign in with administrator credentials</p>
+
+              <div class="mb-4">
+                <label for="admin-user" class="form-label">Admin Username</label>
+                <input type="text" class="form-control" id="admin-user" placeholder="admin" value="admin" autofocus />
+              </div>
+
+              <div class="mb-4">
+                <label for="admin-pass" class="form-label">Admin Password</label>
+                <input type="password" class="form-control" id="admin-pass" placeholder="••••••••" value="admin123" />
+              </div>
+
+              <button class="btn btn-danger d-grid w-100 mb-3" id="btn-admin-login" onclick="doAdminLogin()">
+                <i class="bx bx-shield-quarter me-1"></i> Sign In to Admin Panel
+              </button>
+
+              <p class="text-center mb-0">
+                <a href="login.html" class="text-secondary small">
+                  <i class="bx bx-left-arrow-alt me-1"></i> Back to User Portal
+                </a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="toastNotification" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="toastMessage">Hello!</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="assets/vendor/libs/popper/popper.js"></script>
+    <script src="assets/vendor/js/bootstrap.js"></script>
+
+    <script>
+      function showToast(msg, bg = 'bg-primary') {
+        const toastEl = document.getElementById('toastNotification');
+        toastEl.className = `toast align-items-center text-white ${bg} border-0`;
+        document.getElementById('toastMessage').innerText = msg;
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
+
+      async function doAdminLogin() {
+        const username = document.getElementById('admin-user').value.trim();
+        const password = document.getElementById('admin-pass').value.trim();
+        const btn = document.getElementById('btn-admin-login');
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Authenticating...';
+
+        try {
+          const res = await fetch('/api/admin/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+          const data = await res.json();
+          if (data.success) {
+            localStorage.setItem('planapi_admin_token', data.token);
+            showToast('Admin login successful! Redirecting...', 'bg-success');
+            setTimeout(() => {
+              window.location.href = 'admin.html';
+            }, 800);
+          } else {
+            showToast(data.message || 'Invalid username or password.', 'bg-danger');
+          }
+        } catch(e) {
+          showToast('Server connection error.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-shield-quarter me-1"></i> Sign In to Admin Panel';
+        }
+      }
+    </script>
+  </body>
+</html>

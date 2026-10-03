@@ -1,0 +1,7 @@
+node_modules/
+.env
+*.log
+scratch_*.js
+*_dump.html
+.DS_Store
+Thumbs.db

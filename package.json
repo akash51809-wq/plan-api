@@ -1,0 +1,16 @@
+{
+  "name": "planapi-automation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "cli": "node main.js",
+    "check": "node --check server.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "playwright": "^1.46.1"
+  }
+}

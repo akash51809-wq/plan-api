@@ -1,0 +1,109 @@
+{
+  "8124090563_AIRTEL": {
+    "ERROR": "0",
+    "STATUS": "1",
+    "MOBILENO": "8124090563",
+    "RDATA": [
+      {
+        "price": "349",
+        "commissionUnit": "A",
+        "ofrtext": "Get Apple Music upto 6 months, UL 5G and 2GB/day for 28 days at Rs349",
+        "logdesc": "Get Apple Music upto 6 months, UL 5G and 2GB/day for 28 days at Rs349",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "399",
+        "commissionUnit": "A",
+        "ofrtext": "Get UL 5G data, 2.5GB/day and 28days of validity at just Rs399",
+        "logdesc": "Get UL 5G data, 2.5GB/day and 28days of validity at just Rs399",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "1099",
+        "commissionUnit": "A",
+        "ofrtext": "Get UL 5G data, 3GB/day and 84 days of validity at just Rs1099",
+        "logdesc": "Get UL 5G data, 3GB/day and 84 days of validity at just Rs1099",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "979",
+        "commissionUnit": "A",
+        "ofrtext": "Get UL 5G data, 2GB/day and 84 days of validity at just Rs979",
+        "logdesc": "Get UL 5G data, 2GB/day and 84 days of validity at just Rs979",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "899",
+        "commissionUnit": "A",
+        "ofrtext": "Get UL 5G data, 1.5GB/day and 84 days of validity at just Rs899",
+        "logdesc": "Get UL 5G data, 1.5GB/day and 84 days of validity at just Rs899",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "379",
+        "commissionUnit": "A",
+        "ofrtext": "Get Apple Music upto 6 months, UL 5G, 2GB/day and Google One for 1 month at Rs379",
+        "logdesc": "Get Apple Music upto 6 months, UL 5G, 2GB/day and Google One for 1 month at Rs379",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "449",
+        "commissionUnit": "A",
+        "ofrtext": "Get Apple Music upto 6 months, Airtel Xstream Play Premium, Google One, UL 5G for 28days & 4GB/day at Rs449",
+        "logdesc": "Get Apple Music upto 6 months, Airtel Xstream Play Premium, Google One, UL 5G for 28days & 4GB/day at Rs449",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "199",
+        "commissionUnit": "A",
+        "ofrtext": "Get 2GB data and 28 days of validity at just Rs199",
+        "logdesc": "Get 2GB data and 28 days of validity at just Rs199",
+        "commissionAmount": "0"
+      }
+    ],
+    "MESSAGE": "Offer Successfully Checked"
+  },
+  "9826012345_VI": {
+    "ERROR": "0",
+    "STATUS": "1",
+    "MOBILENO": "9826012345",
+    "RDATA": [
+      {
+        "price": "29",
+        "commissionUnit": "A",
+        "ofrtext": "Stay connected with 2GB data at just Rs29",
+        "logdesc": "RC29-Payein 2GB data 1 din ke liye.",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "65",
+        "commissionUnit": "A",
+        "ofrtext": "Stay connected with 4GB data at just Rs65",
+        "logdesc": "65-4GB aapke maujooda pack ki vaidhta tak man",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "299",
+        "commissionUnit": "A",
+        "ofrtext": "Unlimited Calls + 1.5GB/Day + 100 SMS/Day + Hero Unlimited (Binge All Night & Weekend Rollover) for 28 Days",
+        "logdesc": "299 Truly Unlimited Calls with Binge All Night",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "349",
+        "commissionUnit": "A",
+        "ofrtext": "Unlimited Calls + 2.5GB/Day + 100 SMS/Day for 28 Days with Binge All Night",
+        "logdesc": "349-2.5GB/Day data with unlimited calling",
+        "commissionAmount": "0"
+      },
+      {
+        "price": "719",
+        "commissionUnit": "A",
+        "ofrtext": "Unlimited Calls + 1.5GB/Day + 100 SMS/Day for 84 Days",
+        "logdesc": "719-84 Days 1.5GB/Day validity pack",
+        "commissionAmount": "0"
+      }
+    ],
+    "MESSAGE": "Offer Successfully Checked"
+  }
+}

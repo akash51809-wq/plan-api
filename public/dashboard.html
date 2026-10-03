@@ -1,0 +1,2835 @@
+<!doctype html>
+<html lang="en" class="layout-menu-fixed layout-compact" data-assets-path="assets/" data-template="vertical-menu-template-free">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+    <title>User Dashboard - PlanAPI Operator Lookup | Sneat</title>
+
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="assets/vendor/fonts/iconify-icons.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+
+    <link rel="stylesheet" href="assets/vendor/css/core.css" />
+    <link rel="stylesheet" href="assets/css/demo.css" />
+    <link rel="stylesheet" href="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+    <script src="assets/vendor/js/helpers.js"></script>
+    <script src="assets/js/config.js"></script>
+    <style>
+      .user-panel { display: none; }
+      .user-panel.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(5px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+        
+        <!-- User Sidebar Menu -->
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo">
+            <a href="dashboard.html" class="app-brand-link">
+              <span class="app-brand-logo demo text-primary">
+                <i class="fa-solid fa-bolt-lightning fa-2x"></i>
+              </span>
+              <span class="app-brand-text demo menu-text fw-bold ms-2">PlanAPI</span>
+            </a>
+
+            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+              <i class="bx bx-chevron-left bx-sm d-flex align-items-center justify-content-center"></i>
+            </a>
+          </div>
+
+          <div class="menu-inner-shadow"></div>
+
+          <ul class="menu-inner py-1">
+            <li class="menu-header small text-uppercase"><span class="menu-header-text">Services</span></li>
+            
+            <li class="menu-item active" id="menu-lookup">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('lookup')">
+                <i class="menu-icon tf-icons bx bx-mobile-alt text-primary"></i>
+                <div>Operator Lookup</div>
+              </a>
+            </li>
+
+            <li class="menu-item" id="menu-mobile-plans">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('mobile-plans')">
+                <i class="menu-icon tf-icons bx bx-list-check text-warning"></i>
+                <div>Mobile Plans</div>
+                <div class="badge bg-label-warning fs-tiny rounded-pill ms-auto">Live</div>
+              </a>
+            </li>
+
+            <li class="menu-item" id="menu-roffer">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('roffer')">
+                <i class="menu-icon tf-icons bx bx-gift text-info"></i>
+                <div>R-Offer Check</div>
+                <div class="badge bg-label-info fs-tiny rounded-pill ms-auto">New</div>
+              </a>
+            </li>
+
+            <li class="menu-item" id="menu-lastrecharge">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('lastrecharge')">
+                <i class="menu-icon tf-icons bx bx-history text-success"></i>
+                <div>Last Recharge Check</div>
+                <div class="badge bg-label-success fs-tiny rounded-pill ms-auto">Live</div>
+              </a>
+            </li>
+
+            <li class="menu-item" id="menu-dthinfo">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('dthinfo')">
+                <i class="menu-icon tf-icons bx bx-tv text-danger"></i>
+                <div>DTH Info</div>
+                <div class="badge bg-label-danger fs-tiny rounded-pill ms-auto">New</div>
+              </a>
+            </li>
+
+            <li class="menu-item" id="menu-buy-plan">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('buy-plan')">
+                <i class="menu-icon tf-icons bx bx-diamond text-success"></i>
+                <div>Buy Plan</div>
+                <div class="badge bg-label-success fs-tiny rounded-pill ms-auto">Pricing</div>
+              </a>
+            </li>
+
+            <li class="menu-item" id="menu-api">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('api')">
+                <i class="menu-icon tf-icons bx bx-code-alt text-warning"></i>
+                <div>API Documents</div>
+                <div class="badge bg-label-warning fs-tiny rounded-pill ms-auto">v1.0</div>
+              </a>
+            </li>
+
+            <li class="menu-item" id="menu-profile">
+              <a href="javascript:void(0);" class="menu-link" onclick="switchUserPanel('profile')">
+                <i class="menu-icon tf-icons bx bx-user-circle text-info"></i>
+                <div>My Profile</div>
+              </a>
+            </li>
+
+            <li class="menu-item">
+              <a href="index.html" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-globe text-info"></i>
+                <div>Main Website</div>
+              </a>
+            </li>
+
+            <li class="menu-header small text-uppercase"><span class="menu-header-text">Session</span></li>
+            
+            <li class="menu-item">
+              <a href="javascript:void(0);" class="menu-link" onclick="logoutUser()">
+                <i class="menu-icon tf-icons bx bx-power-off text-danger"></i>
+                <div>Sign Out</div>
+              </a>
+            </li>
+          </ul>
+        </aside>
+        <!-- / Sidebar Menu -->
+
+        <!-- Layout page -->
+        <div class="layout-page">
+          
+          <!-- Top Navbar -->
+          <nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-4 me-xl-0 d-xl-none">
+              <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+                <i class="bx bx-menu bx-md"></i>
+              </a>
+            </div>
+
+            <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+              <div class="navbar-nav align-items-center">
+                <div class="nav-item d-flex align-items-center">
+                  <i class="bx bx-search bx-md me-2 text-muted"></i>
+                  <input type="text" class="form-control border-0 shadow-none ps-1 ps-sm-2" placeholder="Search mobile number..." id="nav-quick-search" onkeypress="if(event.key==='Enter') quickLookup()" />
+                </div>
+              </div>
+
+              <ul class="navbar-nav flex-row align-items-center ms-auto">
+                <li class="nav-item me-2">
+                  <span class="badge bg-label-primary px-3 py-2 fw-bold fs-7">
+                    <i class="bx bx-bolt-circle text-primary me-1"></i> <span id="nav-remaining-hits">100</span> Hits Left
+                  </span>
+                </li>
+
+                <li class="nav-item me-3">
+                  <button class="btn btn-sm btn-primary" onclick="switchUserPanel('buy-plan')">
+                    <i class="bx bx-plus me-1"></i> Buy Hits
+                  </button>
+                </li>
+
+                <!-- User Dropdown -->
+                <li class="nav-item navbar-dropdown dropdown-user dropdown">
+                  <a class="nav-link dropdown-toggle hide-arrow p-0" href="javascript:void(0);" data-bs-toggle="dropdown">
+                    <div class="avatar avatar-online">
+                      <span class="avatar-initial rounded-circle bg-label-primary" id="nav-avatar-char">U</span>
+                    </div>
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end">
+                    <li>
+                      <a class="dropdown-item" href="javascript:void(0);">
+                        <div class="d-flex">
+                          <div class="flex-shrink-0 me-3">
+                            <div class="avatar avatar-online">
+                              <span class="avatar-initial rounded-circle bg-label-primary" id="dropdown-avatar-char">U</span>
+                            </div>
+                          </div>
+                          <div class="flex-grow-1">
+                            <h6 class="mb-0" id="dropdown-user-name">User</h6>
+                            <small class="text-muted" id="dropdown-user-mobile">+91 -</small>
+                          </div>
+                        </div>
+                      </a>
+                    </li>
+                    <li><div class="dropdown-divider my-1"></div></li>
+                    <li>
+                      <a class="dropdown-item" href="javascript:void(0);" onclick="switchUserPanel('buy-plan')">
+                        <i class="bx bx-diamond me-3 text-success"></i><span>Buy Plan</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="javascript:void(0);" onclick="switchUserPanel('api')">
+                        <i class="bx bx-code-alt me-3 text-warning"></i><span>API Documents</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a class="dropdown-item" href="javascript:void(0);" onclick="switchUserPanel('profile')">
+                        <i class="bx bx-user me-3"></i><span>My Profile</span>
+                      </a>
+                    </li>
+                    <li><div class="dropdown-divider my-1"></div></li>
+                    <li>
+                      <a class="dropdown-item" href="javascript:void(0);" onclick="logoutUser()">
+                        <i class="bx bx-power-off me-3 text-danger"></i><span>Log Out</span>
+                      </a>
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </nav>
+          <!-- / Top Navbar -->
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <div class="container-xxl flex-grow-1 container-p-y">
+
+              <!-- ================= USER TAB 1: OPERATOR LOOKUP ONLY ================= -->
+              <div id="user-panel-lookup" class="user-panel active">
+                
+                <!-- Header Greeting -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <div>
+                    <h4 class="mb-1">Hello, <span class="text-primary" id="welcome-user-name">User</span> 👋</h4>
+                    <p class="text-muted mb-0">Check live mobile network operator and circle details instantly</p>
+                  </div>
+                  <div>
+                    <button class="btn btn-outline-primary" onclick="switchUserPanel('api')">
+                      <i class="bx bx-code-alt me-1"></i> Developer API
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Main Query Card -->
+                <div class="row">
+                  <div class="col-lg-8">
+                    <div class="card shadow-sm border mb-4">
+                      <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bx bx-mobile-alt text-primary me-2"></i>Live Operator & Circle Lookup</h5>
+                      </div>
+                      <div class="card-body pt-4">
+                        <div class="mb-3">
+                          <label for="lookup-mobile-input" class="form-label fw-bold">Enter 10-Digit Mobile Number</label>
+                          <div class="input-group input-group-merge">
+                            <span class="input-group-text"><i class="bx bx-phone text-muted"></i> +91</span>
+                            <input type="tel" id="lookup-mobile-input" class="form-control form-control-lg" placeholder="e.g. 9335819686" maxlength="10" value="9335819686" />
+                            <button class="btn btn-primary btn-lg" id="btn-run-lookup" onclick="runOperatorLookup()">
+                              <i class="bx bx-bolt-circle me-1"></i> Check Operator
+                            </button>
+                          </div>
+                        </div>
+
+                        <!-- Result Box -->
+                        <div id="lookup-result-container" class="mt-4" style="display: none;"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Quick Demo Testing Card -->
+                  <div class="col-lg-4">
+                    <div class="card shadow-sm border mb-4">
+                      <div class="card-header border-bottom">
+                        <h5 class="mb-0"><i class="bx bx-history text-secondary me-2"></i>Quick Test Numbers</h5>
+                      </div>
+                      <div class="card-body pt-3">
+                        <div class="list-group list-group-flush">
+                          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 py-3" onclick="setAndQuery('9335819686')">
+                            <div>
+                              <h6 class="mb-0">9335819686</h6>
+                              <small class="text-muted">Airtel • UP East</small>
+                            </div>
+                            <span class="badge bg-label-primary"><i class="bx bx-play"></i> Query</span>
+                          </button>
+
+                          <button type="button" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0 py-3" onclick="setAndQuery('8840457632')">
+                            <div>
+                              <h6 class="mb-0">8840457632</h6>
+                              <small class="text-muted">Vodafone • UP East</small>
+                            </div>
+                            <span class="badge bg-label-primary"><i class="bx bx-play"></i> Query</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ================= USER TAB: MOBILE RECHARGE PLANS ================= -->
+              <div id="user-panel-mobile-plans" class="user-panel">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                  <div>
+                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-list-check text-warning me-2"></i>Live Mobile Recharge Plans</h4>
+                    <p class="text-muted mb-0">Search and explore real-time telecom recharge plans across all operators and circles in India</p>
+                  </div>
+                  <div>
+                    <button class="btn btn-outline-warning" onclick="switchUserPanel('api')">
+                      <i class="bx bx-code-alt me-1"></i> Plan Fetch API Docs
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Operator & Circle Selection Card (The 2 requested boxes) -->
+                <div class="card shadow-sm border mb-4">
+                  <div class="card-header bg-label-warning border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-warning"><i class="bx bx-slider-alt me-2"></i>Select Operator & Circle to Fetch Plans</h5>
+                  </div>
+                  <div class="card-body pt-4">
+                    <div class="row g-3 align-items-end">
+                      <!-- Box 1: Which Operator? -->
+                      <div class="col-md-5">
+                        <label for="select-mobile-plan-operator" class="form-label fw-bold">
+                          <i class="bx bx-broadcast text-primary me-1"></i> 1. Which Operator?
+                        </label>
+                        <select id="select-mobile-plan-operator" class="form-select form-select-lg">
+                          <option value="2">Airtel</option>
+                          <option value="11">Reliance Jio</option>
+                          <option value="6">Vodafone Idea (VI)</option>
+                          <option value="4">BSNL</option>
+                        </select>
+                      </div>
+
+                      <!-- Box 2: Which Circle? -->
+                      <div class="col-md-5">
+                        <label for="select-mobile-plan-circle" class="form-label fw-bold">
+                          <i class="bx bx-map-pin text-danger me-1"></i> 2. Which Circle / State?
+                        </label>
+                        <select id="select-mobile-plan-circle" class="form-select form-select-lg">
+                          <option value="70">Rajasthan (70)</option>
+                          <option value="54">UP (East) (54)</option>
+                          <option value="97">UP (West) (97)</option>
+                          <option value="10">Delhi NCR (10)</option>
+                          <option value="92">Mumbai (92)</option>
+                          <option value="90">Maharashtra & Goa (90)</option>
+                          <option value="52">Bihar & Jharkhand (52)</option>
+                          <option value="98">Gujarat (98)</option>
+                          <option value="93">Madhya Pradesh & CG (93)</option>
+                          <option value="02">Punjab (02)</option>
+                          <option value="96">Haryana (96)</option>
+                          <option value="31">Kolkata (31)</option>
+                          <option value="51">West Bengal (51)</option>
+                          <option value="06">Karnataka (06)</option>
+                          <option value="49">Andhra Pradesh & Telangana (49)</option>
+                          <option value="94">Tamil Nadu (94)</option>
+                          <option value="40">Chennai (40)</option>
+                          <option value="95">Kerala (95)</option>
+                          <option value="53">Odisha (53)</option>
+                          <option value="56">Assam (56)</option>
+                          <option value="16">North East (16)</option>
+                          <option value="03">Himachal Pradesh (03)</option>
+                          <option value="55">Jammu & Kashmir (55)</option>
+                        </select>
+                      </div>
+
+                      <!-- Action Button -->
+                      <div class="col-md-2">
+                        <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-mobile-plans" onclick="runMobilePlanLookup()">
+                          <i class="bx bx-search-alt me-1"></i> Fetch Plans
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Plans Display Container -->
+                <div id="mobile-plans-result-container" style="display: none;">
+                  
+                  <!-- Plan Category Filter Pills -->
+                  <div class="card shadow-sm border mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-label-primary fs-6 px-3 py-2" id="plans-result-badge-operator">Airtel</span>
+                        <span class="badge bg-label-secondary fs-6 px-3 py-2" id="plans-result-badge-circle">Rajasthan</span>
+                      </div>
+                      <div class="input-group" style="max-width: 260px;">
+                        <span class="input-group-text"><i class="bx bx-search"></i></span>
+                        <input type="text" class="form-control" placeholder="Search plan amount / data..." id="input-filter-plans" onkeyup="filterRenderedPlans()" />
+                      </div>
+                    </div>
+
+                    <div class="card-body pt-3">
+                      <!-- Category Nav Tabs -->
+                      <ul class="nav nav-pills mb-3 gap-2 flex-wrap" id="plan-category-tabs">
+                        <li class="nav-item">
+                          <button class="nav-link active fw-bold btn-sm" onclick="switchPlanCategory('ALL')">All Plans (<span id="count-all">0</span>)</button>
+                        </li>
+                        <li class="nav-item">
+                          <button class="nav-link fw-bold btn-sm" onclick="switchPlanCategory('FULLTT')">Unlimited / Combo (<span id="count-fulltt">0</span>)</button>
+                        </li>
+                        <li class="nav-item">
+                          <button class="nav-link fw-bold btn-sm" onclick="switchPlanCategory('DATA')">4G / 5G Data (<span id="count-data">0</span>)</button>
+                        </li>
+                        <li class="nav-item">
+                          <button class="nav-link fw-bold btn-sm" onclick="switchPlanCategory('TOPUP')">Talktime TOPUP (<span id="count-topup">0</span>)</button>
+                        </li>
+                        <li class="nav-item">
+                          <button class="nav-link fw-bold btn-sm" onclick="switchPlanCategory('Romaing')">Roaming (<span id="count-roaming">0</span>)</button>
+                        </li>
+                      </ul>
+
+                      <!-- Plan Cards Grid -->
+                      <div class="row g-3" id="plans-cards-grid">
+                        <!-- Populated by JavaScript -->
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- ================= USER TAB: R-OFFER CHECK (AIRTEL & VI) ================= -->
+              <div id="user-panel-roffer" class="user-panel">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                  <div>
+                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-gift text-info me-2"></i>Live R-Offer Check</h4>
+                    <p class="text-muted mb-0">Fetch special tailored personalized recharge offers directly from telecom operators (Airtel & Vodafone Idea)</p>
+                  </div>
+                  <div>
+                    <button class="btn btn-outline-info" onclick="switchUserPanel('api')">
+                      <i class="bx bx-code-alt me-1"></i> R-Offer API Docs
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Query Form Card -->
+                <div class="card shadow-sm border mb-4">
+                  <div class="card-header bg-label-info border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0 fw-bold text-info"><i class="bx bx-mobile-alt me-2"></i>Enter Mobile Number & Select Operator</h5>
+                    <span class="badge bg-info text-white">Supported: Airtel & VI</span>
+                  </div>
+                  <div class="card-body pt-4">
+                    <div class="row g-3 align-items-end">
+                      <div class="col-md-5">
+                        <label for="input-roffer-mobile" class="form-label fw-bold">Enter 10-Digit Mobile Number</label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-phone text-muted"></i> +91</span>
+                          <input type="tel" id="input-roffer-mobile" class="form-control form-control-lg" placeholder="e.g. 8124090563" maxlength="10" value="8124090563" />
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <label for="select-roffer-operator" class="form-label fw-bold">Which Operator?</label>
+                        <select id="select-roffer-operator" class="form-select form-select-lg">
+                          <option value="2">Airtel (02)</option>
+                          <option value="6">Vodafone Idea - VI (06)</option>
+                          <option value="11" disabled>Reliance Jio (Not Supported)</option>
+                          <option value="4" disabled>BSNL (Not Supported)</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-3">
+                        <button class="btn btn-info btn-lg w-100 fw-bold shadow-sm text-white" id="btn-fetch-roffer" onclick="runRofferLookup()">
+                          <i class="bx bx-search-alt me-1"></i> Check R-Offers
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- R-Offer Results Container -->
+                <div id="roffer-result-container" style="display: none;">
+                  <div class="card shadow-sm border mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-label-info fs-6 px-3 py-2" id="roffer-badge-mobile">8124090563</span>
+                        <span class="badge bg-label-primary fs-6 px-3 py-2" id="roffer-badge-op">Airtel</span>
+                        <span class="badge bg-success text-white" id="roffer-badge-msg">Offer Successfully Checked</span>
+                      </div>
+                      <div>
+                        <span class="text-muted small" id="roffer-response-time"></span>
+                      </div>
+                    </div>
+                    <div class="card-body pt-3">
+                      <div class="row g-3" id="roffer-cards-grid">
+                        <!-- Populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- ================= USER TAB: LAST RECHARGE & DTH INFO CHECK ================= -->
+              <div id="user-panel-lastrecharge" class="user-panel">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                  <div>
+                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-history text-success me-2"></i>Last Recharge & DTH Info Check</h4>
+                    <p class="text-muted mb-0">Verify subscriber details, balance, last recharge date, next expiry date, and plan status in real-time</p>
+                  </div>
+                  <div>
+                    <button class="btn btn-outline-success" onclick="switchUserPanel('api')">
+                      <i class="bx bx-code-alt me-1"></i> Recharge API Docs
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Query Form Card -->
+                <div class="card shadow-sm border mb-4">
+                  <div class="card-header bg-label-success border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0 fw-bold text-success"><i class="bx bx-mobile-alt me-2"></i>Enter Mobile / DTH VC Number</h5>
+                    <span class="badge bg-success text-white">Live Query Engine</span>
+                  </div>
+                  <div class="card-body pt-4">
+                    <div class="row g-3 align-items-end">
+                      <div class="col-md-5">
+                        <label for="input-lastrecharge-mobile" class="form-label fw-bold">Mobile No / DTH VC Number</label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-phone text-muted"></i></span>
+                          <input type="text" id="input-lastrecharge-mobile" class="form-control form-control-lg" placeholder="e.g. 8124090563 or 301211222" value="8124090563" />
+                        </div>
+                      </div>
+
+                      <div class="col-md-4">
+                        <label for="select-lastrecharge-operator" class="form-label fw-bold">Operator / Service</label>
+                        <select id="select-lastrecharge-operator" class="form-select form-select-lg">
+                          <option value="2">Airtel (02)</option>
+                          <option value="11">Reliance Jio (11)</option>
+                          <option value="6">Vodafone Idea - VI (06)</option>
+                          <option value="4">BSNL (04)</option>
+                          <option value="21">Tata Play DTH (21)</option>
+                          <option value="22">Airtel Digital TV (22)</option>
+                          <option value="23">Dish TV (23)</option>
+                          <option value="24">Videocon D2H (24)</option>
+                          <option value="25">Sun Direct (25)</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-3">
+                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-lastrecharge" onclick="runLastRechargeLookup()">
+                          <i class="bx bx-search-alt me-1"></i> Check Status
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Result Container -->
+                <div id="lastrecharge-result-container" style="display: none;">
+                  <div class="card shadow-sm border mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-label-success fs-6 px-3 py-2" id="lastrecharge-badge-vc">8124090563</span>
+                        <span class="badge bg-label-primary fs-6 px-3 py-2" id="lastrecharge-badge-op">Airtel</span>
+                        <span class="badge bg-success text-white" id="lastrecharge-badge-msg">Offer Successfully Checked</span>
+                      </div>
+                      <div>
+                        <span class="text-muted small" id="lastrecharge-response-time"></span>
+                      </div>
+                    </div>
+                    <div class="card-body p-4" id="lastrecharge-details-body">
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- ================= USER TAB: DTH INFO (https://planapi.in/DTHinfoDetails.aspx) ================= -->
+              <div id="user-panel-dthinfo" class="user-panel">
+                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                  <div>
+                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-tv text-danger me-2"></i>Live DTH Customer Information</h4>
+                    <p class="text-muted mb-0">Fetch live DTH subscriber name, registered mobile, monthly rental, balance, due date, plan, and address in real time</p>
+                  </div>
+                  <div>
+                    <button class="btn btn-outline-danger" onclick="switchUserPanel('api')">
+                      <i class="bx bx-code-alt me-1"></i> DTH Info API Docs
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Query Form Card -->
+                <div class="card shadow-sm border mb-4">
+                  <div class="card-header bg-label-danger border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <h5 class="mb-0 fw-bold text-danger"><i class="bx bx-tv me-2"></i>Select DTH Operator & Enter Customer ID / VC</h5>
+                    <span class="badge bg-danger text-white">All DTH Operators</span>
+                  </div>
+                  <div class="card-body pt-4">
+                    <div class="row g-3 align-items-end">
+                      <div class="col-md-5">
+                        <label for="select-dth-operator" class="form-label fw-bold">1. Which DTH Operator?</label>
+                        <select id="select-dth-operator" class="form-select form-select-lg">
+                          <option value="28">TATA Sky / Tata Play (28)</option>
+                          <option value="24">Airtel Digital TV (24)</option>
+                          <option value="25">Dish TV (25)</option>
+                          <option value="27">Sun Direct (27)</option>
+                          <option value="29">Videocon D2H (29)</option>
+                        </select>
+                      </div>
+
+                      <div class="col-md-4">
+                        <label for="input-dth-number" class="form-label fw-bold">2. DTH Customer / VC Number</label>
+                        <div class="input-group input-group-merge">
+                          <span class="input-group-text"><i class="bx bx-credit-card-front text-muted"></i></span>
+                          <input type="text" id="input-dth-number" class="form-control form-control-lg" placeholder="e.g. 301211222" value="301211222" />
+                        </div>
+                      </div>
+
+                      <div class="col-md-3">
+                        <button class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-dthinfo" onclick="runDthLookup()">
+                          <i class="bx bx-search-alt me-1"></i> Fetch DTH Info
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Result Container -->
+                <div id="dthinfo-result-container" style="display: none;">
+                  <div class="card shadow-sm border mb-4">
+                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-label-danger fs-6 px-3 py-2" id="dthinfo-badge-vc">301211222</span>
+                        <span class="badge bg-label-primary fs-6 px-3 py-2" id="dthinfo-badge-op">TATA Sky</span>
+                        <span class="badge bg-success text-white" id="dthinfo-badge-msg">Offer Successfully Checked</span>
+                      </div>
+                      <div>
+                        <span class="text-muted small" id="dthinfo-response-time"></span>
+                      </div>
+                    </div>
+                    <div class="card-body p-4" id="dthinfo-details-body">
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- ================= USER TAB 2: BUY PLAN ================= -->
+              <div id="user-panel-buy-plan" class="user-panel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <div>
+                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-diamond text-success me-2"></i>Plan List</h4>
+                    <p class="text-muted mb-0">Select a high-speed lookup plan to recharge your account hits</p>
+                  </div>
+                  <div>
+                    <span class="badge bg-label-primary px-3 py-2 fs-6">
+                      Current Balance: <strong id="plan-panel-remaining-hits">100</strong> Hits
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Plan List Table Card -->
+                <div class="card shadow-sm border mb-4">
+                  <div class="card-header bg-white border-bottom py-3">
+                    <h5 class="mb-0 fw-bold text-dark">Plan List</h5>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="table-responsive">
+                      <table class="table table-hover align-middle mb-0" style="font-size: 0.95rem;">
+                        <thead style="background-color: #f0f4f9;">
+                          <tr>
+                            <th class="ps-4 py-3 text-muted fw-bold" style="width: 100px;">Sr No</th>
+                            <th class="py-3 text-muted fw-bold">Amount (₹)</th>
+                            <th class="py-3 text-muted fw-bold">Hits</th>
+                            <th class="pe-4 py-3 text-end text-muted fw-bold" style="width: 160px;">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody id="user-plan-list-tbody">
+                          <tr>
+                            <td colspan="4" class="text-center py-4 text-muted">
+                              <span class="spinner-border spinner-border-sm text-primary me-2"></span> Loading plans...
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- My Payment Requests Card -->
+                <div class="card shadow-sm border mb-4">
+                  <div class="card-header border-bottom d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="bx bx-history text-secondary me-2"></i>My Payment & Recharge History</h5>
+                    <button class="btn btn-sm btn-outline-primary" onclick="loadUserPaymentHistory()">
+                      <i class="bx bx-refresh"></i> Refresh History
+                    </button>
+                  </div>
+                  <div class="card-body p-0">
+                    <div class="table-responsive">
+                      <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th class="ps-4">Request ID</th>
+                            <th>Amount</th>
+                            <th>Hits</th>
+                            <th>UTR / Ref Number</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody id="user-payments-tbody">
+                          <tr><td colspan="6" class="text-center py-4 text-muted">No recharge requests yet.</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- ================= USER TAB 3: API DOCUMENTATION & ACCESS ================= -->
+              <div id="user-panel-api" class="user-panel">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <div>
+                    <h4 class="mb-1"><i class="bx bx-code-curly text-warning me-2"></i>API Integration Documentation</h4>
+                    <p class="text-muted mb-0">Integrate real-time telecom lookup directly into your application or software</p>
+                  </div>
+                </div>
+
+                <!-- API Credentials Card -->
+                <div class="card shadow-sm border mb-4">
+                  <div class="card-header bg-label-primary d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 text-primary fw-bold"><i class="bx bx-key me-2"></i>Your API Authentication Credentials</h6>
+                    <span class="badge bg-primary">Active</span>
+                  </div>
+                  <div class="card-body pt-4">
+                    <div class="row g-3">
+                      <div class="col-md-5">
+                        <label class="form-label fw-bold small text-uppercase">ApiUserID (Registered Mobile)</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control bg-lighter fw-bold" id="api-card-userid" readonly value="..." />
+                          <button class="btn btn-outline-primary" onclick="copyToClipboard('api-card-userid', 'ApiUserID copied!')">
+                            <i class="bx bx-copy"></i>
+                          </button>
+                        </div>
+                      </div>
+                      <div class="col-md-7">
+                        <label class="form-label fw-bold small text-uppercase">API Token (Generated by System)</label>
+                        <div class="input-group">
+                          <input type="text" class="form-control bg-lighter font-monospace" id="api-card-token" readonly value="..." />
+                          <button class="btn btn-outline-primary" onclick="copyToClipboard('api-card-token', 'API Token copied!')">
+                            <i class="bx bx-copy"></i>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ================= TOP QUICK API CATEGORY NAVIGATOR (PlanAPI Style) ================= -->
+                <div class="card shadow-sm border mb-4 bg-white">
+                  <div class="card-header border-bottom py-3 bg-lighter">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                      <h6 class="mb-0 fw-bold text-dark"><i class="bx bx-layer text-primary me-2"></i>Select & Jump to API Service:</h6>
+                      <span class="badge bg-label-primary">Developer Documentation</span>
+                    </div>
+                  </div>
+                  <div class="card-body py-3">
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                      <!-- 1. Operator & Circle -->
+                      <a href="#api-section-operator" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold d-flex align-items-center gap-1 shadow-sm">
+                        <i class="bx bx-radio-circle-marked text-success"></i>
+                        <span>OPERATOR & CIRCLE FETCH</span>
+                        <span class="badge bg-danger text-white rounded-pill px-1 ms-1" style="font-size:0.65rem;">NEW</span>
+                        <span class="badge bg-label-success ms-1" style="font-size:0.65rem;">GET</span>
+                      </a>
+
+                      <!-- 2. Plan Fetch -->
+                      <a href="#api-section-planfetch" class="btn btn-outline-warning btn-sm rounded-pill px-3 fw-bold d-flex align-items-center gap-1 shadow-sm">
+                        <i class="bx bx-list-check"></i>
+                        <span>PLAN FETCH</span>
+                        <span class="badge bg-danger text-white rounded-pill px-1 ms-1" style="font-size:0.65rem;">NEW for B2B</span>
+                        <span class="badge bg-label-warning ms-1" style="font-size:0.65rem;">GET</span>
+                      </a>
+
+                      <!-- 3. R-Offer Check -->
+                      <a href="#api-section-roffer" class="btn btn-outline-info btn-sm rounded-pill px-3 fw-bold d-flex align-items-center gap-1 shadow-sm">
+                        <i class="bx bx-gift"></i>
+                        <span>R-OFFER CHECK</span>
+                        <span class="badge bg-danger text-white rounded-pill px-1 ms-1" style="font-size:0.65rem;">NEW</span>
+                        <span class="badge bg-label-info ms-1" style="font-size:0.65rem;">GET</span>
+                      </a>
+
+                      <!-- 4. Last Recharge Check -->
+                      <a href="#api-section-lastrecharge" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-bold d-flex align-items-center gap-1 shadow-sm">
+                        <i class="bx bx-history"></i>
+                        <span>LAST RECHARGE CHECK</span>
+                        <span class="badge bg-danger text-white rounded-pill px-1 ms-1" style="font-size:0.65rem;">NEW</span>
+                        <span class="badge bg-label-primary ms-1" style="font-size:0.65rem;">GET</span>
+                      </a>
+
+                      <!-- 5. DTH Info Check -->
+                      <a href="#api-section-lastrecharge" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold d-flex align-items-center gap-1 shadow-sm">
+                        <i class="bx bx-tv"></i>
+                        <span>DTH INFO</span>
+                        <span class="badge bg-danger text-white rounded-pill px-1 ms-1" style="font-size:0.65rem;">NEW</span>
+                        <span class="badge bg-label-danger ms-1" style="font-size:0.65rem;">GET</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ================= 1. OPERATOR & CIRCLE FETCH API ================= -->
+                <div class="card shadow-sm border mb-4" id="api-section-operator" style="scroll-margin-top: 80px;">
+                  <!-- Gradient Header matching image -->
+                  <div class="p-4 text-white rounded-top" style="background: linear-gradient(135deg, #0284c7 0%, #0369a1 50%, #6366f1 100%);">
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                      <h3 class="text-white fw-bold mb-0">OPERATOR & CIRCLE FETCH REQUEST URL</h3>
+                      <span class="badge bg-primary text-white fs-6 px-2 py-1">GET</span>
+                      <span class="badge bg-success text-white ms-auto"><i class="bx bx-check-circle me-1"></i>Live & Active</span>
+                    </div>
+                    <p class="mb-0 text-white-50" style="font-size: 0.95rem;">
+                      The Operator & Circle Check API helps entities verify the live mobile operator and circle details of an individual in real time. It determines the legitimate telecom provider and eliminates lookup delays.
+                    </p>
+                  </div>
+
+                  <!-- 2 Column Body Area matching image -->
+                  <div class="card-body p-4 bg-light">
+                    <div class="row g-4">
+                      <!-- Left Side: Request Specs & Table -->
+                      <div class="col-lg-7">
+                        <div class="card shadow-sm border h-100 bg-white">
+                          <div class="card-body p-4">
+                            <p class="mb-2"><strong>Name:</strong> OPERATOR & CIRCLE FETCH REQUEST URL</p>
+                            <p class="mb-2"><strong>Type:</strong> <span class="badge bg-label-primary fw-bold">GET</span></p>
+                            <div class="mb-4">
+                              <strong class="d-block mb-1">Request:</strong>
+                              <div class="input-group">
+                                <input type="text" class="form-control font-monospace bg-light text-danger fw-bold" id="api-full-url" readonly value="..." />
+                                <button class="btn btn-outline-primary" onclick="copyToClipboard('api-full-url', 'Request URL copied!')">
+                                  <i class="bx bx-copy me-1"></i> Copy
+                                </button>
+                                <a href="javascript:void(0);" class="btn btn-outline-secondary" id="btn-test-browser" target="_blank">
+                                  <i class="bx bx-link-external"></i>
+                                </a>
+                              </div>
+                            </div>
+
+                            <!-- Parameter Table matching image -->
+                            <h6 class="fw-bold mb-3 text-dark">Parameters</h6>
+                            <div class="table-responsive border rounded mb-4">
+                              <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead class="table-light">
+                                  <tr>
+                                    <th class="fw-bold">Parameter</th>
+                                    <th class="fw-bold">Type</th>
+                                    <th class="fw-bold">Position</th>
+                                    <th class="fw-bold">#</th>
+                                    <th class="fw-bold">Description</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">ApiUserID</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Query</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter <span class="text-danger fw-bold">Your Registered Mobile</span> credentials</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">token</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Query</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter <span class="text-danger fw-bold">Your API Token</span> credentials</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">Mobileno</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Query</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Target <span class="text-danger fw-bold">Mobile number</span> to lookup</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <!-- Live Test Console inside Left Column -->
+                            <div class="pt-3 border-top">
+                              <label class="form-label fw-bold text-primary"><i class="bx bx-play-circle me-1"></i>Live Test Console</label>
+                              <div class="input-group mb-2">
+                                <span class="input-group-text"><i class="bx bx-phone"></i> +91</span>
+                                <input type="text" class="form-control" id="api-test-input-mobile" placeholder="Enter 10-digit number" value="9335819686" />
+                                <button class="btn btn-primary fw-bold" id="btn-run-api-test" onclick="runLiveApiTest()">
+                                  <i class="bx bx-send me-1"></i> Execute Test
+                                </button>
+                              </div>
+                              <div id="api-test-output-container" style="display: none;" class="mt-2">
+                                <pre class="bg-dark text-light rounded p-3 mb-0 font-monospace" id="api-test-json-result" style="font-size: 0.82rem;"></pre>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Right Side: Responses matching image -->
+                      <div class="col-lg-5">
+                        <!-- Response 0 Card -->
+                        <div class="card shadow-sm border mb-3 bg-white">
+                          <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-bold">Response : <span class="badge bg-success">0</span></h6>
+                            <span class="badge bg-label-success">Success</span>
+                          </div>
+                          <div class="card-body p-3">
+                            <pre class="bg-dark text-success rounded p-3 mb-0 font-monospace" style="font-size: 0.82rem;"><code>{
+   "ERROR": "0",
+   "STATUS": "1",
+   "Mobile": "1234567890",
+   "Operator": "AIRTEL",
+   "OpCode": "2",
+   "Circle": "Rajasthan",
+   "CircleCode": "70",
+   "Message": "Successfully"
+}</code></pre>
+                          </div>
+                        </div>
+
+                        <!-- Response Error Card -->
+                        <div class="card shadow-sm border bg-white">
+                          <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-bold">Response : <span class="badge bg-danger">3</span></h6>
+                            <span class="badge bg-label-danger">Auth Failed</span>
+                          </div>
+                          <div class="card-body p-3">
+                            <pre class="bg-dark text-danger rounded p-3 mb-0 font-monospace" style="font-size: 0.82rem;"><code>{
+   "ERROR": "3",
+   "STATUS": "3",
+   "MOBILENO ": "1234567890",
+   "Operator ": "null",
+   "OpCode ": "null",
+   "Circle": "null",
+   "CircleCode": "null",
+   "Message": "Authentication failed"
+}</code></pre>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ================= 2. PLAN FETCH API ================= -->
+                <div class="card shadow-sm border mb-4" id="api-section-planfetch" style="scroll-margin-top: 80px;">
+                  <!-- Gradient Header matching exact screenshot -->
+                  <div class="p-4 text-white rounded-top" style="background: #0088cc;">
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                      <h3 class="text-white fw-bold mb-0">OPERATOR PLAN FETCH API</h3>
+                    </div>
+                    <div class="mb-3">
+                      <span class="badge text-white fw-bold px-2 py-1" style="background-color: #005580; font-size: 0.85rem;">GET</span>
+                    </div>
+                    <p class="mb-0 text-white" style="font-size: 0.95rem; opacity: 0.95; line-height: 1.5;">
+                      The Operator Plan Fetch API assists entities in verifying and validating the credentials associated with an Operator Plan Request. It ensures the legitimacy of customers and helps prevent fraudulent activities
+                    </p>
+                  </div>
+
+                  <!-- 2 Column Body Area matching image -->
+                  <div class="card-body p-4 bg-light">
+                    <div class="row g-4">
+                      <!-- Left Side: Specs & Parameters -->
+                      <div class="col-lg-7">
+                        <div class="card shadow-sm border h-100 bg-white">
+                          <div class="card-body p-4">
+                            <p class="mb-2"><strong>Name:</strong> <span class="fw-bold">OPERATOR PLAN REQUEST URL</span></p>
+                            <p class="mb-2"><strong>Type:</strong> <span class="text-danger fw-bold">GET</span></p>
+                            <div class="mb-4">
+                              <strong class="d-block mb-1">Request:</strong>
+                              <div class="input-group">
+                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-planfetch-url" readonly value="https://planapi.in/api/Mobile/Operatorplan?apimember_id=5411&api_password=123456&cricle=[Circle]&operatorcode=[OpCode]" />
+                                <button class="btn btn-outline-primary" onclick="copyToClipboard('api-planfetch-url', 'Plan Request URL copied!')">
+                                  <i class="bx bx-copy me-1"></i> Copy
+                                </button>
+                              </div>
+                            </div>
+
+                            <!-- Parameter Table matching image -->
+                            <h6 class="fw-bold mb-3 text-dark">Parameters</h6>
+                            <div class="table-responsive border rounded mb-4">
+                              <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead class="table-light">
+                                  <tr>
+                                    <th class="fw-bold">Parameter</th>
+                                    <th class="fw-bold">Type</th>
+                                    <th class="fw-bold">Position</th>
+                                    <th class="fw-bold">#</th>
+                                    <th class="fw-bold">Description</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">apimember_id</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Genrated Your 4 Digit API <span class="text-danger fw-bold">Member ID</span> credentials</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">api_password</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Your api password <span class="text-danger fw-bold">Password</span> credentials</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">cricle</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter given <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalCircleCodes" onclick="openCircleCodesModal()" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Circle Code</a></td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">operatorcode</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter given <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" onclick="openOperatorCodesModal()" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator Code</a></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <!-- Live Plan API Tester Box -->
+                            <div class="pt-3 border-top">
+                              <label class="form-label fw-bold text-primary"><i class="bx bx-play-circle me-1"></i>Live Plan Fetch Test Console</label>
+                              <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                  <label class="small text-muted mb-1">Operator:</label>
+                                  <select id="api-test-plan-op" class="form-select form-select-sm">
+                                    <option value="2">Airtel (2)</option>
+                                    <option value="11">Jio (11)</option>
+                                    <option value="6">VI (6)</option>
+                                    <option value="4">BSNL (4)</option>
+                                  </select>
+                                </div>
+                                <div class="col-6">
+                                  <label class="small text-muted mb-1">Circle:</label>
+                                  <select id="api-test-plan-cir" class="form-select form-select-sm">
+                                    <option value="70">Rajasthan (70)</option>
+                                    <option value="54">UP East (54)</option>
+                                    <option value="97">UP West (97)</option>
+                                    <option value="10">Delhi NCR (10)</option>
+                                    <option value="92">Mumbai (92)</option>
+                                    <option value="52">Bihar (52)</option>
+                                    <option value="98">Gujarat (98)</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <button class="btn btn-primary w-100 fw-bold" id="btn-run-plan-api-test" onclick="runLivePlanApiTest()">
+                                <i class="bx bx-send me-1"></i> Execute Plan Fetch Call
+                              </button>
+                              <div id="api-test-plan-output-container" style="display: none;" class="mt-2">
+                                <pre class="bg-dark text-warning rounded p-3 mb-0 font-monospace" id="api-test-plan-json-result" style="font-size: 0.80rem; max-height: 250px; overflow-y: auto;"></pre>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Right Side: Response Box matching screenshot -->
+                      <div class="col-lg-5">
+                        <div class="card shadow-sm border mb-3 bg-white">
+                          <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-bold">Response : <span class="badge bg-success">0</span></h6>
+                            <span class="badge bg-label-success">Success</span>
+                          </div>
+                          <div class="card-body p-3">
+                            <pre class="bg-dark text-success rounded p-3 mb-0 font-monospace" style="font-size: 0.80rem; max-height: 480px; overflow-y: auto;"><code>{
+   "ERROR": "0",
+   "STATUS": "0",
+   "Operator": "Airtel",
+   "Circle": "RAJASTHAN",
+   "RDATA": {
+      "FULLTT": [
+         {
+            "rs": 155,
+            "validity": "24 Days",
+            "desc": "Calls : Truly Unlimited | Data : 1GB | SMS : 300",
+            "Type": "unlimited"
+         }
+      ],
+      "TOPUP": [
+         {
+            "rs": 10,
+            "validity": "NA",
+            "desc": "7.47 Talktime,Talktime : Rs 7.47",
+            "Type": "talktime"
+         }
+      ],
+      "DATA": [
+         {
+            "rs": 19,
+            "validity": "1 Days",
+            "desc": "Data : 1 Days",
+            "Type": "data"
+         }
+      ]
+   }
+}</code></pre>
+                          </div>
+                        </div>
+
+                        <!-- Response 3 Card -->
+                        <div class="card shadow-sm border bg-white">
+                          <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-bold">Response : <span class="badge bg-danger">3</span></h6>
+                            <span class="badge bg-label-danger">Auth Failed</span>
+                          </div>
+                          <div class="card-body p-3">
+                            <pre class="bg-dark text-danger rounded p-3 mb-0 font-monospace" style="font-size: 0.80rem;"><code>{
+   "ERROR": "3",
+   "STATUS": "3",
+   "Operator": "null",
+   "Circle": "null",
+   "RDATA": null,
+   "MESSAGE": "Authentication failed"
+}</code></pre>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ================= 3. R-OFFER CHECK API ================= -->
+                <div class="card shadow-sm border mb-4" id="api-section-roffer" style="scroll-margin-top: 80px;">
+                  <!-- Gradient Header matching exact screenshot -->
+                  <div class="p-4 text-white rounded-top" style="background: #0088cc;">
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                      <h3 class="text-white fw-bold mb-0">R-OFFER CHECK API</h3>
+                    </div>
+                    <div class="mb-3">
+                      <span class="badge text-white fw-bold px-2 py-1" style="background-color: #005580; font-size: 0.85rem;">GET</span>
+                    </div>
+                    <p class="mb-0 text-white" style="font-size: 0.95rem; opacity: 0.95; line-height: 1.5;">
+                      The R-OFFER Check Request API is an essential tool for financial entities to verify R-OFFER details. It serves as a fundamental identity verification mechanism required by telecom operators such as Vodafone Idea (VI) and Airtel.
+                    </p>
+                  </div>
+
+                  <!-- 2 Column Body Area matching image -->
+                  <div class="card-body p-4 bg-light">
+                    <div class="row g-4">
+                      <!-- Left Side: Specs & Parameters -->
+                      <div class="col-lg-7">
+                        <div class="card shadow-sm border h-100 bg-white">
+                          <div class="card-body p-4">
+                            <p class="mb-2"><strong>Name:</strong> <span class="fw-bold">R-OFFER CHECK</span></p>
+                            <p class="mb-2"><strong>Type:</strong> <span class="text-danger fw-bold">GET</span></p>
+                            <div class="mb-4">
+                              <strong class="d-block mb-1">Request:</strong>
+                              <div class="input-group">
+                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-roffer-url" readonly value="https://planapi.in/api/Mobile/RofferCheck?apimember_id=5411&api_password=123456&operator_code=[OpCode]&mobile_no=12XXXXXXX0" />
+                                <button class="btn btn-outline-primary" onclick="copyToClipboard('api-roffer-url', 'R-Offer URL copied!')">
+                                  <i class="bx bx-copy me-1"></i> Copy
+                                </button>
+                              </div>
+                            </div>
+
+                            <!-- Parameter Table matching image -->
+                            <h6 class="fw-bold mb-3 text-dark">Parameters</h6>
+                            <div class="table-responsive border rounded mb-4">
+                              <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead class="table-light">
+                                  <tr>
+                                    <th class="fw-bold">Parameter</th>
+                                    <th class="fw-bold">Type</th>
+                                    <th class="fw-bold">Position</th>
+                                    <th class="fw-bold">#</th>
+                                    <th class="fw-bold">Description</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">apimember_id</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Your 4 digit <span class="text-danger fw-bold">Member ID</span> credentials</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">api_password</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Your given <span class="text-danger fw-bold">Api password</span> credentials</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">operator_code</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter api operator code <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" onclick="openOperatorCodesModal()" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator Code</a></td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">mobile_no</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Your <span class="text-danger fw-bold">Mobile No</span></td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <!-- Live R-Offer API Tester Box -->
+                            <div class="pt-3 border-top">
+                              <label class="form-label fw-bold text-info"><i class="bx bx-play-circle me-1"></i>Live R-Offer Test Console</label>
+                              <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                  <label class="small text-muted mb-1">Target Mobile No:</label>
+                                  <input type="tel" class="form-control form-control-sm" id="api-test-roffer-mobile" placeholder="e.g. 8124090563" value="8124090563" maxlength="10" />
+                                </div>
+                                <div class="col-6">
+                                  <label class="small text-muted mb-1">Operator:</label>
+                                  <select id="api-test-roffer-op" class="form-select form-select-sm">
+                                    <option value="2">Airtel (02)</option>
+                                    <option value="6">VI / Idea (06)</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <button class="btn btn-info w-100 fw-bold text-white" id="btn-run-roffer-api-test" onclick="runLiveRofferApiTest()">
+                                <i class="bx bx-send me-1"></i> Execute R-Offer Check Call
+                              </button>
+                              <div id="api-test-roffer-output-container" style="display: none;" class="mt-2">
+                                <pre class="bg-dark text-info rounded p-3 mb-0 font-monospace" id="api-test-roffer-json-result" style="font-size: 0.80rem; max-height: 250px; overflow-y: auto;"></pre>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Right Side: Response Box matching exact screenshot -->
+                      <div class="col-lg-5">
+                        <div class="card shadow-sm border mb-3 bg-white">
+                          <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-bold">Response : <span class="badge bg-success">0</span></h6>
+                            <span class="badge bg-label-success">Success</span>
+                          </div>
+                          <div class="card-body p-3">
+                            <pre class="bg-dark text-success rounded p-3 mb-0 font-monospace" style="font-size: 0.80rem; max-height: 400px; overflow-y: auto;"><code>{
+   "ERROR": "0",
+   "STATUS": "1",
+   "MOBILENO": "1234567890",
+   "RDATA": [
+      {
+         "price": "29",
+         "commissionUnit": "A",
+         "ofrtext": "Stay connected with 2GB data at just Rs29",
+         "logdesc": "RC29-Payein 2GB data 1 din ke liye.",
+         "commissionAmount": "0"
+      },
+      {
+         "price": "65",
+         "commissionUnit": "A",
+         "ofrtext": "Stay connected with 4GB data at just Rs65",
+         "logdesc": "65-4GB aapke maujooda pack ki vaidhta tak man",
+         "commissionAmount": "0"
+      }
+   ],
+   "MESSAGE": "Offer Successfully Checked"
+}</code></pre>
+                          </div>
+                        </div>
+
+                        <!-- Response 3 Card -->
+                        <div class="card shadow-sm border bg-white">
+                          <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-bold">Response : <span class="badge bg-danger">3</span></h6>
+                            <span class="badge bg-label-danger">Auth Failed</span>
+                          </div>
+                          <div class="card-body p-3">
+                            <pre class="bg-dark text-danger rounded p-3 mb-0 font-monospace" style="font-size: 0.80rem;"><code>{
+   "ERROR": "3",
+   "STATUS": "3",
+   "MOBILENO": "null",
+   "RDATA": null,
+   "MESSAGE": "Authentication failed"
+}</code></pre>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ================= 4. LAST RECHARGE & DTH INFO CHECK API ================= -->
+                <div class="card shadow-sm border mb-4" id="api-section-lastrecharge" style="scroll-margin-top: 80px;">
+                  <!-- Gradient Header matching exact screenshot -->
+                  <div class="p-4 text-white rounded-top" style="background: #0088cc;">
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                      <h3 class="text-white fw-bold mb-0">DTH INFO CHECK WITH LAST RECHARGE DATE REQUEST URL</h3>
+                    </div>
+                    <div class="mb-3">
+                      <span class="badge text-white fw-bold px-2 py-1" style="background-color: #005580; font-size: 0.85rem;">GET</span>
+                    </div>
+                    <p class="mb-0 text-white" style="font-size: 0.95rem; opacity: 0.95; line-height: 1.5;">
+                      The DTH INFO CHECK WITH LAST RECHARGE DATE API assists entities in verifying customer identity, subscription status, and latest recharge details in real time. It determines the legitimacy of the customer and prevents fraud.
+                    </p>
+                  </div>
+
+                  <!-- 2 Column Body Area matching image -->
+                  <div class="card-body p-4 bg-light">
+                    <div class="row g-4">
+                      <!-- Left Side: Specs & Parameters -->
+                      <div class="col-lg-7">
+                        <div class="card shadow-sm border h-100 bg-white">
+                          <div class="card-body p-4">
+                            <p class="mb-2"><strong>Name:</strong> <span class="fw-bold">DTH INFO CHECK WITH LAST RECHARGE DATE REQUEST URL</span></p>
+                            <p class="mb-2"><strong>Type:</strong> <span class="text-danger fw-bold">GET</span></p>
+                            <div class="mb-4">
+                              <strong class="d-block mb-1">Request:</strong>
+                              <div class="input-group">
+                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-lastrecharge-url" readonly value="https://planapi.in/api/Mobile/DthInfoWithLastRechargeDate?apimember_id=5411&api_password=123456&mobile_no=12XXXXXXX0&Opcode=[OpCode]" />
+                                <button class="btn btn-outline-primary" onclick="copyToClipboard('api-lastrecharge-url', 'Recharge URL copied!')">
+                                  <i class="bx bx-copy me-1"></i> Copy
+                                </button>
+                              </div>
+                            </div>
+
+                            <!-- Parameter Table matching image -->
+                            <h6 class="fw-bold mb-3 text-dark">Parameters</h6>
+                            <div class="table-responsive border rounded mb-4">
+                              <table class="table table-hover align-middle mb-0" style="font-size: 0.88rem;">
+                                <thead class="table-light">
+                                  <tr>
+                                    <th class="fw-bold">Parameter</th>
+                                    <th class="fw-bold">Type</th>
+                                    <th class="fw-bold">Position</th>
+                                    <th class="fw-bold">#</th>
+                                    <th class="fw-bold">Description</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">apimember_id</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Your <span class="text-danger fw-bold">Member Id</span> credentials</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">api_password</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Your <span class="text-danger fw-bold">Api Password</span> credentials</td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">Opcode</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Your given <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#modalOperatorCodes" onclick="openOperatorCodesModal()" class="text-primary text-decoration-underline fw-bold cursor-pointer"><i class="bx bx-list-ul me-1"></i>Operator code</a></td>
+                                  </tr>
+                                  <tr>
+                                    <td><code class="text-dark fw-bold">mobile_no</code></td>
+                                    <td class="text-muted">string</td>
+                                    <td><span class="text-danger fw-bold">Body</span></td>
+                                    <td><span class="badge bg-label-danger">Required</span></td>
+                                    <td>Enter Your <span class="text-danger fw-bold">Mobile no/DTH NUMBER</span> Number</td>
+                                  </tr>
+                                </tbody>
+                              </table>
+                            </div>
+
+                            <!-- Live Recharge / DTH API Tester Box -->
+                            <div class="pt-3 border-top">
+                              <label class="form-label fw-bold text-success"><i class="bx bx-play-circle me-1"></i>Live Recharge Check Test Console</label>
+                              <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                  <label class="small text-muted mb-1">Mobile / DTH VC No:</label>
+                                  <input type="text" class="form-control form-control-sm" id="api-test-recharge-mobile" placeholder="e.g. 8124090563 or 301211222" value="8124090563" />
+                                </div>
+                                <div class="col-6">
+                                  <label class="small text-muted mb-1">Operator:</label>
+                                  <select id="api-test-recharge-op" class="form-select form-select-sm">
+                                    <option value="2">Airtel (02)</option>
+                                    <option value="11">Reliance Jio (11)</option>
+                                    <option value="6">VI / Idea (06)</option>
+                                    <option value="4">BSNL (04)</option>
+                                    <option value="21">Tata Play DTH (21)</option>
+                                    <option value="22">Airtel Digital TV (22)</option>
+                                  </select>
+                                </div>
+                              </div>
+                              <button class="btn btn-success w-100 fw-bold" id="btn-run-recharge-api-test" onclick="runLiveLastRechargeApiTest()">
+                                <i class="bx bx-send me-1"></i> Execute Last Recharge Call
+                              </button>
+                              <div id="api-test-recharge-output-container" style="display: none;" class="mt-2">
+                                <pre class="bg-dark text-success rounded p-3 mb-0 font-monospace" id="api-test-recharge-json-result" style="font-size: 0.80rem; max-height: 250px; overflow-y: auto;"></pre>
+                              </div>
+                            </div>
+
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Right Side: Response Box matching exact screenshot -->
+                      <div class="col-lg-5">
+                        <div class="card shadow-sm border mb-3 bg-white">
+                          <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-bold">Response : <span class="badge bg-success">0</span></h6>
+                            <span class="badge bg-label-success">Success</span>
+                          </div>
+                          <div class="card-body p-3">
+                            <pre class="bg-dark text-success rounded p-3 mb-0 font-monospace" style="font-size: 0.80rem; max-height: 400px; overflow-y: auto;"><code>{
+   "error": "0",
+   "DATA": {
+      "VC": "301211222",
+      "Name": "MR Milind .",
+      "Rmn": "9XXXXXXX6",
+      "Balance": "310.28",
+      "Monthly": "",
+      "Next Recharge Date": "",
+      "Plan": "",
+      "Address": "Flat no sppartment, Vadala Pathardi Road, In",
+      "City": "",
+      "District": "40",
+      "State": "",
+      "PIN Code": "422009"
+   },
+   "Message": "Offer Successfully Checked"
+}</code></pre>
+                          </div>
+                        </div>
+
+                        <!-- Response 7 Card -->
+                        <div class="card shadow-sm border bg-white">
+                          <div class="card-header bg-white border-bottom py-2 d-flex align-items-center justify-content-between">
+                            <h6 class="mb-0 fw-bold">Response : <span class="badge bg-danger">7</span></h6>
+                            <span class="badge bg-label-danger">Invalid VC</span>
+                          </div>
+                          <div class="card-body p-3">
+                            <pre class="bg-dark text-danger rounded p-3 mb-0 font-monospace" style="font-size: 0.80rem;"><code>{
+   "error": "7",
+   "Message": "Invalid VC or Operator"
+}</code></pre>
+                          </div>
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- ================= USER TAB 3: PROFILE ================= -->
+              <div id="user-panel-profile" class="user-panel">
+                <div class="card col-lg-8 mx-auto shadow-sm border">
+                  <div class="card-header border-bottom">
+                    <h5 class="mb-0"><i class="bx bx-user-circle text-primary me-2"></i>My Profile</h5>
+                  </div>
+                  <div class="card-body pt-4">
+                    <ul class="list-group list-group-flush mb-4">
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted"><i class="bx bx-user me-2"></i> Full Name</span>
+                        <strong id="profile-user-name">-</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted"><i class="bx bxl-whatsapp text-success me-2"></i> WhatsApp Number (ApiUserID)</span>
+                        <strong id="profile-user-mobile">-</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted"><i class="bx bx-key text-warning me-2"></i> API Token</span>
+                        <code id="profile-user-token">-</code>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                        <span class="text-muted"><i class="bx bx-badge-check text-primary me-2"></i> Verification</span>
+                        <span class="badge bg-label-success">WhatsApp OTP Verified</span>
+                      </li>
+                    </ul>
+
+                    <button class="btn btn-outline-danger" onclick="logoutUser()">
+                      <i class="bx bx-power-off me-1"></i> Sign Out
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Footer -->
+            <footer class="content-footer footer bg-footer-theme">
+              <div class="container-xxl d-flex flex-wrap justify-content-between py-2 flex-md-row flex-column">
+                <div class="mb-2 mb-md-0">
+                  © 2026 PlanAPI Portal • Live Telecom Intelligence
+                </div>
+              </div>
+            </footer>
+          </div>
+        </div>
+      </div>
+      <div class="layout-overlay layout-menu-toggle"></div>
+    <!-- Payment Request Modal -->
+    <div class="modal fade" id="modalPaymentRequest" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title text-white"><i class="bx bx-credit-card me-2"></i>Recharge / Buy Plan</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="form-payment-request" onsubmit="handlePaymentSubmit(event)">
+            <div class="modal-body pt-4">
+              <!-- Selected Plan Details Summary -->
+              <div class="alert alert-primary d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <span class="d-block small text-uppercase fw-bold text-muted">Selected Plan</span>
+                  <h4 class="mb-0 text-primary fw-bold" id="modal-plan-summary">₹100 • 20,000 Hits</h4>
+                </div>
+                <span class="badge bg-primary fs-7">Instant Credit</span>
+              </div>
+
+              <!-- Payment Instructions -->
+              <div class="card bg-lighter border shadow-none mb-3 p-3">
+                <h6 class="fw-bold mb-2"><i class="bx bx-info-circle text-primary me-1"></i>How to Pay:</h6>
+                <p class="small text-muted mb-2">
+                  1. Scan or Pay via UPI / Bank Transfer to complete recharge:<br />
+                  <span class="badge bg-label-dark font-monospace py-1 px-2 mt-1">UPI ID: planapi@upi (or Scan QR)</span>
+                </p>
+                <p class="small text-muted mb-0">
+                  2. After paying, enter your <strong>UTR / Reference Number</strong> below and submit for admin approval.
+                </p>
+              </div>
+
+              <input type="hidden" id="modal-plan-id" />
+              <input type="hidden" id="modal-plan-amount" />
+              <input type="hidden" id="modal-plan-hits" />
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Plan Amount (₹)</label>
+                <div class="input-group">
+                  <span class="input-group-text">₹</span>
+                  <input type="text" id="modal-input-amount-display" class="form-control bg-light fw-bold" readonly />
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">Payment Date</label>
+                <input type="date" id="modal-input-date" class="form-control" required />
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label fw-bold">UTR / Transaction Reference Number <span class="text-danger">*</span></label>
+                <div class="input-group">
+                  <span class="input-group-text"><i class="bx bx-receipt"></i></span>
+                  <input type="text" id="modal-input-utr" class="form-control" placeholder="e.g. 426819283749" required minlength="4" />
+                </div>
+                <div class="form-text">12-digit UPI reference number or bank transaction ID.</div>
+              </div>
+            </div>
+            <div class="modal-footer bg-light">
+              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+              <button type="submit" class="btn btn-primary fw-bold" id="btn-submit-payment-req">
+                <i class="bx bx-check me-1"></i> Submit Payment Request
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Operator Codes Modal (2-Digit Numeric Codes) -->
+    <div class="modal fade" id="modalOperatorCodes" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title text-white"><i class="bx bx-broadcast me-2"></i>Telecom Operator 2-Digit Codes</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-0">
+            <div class="p-3 bg-light border-bottom">
+              <small class="text-muted">Use these 2-digit numeric codes in the <code>operatorcode</code> parameter when calling the Plan Fetch API.</small>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th class="ps-3">Operator Name</th>
+                    <th class="text-center">2-Digit Code</th>
+                    <th class="text-end pe-3">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="ps-3 fw-bold text-dark"><i class="bx bx-radio-circle text-danger me-1"></i> Airtel</td>
+                    <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">02 / 2</span></td>
+                    <td class="text-end pe-3">
+                      <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('2')"><i class="bx bx-copy me-1"></i> Copy</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="ps-3 fw-bold text-dark"><i class="bx bx-radio-circle text-primary me-1"></i> Reliance Jio</td>
+                    <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">11</span></td>
+                    <td class="text-end pe-3">
+                      <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('11')"><i class="bx bx-copy me-1"></i> Copy</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="ps-3 fw-bold text-dark"><i class="bx bx-radio-circle text-warning me-1"></i> Vodafone Idea (VI)</td>
+                    <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">06 / 6</span></td>
+                    <td class="text-end pe-3">
+                      <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('6')"><i class="bx bx-copy me-1"></i> Copy</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="ps-3 fw-bold text-dark"><i class="bx bx-radio-circle text-info me-1"></i> BSNL</td>
+                    <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">04 / 4</span></td>
+                    <td class="text-end pe-3">
+                      <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('4')"><i class="bx bx-copy me-1"></i> Copy</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer bg-light py-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Circle Codes Modal (2-Digit Numeric Codes) -->
+    <div class="modal fade" id="modalCircleCodes" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+        <div class="modal-content border">
+          <div class="modal-header bg-primary text-white">
+            <h5 class="modal-title text-white"><i class="bx bx-map-pin me-2"></i>All India Telecom Circle 2-Digit Codes (23 Circles)</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-3">
+            <div class="p-2 bg-light border rounded mb-3">
+              <small class="text-muted"><i class="bx bx-info-circle me-1 text-primary"></i>Use these 2-digit numeric codes in the <code>cricle</code> parameter when calling the Plan Fetch API.</small>
+            </div>
+            <div class="mb-3">
+              <input type="text" id="input-search-circle-codes" class="form-control" placeholder="Search circle name or 2-digit code..." onkeyup="filterCircleCodesTable()" />
+            </div>
+            <div class="table-responsive border rounded" style="max-height: 400px; overflow-y: auto;">
+              <table class="table table-hover align-middle mb-0" id="table-circle-codes">
+                <thead class="table-light sticky-top">
+                  <tr>
+                    <th class="ps-3" style="width: 60px;">#</th>
+                    <th>Telecom Circle / State</th>
+                    <th class="text-center" style="width: 140px;">2-Digit Code</th>
+                    <th class="text-end pe-3" style="width: 120px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody-circle-codes">
+                  <tr><td class="ps-3 text-muted fw-bold">1</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Rajasthan</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">70</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('70')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">2</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> UP (East)</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">54</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('54')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">3</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> UP (West) & Uttarakhand</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">97</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('97')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">4</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Delhi NCR</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">10</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('10')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">5</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Mumbai</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">92</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('92')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">6</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Maharashtra & Goa</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">90</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('90')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">7</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Bihar & Jharkhand</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">52</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('52')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">8</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Gujarat</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">98</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('98')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">9</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Madhya Pradesh & Chhattisgarh</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">93</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('93')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">10</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Punjab</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">02</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('02')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">11</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Haryana</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">96</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('96')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">12</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Kolkata</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">31</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('31')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">13</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> West Bengal</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">51</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('51')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">14</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Karnataka</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">06</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('06')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">15</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Andhra Pradesh & Telangana</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">49</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('49')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">16</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Tamil Nadu</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">94</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('94')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">17</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Chennai</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">40</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('40')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">18</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Kerala</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">95</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('95')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">19</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Odisha</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">53</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('53')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">20</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Assam</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">56</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('56')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">21</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> North East</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">16</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('16')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">22</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Himachal Pradesh</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">03</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('03')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                  <tr><td class="ps-3 text-muted fw-bold">23</td><td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> Jammu & Kashmir</td><td class="text-center"><span class="badge bg-label-primary fs-6 px-3">55</span></td><td class="text-end pe-3"><button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('55')"><i class="bx bx-copy"></i> Copy</button></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="modal-footer bg-light py-2">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="toastNotification" class="toast align-items-center text-white bg-primary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="toastMessage">Done!</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="assets/vendor/libs/popper/popper.js"></script>
+    <script src="assets/vendor/js/bootstrap.js"></script>
+    <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="assets/vendor/js/menu.js"></script>
+    <script src="assets/js/main.js"></script>
+
+    <script>
+      let currentUser = null;
+      let paymentModalInstance = null;
+
+      function setText(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.innerText = text;
+      }
+      function setValue(id, val) {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      }
+
+      // User Authentication Guard
+      document.addEventListener('DOMContentLoaded', async () => {
+        const stored = localStorage.getItem('planapi_user');
+        if (!stored) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        try {
+          currentUser = JSON.parse(stored);
+          if (!currentUser || !currentUser.mobile) {
+            localStorage.removeItem('planapi_user');
+            window.location.href = 'login.html';
+            return;
+          }
+
+          const modalEl = document.getElementById('modalPaymentRequest');
+          if (modalEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            paymentModalInstance = new bootstrap.Modal(modalEl);
+          }
+
+          initCodeModals();
+          await refreshUserProfile();
+          loadUserPlans();
+          loadUserPaymentHistory();
+
+        } catch(e) {
+          console.error("Dashboard initialization error:", e);
+        }
+      });
+
+      // ---------------- CIRCLE & OPERATOR 2-DIGIT CODES MODALS ---------------- //
+      const ALL_INDIA_CIRCLES = [
+        { code: '70', name: 'Rajasthan' },
+        { code: '54', name: 'UP (East)' },
+        { code: '97', name: 'UP (West) & Uttarakhand' },
+        { code: '10', name: 'Delhi NCR' },
+        { code: '92', name: 'Mumbai' },
+        { code: '90', name: 'Maharashtra & Goa' },
+        { code: '52', name: 'Bihar & Jharkhand' },
+        { code: '98', name: 'Gujarat' },
+        { code: '93', name: 'Madhya Pradesh & Chhattisgarh' },
+        { code: '02', name: 'Punjab' },
+        { code: '96', name: 'Haryana' },
+        { code: '31', name: 'Kolkata' },
+        { code: '51', name: 'West Bengal' },
+        { code: '06', name: 'Karnataka' },
+        { code: '49', name: 'Andhra Pradesh & Telangana' },
+        { code: '94', name: 'Tamil Nadu' },
+        { code: '40', name: 'Chennai' },
+        { code: '95', name: 'Kerala' },
+        { code: '53', name: 'Odisha' },
+        { code: '56', name: 'Assam' },
+        { code: '16', name: 'North East' },
+        { code: '03', name: 'Himachal Pradesh' },
+        { code: '55', name: 'Jammu & Kashmir' }
+      ];
+
+      let circleModalInstance = null;
+      let operatorModalInstance = null;
+
+      function initCodeModals() {
+        renderCircleCodesTable(ALL_INDIA_CIRCLES);
+        const cmEl = document.getElementById('modalCircleCodes');
+        if (cmEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+          circleModalInstance = new bootstrap.Modal(cmEl);
+        }
+
+        const omEl = document.getElementById('modalOperatorCodes');
+        if (omEl && typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+          operatorModalInstance = new bootstrap.Modal(omEl);
+        }
+      }
+
+      function openCircleCodesModal() {
+        if (!circleModalInstance) {
+          const el = document.getElementById('modalCircleCodes');
+          if (el && typeof bootstrap !== 'undefined') circleModalInstance = new bootstrap.Modal(el);
+        }
+        renderCircleCodesTable(ALL_INDIA_CIRCLES);
+        const input = document.getElementById('input-search-circle-codes');
+        if (input) input.value = '';
+        if (circleModalInstance) circleModalInstance.show();
+      }
+
+      function openOperatorCodesModal() {
+        if (!operatorModalInstance) {
+          const el = document.getElementById('modalOperatorCodes');
+          if (el && typeof bootstrap !== 'undefined') operatorModalInstance = new bootstrap.Modal(el);
+        }
+        if (operatorModalInstance) operatorModalInstance.show();
+      }
+
+      function renderCircleCodesTable(list) {
+        const tbody = document.getElementById('tbody-circle-codes');
+        if (!tbody) return;
+        tbody.innerHTML = list.map((c, idx) => `
+          <tr>
+            <td class="ps-3 text-muted fw-bold">${idx + 1}</td>
+            <td class="fw-bold text-dark"><i class="bx bx-map-pin text-primary me-1"></i> ${c.name}</td>
+            <td class="text-center"><span class="badge bg-label-primary fs-6 px-3">${c.code}</span></td>
+            <td class="text-end pe-3">
+              <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('${c.code}')">
+                <i class="bx bx-copy"></i> Copy
+              </button>
+            </td>
+          </tr>
+        `).join('');
+      }
+
+      function filterCircleCodesTable() {
+        const query = (document.getElementById('input-search-circle-codes').value || '').toLowerCase().trim();
+        const filtered = ALL_INDIA_CIRCLES.filter(c => c.name.toLowerCase().includes(query) || c.code.includes(query));
+        renderCircleCodesTable(filtered);
+      }
+
+      async function refreshUserProfile() {
+        if (!currentUser || !currentUser.mobile) return;
+        try {
+          const refreshRes = await fetch(`/api/user/profile?mobile=${currentUser.mobile}`);
+          const refreshData = await refreshRes.json();
+          if (refreshData.success && refreshData.user) {
+            currentUser = refreshData.user;
+            localStorage.setItem('planapi_user', JSON.stringify(currentUser));
+          }
+        } catch(err) {}
+
+        const name = currentUser.name || 'User';
+        const initial = name.charAt(0).toUpperCase();
+        const userMobile = currentUser.mobile || '';
+        const userToken = currentUser.apiToken || '';
+        const hitsLeft = (currentUser.remainingHits !== undefined ? currentUser.remainingHits : 100).toLocaleString();
+
+        setText('welcome-user-name', name);
+        setText('nav-avatar-char', initial);
+        setText('dropdown-avatar-char', initial);
+        setText('dropdown-user-name', name);
+        setText('dropdown-user-mobile', `+91 ${userMobile}`);
+        setText('profile-user-name', name);
+        setText('profile-user-mobile', `+91 ${userMobile}`);
+        setText('profile-user-token', userToken);
+        setText('nav-remaining-hits', hitsLeft);
+        setText('plan-panel-remaining-hits', hitsLeft);
+
+        // Populate API tab
+        setValue('api-card-userid', userMobile);
+        setValue('api-card-token', userToken);
+        setText('param-ex-user', userMobile);
+        setText('param-ex-token', userToken);
+
+        const origin = window.location.origin;
+        const apiFullUrl = `${origin}/api/Mobile/OperatorFetchNew?ApiUserID=${userMobile}&token=${userToken}&Mobileno=12XXXXXX90`;
+        setValue('api-full-url', apiFullUrl);
+
+        const testBrowserUrl = `${origin}/api/Mobile/OperatorFetchNew?ApiUserID=${userMobile}&token=${userToken}&Mobileno=${userMobile}`;
+        const btnTestBrowser = document.getElementById('btn-test-browser');
+        if (btnTestBrowser) btnTestBrowser.href = testBrowserUrl;
+
+        setValue('api-planfetch-url', `${origin}/api/Mobile/Operatorplan?apimember_id=${userMobile}&api_password=${userToken}&cricle=70&operatorcode=2`);
+        setValue('api-roffer-url', `${origin}/api/Mobile/RofferCheck?apimember_id=${userMobile}&api_password=${userToken}&operator_code=2&mobile_no=12XXXXXXX0`);
+        setValue('api-lastrecharge-url', `${origin}/api/Mobile/DthInfoWithLastRechargeDate?apimember_id=${userMobile}&api_password=${userToken}&mobile_no=12XXXXXXX0&Opcode=2`);
+      }
+
+      function showToast(msg, bg = 'bg-primary') {
+        const toastEl = document.getElementById('toastNotification');
+        toastEl.className = `toast align-items-center text-white ${bg} border-0`;
+        document.getElementById('toastMessage').innerText = msg;
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      }
+
+      function copyToClipboard(elementId, msg = 'Copied to clipboard!') {
+        const copyText = document.getElementById(elementId).value;
+        navigator.clipboard.writeText(copyText).then(() => {
+          showToast(msg, 'bg-success');
+        }).catch(() => {
+          showToast('Failed to copy', 'bg-danger');
+        });
+      }
+
+      function switchUserPanel(panelId) {
+        document.querySelectorAll('.user-panel').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('active'));
+
+        const targetPanel = document.getElementById(`user-panel-${panelId}`);
+        if (targetPanel) targetPanel.classList.add('active');
+
+        const targetMenu = document.getElementById(`menu-${panelId}`);
+        if (targetMenu) targetMenu.classList.add('active');
+
+        if (panelId === 'buy-plan') {
+          loadUserPlans();
+          loadUserPaymentHistory();
+        }
+      }
+
+      function logoutUser() {
+        localStorage.removeItem('planapi_user');
+        showToast('Logged out successfully.');
+        setTimeout(() => {
+          window.location.href = 'login.html';
+        }, 400);
+      }
+
+      function setAndQuery(num) {
+        document.getElementById('lookup-mobile-input').value = num;
+        runOperatorLookup();
+      }
+
+      function quickLookup() {
+        const val = document.getElementById('nav-quick-search').value.trim();
+        if (val) {
+          document.getElementById('lookup-mobile-input').value = val;
+          switchUserPanel('lookup');
+          runOperatorLookup();
+        }
+      }
+
+      // ---------------- USER PLANS & BILLING LOGIC ---------------- //
+
+      async function loadUserPlans() {
+        const tbody = document.getElementById('user-plan-list-tbody');
+        try {
+          const res = await fetch('/api/plans');
+          const data = await res.json();
+          if (data.success && data.plans && data.plans.length > 0) {
+            tbody.innerHTML = data.plans.map((p, idx) => `
+              <tr>
+                <td class="ps-4 fw-bold text-dark">${idx + 1}</td>
+                <td><strong class="fs-5 text-dark">₹${p.amount}</strong></td>
+                <td><span class="badge bg-label-primary fs-6 px-3">${p.hits.toLocaleString()}</span></td>
+                <td class="pe-4 text-end">
+                  <button type="button" class="btn text-white px-4 fw-bold shadow-sm" style="background-color: #2a8f87; border-radius: 6px;" onclick="openPaymentModal('${p.id}', ${p.amount}, ${p.hits})">
+                    Buy Now
+                  </button>
+                </td>
+              </tr>
+            `).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-muted">No active plans available.</td></tr>';
+          }
+        } catch(e) {
+          tbody.innerHTML = '<tr><td colspan="4" class="text-center py-4 text-danger">Error loading plans.</td></tr>';
+        }
+      }
+
+      function openPaymentModal(planId, amount, hits) {
+        document.getElementById('modal-plan-id').value = planId;
+        document.getElementById('modal-plan-amount').value = amount;
+        document.getElementById('modal-plan-hits').value = hits;
+        document.getElementById('modal-plan-summary').innerText = `₹${amount} • ${hits.toLocaleString()} Hits`;
+        document.getElementById('modal-input-amount-display').value = amount;
+        document.getElementById('modal-input-date').value = new Date().toISOString().split('T')[0];
+        document.getElementById('modal-input-utr').value = '';
+
+        if (paymentModalInstance) {
+          paymentModalInstance.show();
+        }
+      }
+
+      async function handlePaymentSubmit(e) {
+        e.preventDefault();
+        const planId = document.getElementById('modal-plan-id').value;
+        const amount = document.getElementById('modal-plan-amount').value;
+        const hits = document.getElementById('modal-plan-hits').value;
+        const paymentDate = document.getElementById('modal-input-date').value;
+        const utr = document.getElementById('modal-input-utr').value.trim();
+        const btn = document.getElementById('btn-submit-payment-req');
+
+        if (!utr) {
+          showToast('Please enter the payment UTR number.', 'bg-danger');
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Submitting...';
+
+        try {
+          const res = await fetch('/api/payments/request', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              userMobile: currentUser.mobile,
+              userName: currentUser.name,
+              planId,
+              amount,
+              hits,
+              paymentDate,
+              utr
+            })
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            showToast('Payment request submitted successfully!', 'bg-success');
+            if (paymentModalInstance) paymentModalInstance.hide();
+            loadUserPaymentHistory();
+          } else {
+            showToast(data.message || 'Submission failed.', 'bg-danger');
+          }
+        } catch(err) {
+          showToast('Network error submitting request.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-check me-1"></i> Submit Payment Request';
+        }
+      }
+
+      async function loadUserPaymentHistory() {
+        if (!currentUser || !currentUser.mobile) return;
+        const tbody = document.getElementById('user-payments-tbody');
+        try {
+          const res = await fetch(`/api/payments?mobile=${currentUser.mobile}`);
+          const data = await res.json();
+          if (data.success && data.payments && data.payments.length > 0) {
+            tbody.innerHTML = data.payments.map(p => {
+              let badge = '<span class="badge bg-label-warning"><i class="bx bx-time-five me-1"></i>Pending</span>';
+              if (p.status === 'Approved') badge = '<span class="badge bg-label-success"><i class="bx bx-check-double me-1"></i>Approved</span>';
+              if (p.status === 'Rejected') badge = '<span class="badge bg-label-danger"><i class="bx bx-x-circle me-1"></i>Rejected</span>';
+
+              return `
+                <tr>
+                  <td class="ps-4"><code>${p.id}</code></td>
+                  <td><strong>₹${p.amount}</strong></td>
+                  <td><span class="badge bg-label-primary">${(p.hits || 0).toLocaleString()} hits</span></td>
+                  <td><code>${p.utr}</code></td>
+                  <td><small class="text-muted">${p.paymentDate}</small></td>
+                  <td>${badge}</td>
+                </tr>
+              `;
+            }).join('');
+          } else {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No recharge history yet.</td></tr>';
+          }
+        } catch(e) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-danger">Error loading history.</td></tr>';
+        }
+      }
+
+      // ---------------- OPERATOR LOOKUP WITH HIT DEDUCTION ---------------- //
+
+      async function runOperatorLookup() {
+        const input = document.getElementById('lookup-mobile-input');
+        const mobile = input.value.trim().replace(/\D/g, '');
+        const btn = document.getElementById('btn-run-lookup');
+        const resBox = document.getElementById('lookup-result-container');
+
+        if (mobile.length !== 10) {
+          showToast('Please enter a valid 10-digit mobile number.', 'bg-danger');
+          input.focus();
+          return;
+        }
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Fetching...';
+        resBox.style.display = 'block';
+        resBox.innerHTML = `
+          <div class="card bg-label-secondary border-0 p-4 text-center">
+            <div class="spinner-border text-primary mx-auto mb-2" role="status"></div>
+            <strong>Fetching live operator details...</strong>
+          </div>
+        `;
+
+        try {
+          const res = await fetch('/api/lookup/operator', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              mobile,
+              userMobile: currentUser ? currentUser.mobile : undefined
+            })
+          });
+          const data = await res.json();
+
+          if (data.success && data.data) {
+            const d = data.data;
+            if (d.remainingHits !== undefined) {
+              document.getElementById('nav-remaining-hits').innerText = d.remainingHits.toLocaleString();
+              document.getElementById('plan-panel-remaining-hits').innerText = d.remainingHits.toLocaleString();
+            }
+
+            resBox.innerHTML = `
+              <div class="card border border-primary shadow-none">
+                <div class="card-header bg-primary py-2 px-4 d-flex justify-content-between align-items-center text-white">
+                  <span class="fw-bold"><i class="bx bx-check-circle me-1"></i> Target: +91 ${d.mobile}</span>
+                  <span class="badge bg-white text-primary fw-bold"><i class="bx bx-check-double"></i> Live Result (${d.responseTime || 'Instant'})</span>
+                </div>
+                <div class="card-body p-4">
+                  <div class="row g-3">
+                    <div class="col-6">
+                      <div class="p-3 bg-label-primary rounded">
+                        <small class="text-uppercase fw-bold text-muted d-block">Operator Name</small>
+                        <h3 class="mb-0 text-primary mt-1">${d.operator || 'Unknown'}</h3>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="p-3 bg-label-success rounded">
+                        <small class="text-uppercase fw-bold text-muted d-block">Circle / State</small>
+                        <h3 class="mb-0 text-success mt-1">${d.circle || 'Unknown'}</h3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            `;
+          } else {
+            resBox.innerHTML = `
+              <div class="alert alert-danger mb-0">
+                <i class="bx bx-error-circle me-1"></i> ${data.message || 'Lookup failed.'}
+              </div>
+            `;
+          }
+        } catch(e) {
+          resBox.innerHTML = `
+            <div class="alert alert-danger mb-0">
+              <i class="bx bx-error-circle me-1"></i> Network error connecting to backend.
+            </div>
+          `;
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-bolt-circle me-1"></i> Check Operator';
+        }
+      }
+
+      async function runLiveApiTest() {
+        const input = document.getElementById('api-test-input-mobile');
+        const mobile = input.value.trim().replace(/\D/g, '');
+        const btn = document.getElementById('btn-run-api-test');
+        const outBox = document.getElementById('api-test-output-container');
+        const jsonEl = document.getElementById('api-test-json-result');
+
+        if (mobile.length !== 10) {
+          showToast('Please enter a valid 10-digit mobile number for API test.', 'bg-danger');
+          input.focus();
+          return;
+        }
+
+        const userMobile = currentUser.mobile;
+        const userToken = currentUser.apiToken;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Calling API...';
+        outBox.style.display = 'block';
+        jsonEl.innerText = '// Sending API Request...';
+
+        try {
+          const url = `/api/Mobile/OperatorFetchNew?ApiUserID=${userMobile}&token=${userToken}&Mobileno=${mobile}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          jsonEl.innerText = JSON.stringify(data, null, 3);
+          if (data.ERROR === "0") {
+            showToast('API call returned successfully!', 'bg-success');
+            refreshUserProfile();
+          } else {
+            showToast('API returned: ' + (data.Message || data.ERROR), 'bg-warning');
+          }
+        } catch(err) {
+          jsonEl.innerText = JSON.stringify({ error: err.message }, null, 3);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-send me-1"></i> Execute API Call';
+        }
+      }
+
+      // ================= MOBILE RECHARGE PLANS LOOKUP & FILTERING ================= //
+      let currentFetchedPlansData = null;
+      let currentActivePlanCategory = 'ALL';
+
+      async function runMobilePlanLookup() {
+        const opSelect = document.getElementById('select-mobile-plan-operator');
+        const cirSelect = document.getElementById('select-mobile-plan-circle');
+        const operatorCode = opSelect.value;
+        const circleCode = cirSelect.value;
+        const btn = document.getElementById('btn-fetch-mobile-plans');
+        const resultContainer = document.getElementById('mobile-plans-result-container');
+
+        const opText = opSelect.options[opSelect.selectedIndex].text;
+        const cirText = cirSelect.options[cirSelect.selectedIndex].text;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Fetching...';
+
+        try {
+          const res = await fetch('/api/plans/mobile/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              operatorCode,
+              circleCode,
+              userMobile: currentUser ? currentUser.mobile : undefined
+            })
+          });
+
+          const data = await res.json();
+
+          if (data.success && data.data) {
+            const d = data.data;
+            currentFetchedPlansData = d.plans;
+            currentActivePlanCategory = 'ALL';
+
+            if (d.remainingHits !== undefined) {
+              setText('nav-remaining-hits', d.remainingHits.toLocaleString());
+              setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
+            }
+
+            // Set Header Badges
+            setText('plans-result-badge-operator', d.operator || opText);
+            setText('plans-result-badge-circle', d.circle || cirText);
+
+            // Compute counts
+            const fullttCount = (d.plans.FULLTT || []).length;
+            const dataCount = (d.plans.DATA || []).length;
+            const topupCount = (d.plans.TOPUP || []).length;
+            const roamingCount = (d.plans.Romaing || []).length;
+            const totalCount = fullttCount + dataCount + topupCount + roamingCount;
+
+            setText('count-all', totalCount);
+            setText('count-fulltt', fullttCount);
+            setText('count-data', dataCount);
+            setText('count-topup', topupCount);
+            setText('count-roaming', roamingCount);
+
+            // Reset active category tab UI
+            const tabs = document.querySelectorAll('#plan-category-tabs .nav-link');
+            tabs.forEach((t, idx) => {
+              if (idx === 0) t.classList.add('active');
+              else t.classList.remove('active');
+            });
+
+            document.getElementById('input-filter-plans').value = '';
+            renderPlansGrid();
+            resultContainer.style.display = 'block';
+
+            showToast(`Fetched ${totalCount} plans successfully! (${d.responseTime || 'Instant'})`, 'bg-success');
+          } else {
+            showToast(data.message || 'Failed to fetch plans.', 'bg-danger');
+          }
+        } catch (err) {
+          showToast('Error connecting to plan server.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-search-alt me-1"></i> Fetch Plans';
+        }
+      }
+
+      function switchPlanCategory(category) {
+        currentActivePlanCategory = category;
+        const tabs = document.querySelectorAll('#plan-category-tabs .nav-link');
+        tabs.forEach(t => t.classList.remove('active'));
+
+        const categoryMap = { 'ALL': 0, 'FULLTT': 1, 'DATA': 2, 'TOPUP': 3, 'Romaing': 4 };
+        const activeIdx = categoryMap[category] !== undefined ? categoryMap[category] : 0;
+        if (tabs[activeIdx]) tabs[activeIdx].classList.add('active');
+
+        renderPlansGrid();
+      }
+
+      function filterRenderedPlans() {
+        renderPlansGrid();
+      }
+
+      function renderPlansGrid() {
+        const grid = document.getElementById('plans-cards-grid');
+        if (!grid || !currentFetchedPlansData) return;
+
+        const searchQuery = (document.getElementById('input-filter-plans').value || '').toLowerCase().trim();
+
+        let list = [];
+        if (currentActivePlanCategory === 'ALL') {
+          ['FULLTT', 'DATA', 'TOPUP', 'Romaing'].forEach(cat => {
+            if (Array.isArray(currentFetchedPlansData[cat])) {
+              currentFetchedPlansData[cat].forEach(item => {
+                list.push({ ...item, categoryKey: cat });
+              });
+            }
+          });
+        } else {
+          if (Array.isArray(currentFetchedPlansData[currentActivePlanCategory])) {
+            currentFetchedPlansData[currentActivePlanCategory].forEach(item => {
+              list.push({ ...item, categoryKey: currentActivePlanCategory });
+            });
+          }
+        }
+
+        if (searchQuery) {
+          list = list.filter(item => {
+            const rsStr = String(item.rs || '');
+            const descStr = String(item.desc || '').toLowerCase();
+            const valStr = String(item.validity || '').toLowerCase();
+            const typeStr = String(item.Type || '').toLowerCase();
+            return rsStr.includes(searchQuery) || descStr.includes(searchQuery) || valStr.includes(searchQuery) || typeStr.includes(searchQuery);
+          });
+        }
+
+        if (list.length === 0) {
+          grid.innerHTML = `
+            <div class="col-12 py-5 text-center text-muted">
+              <i class="bx bx-search-alt fs-1 d-block mb-2 text-warning"></i>
+              <h6>No plans found matching your filter criteria.</h6>
+            </div>
+          `;
+          return;
+        }
+
+        const categoryBadgeColors = {
+          'FULLTT': 'bg-label-success',
+          'DATA': 'bg-label-info',
+          'TOPUP': 'bg-label-primary',
+          'Romaing': 'bg-label-warning'
+        };
+
+        grid.innerHTML = list.map(item => {
+          const badgeClass = categoryBadgeColors[item.categoryKey] || 'bg-label-primary';
+          const typeLabel = (item.Type || item.categoryKey || 'Plan').toUpperCase();
+
+          return `
+            <div class="col-md-6 col-lg-4">
+              <div class="card h-100 border shadow-sm hover-shadow transition" style="border-radius: 10px;">
+                <div class="card-body p-3 d-flex flex-column justify-content-between">
+                  <div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h4 class="mb-0 text-dark fw-bold" style="color: #1e293b;">₹${item.rs}</h4>
+                      <span class="badge ${badgeClass} text-uppercase fw-bold px-2 py-1">${typeLabel}</span>
+                    </div>
+                    <div class="mb-2">
+                      <span class="badge bg-light text-dark border"><i class="bx bx-calendar me-1"></i>Validity: ${item.validity || 'NA'}</span>
+                    </div>
+                    <p class="text-muted small mb-0" style="line-height: 1.45; font-size: 0.85rem;">
+                      ${item.desc || 'No description available'}
+                    </p>
+                  </div>
+                  <div class="pt-3 mt-2 border-top d-flex justify-content-between align-items-center">
+                    <small class="text-muted"><i class="bx bx-check-circle text-success me-1"></i>Direct Recharge</small>
+                    <button class="btn btn-sm btn-outline-primary fw-bold" onclick="copyToClipboardText('₹${item.rs} - ${item.desc}')">
+                      <i class="bx bx-copy me-1"></i> Copy
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      function copyToClipboardText(text) {
+        navigator.clipboard.writeText(text).then(() => {
+          showToast('Plan details copied!', 'bg-success');
+        });
+      }
+
+      // Live Plan API Test Console in API Docs
+      async function runLivePlanApiTest() {
+        const opCode = document.getElementById('api-test-plan-op').value;
+        const circleCode = document.getElementById('api-test-plan-cir').value;
+        const btn = document.getElementById('btn-run-plan-api-test');
+        const outBox = document.getElementById('api-test-plan-output-container');
+        const jsonEl = document.getElementById('api-test-plan-json-result');
+
+        const userMobile = currentUser.mobile;
+        const userToken = currentUser.apiToken;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Calling Plan API...';
+        outBox.style.display = 'block';
+        jsonEl.innerText = '// Calling Operator Plan API...';
+
+        try {
+          const url = `/api/Mobile/Operatorplan?apimember_id=${userMobile}&api_password=${userToken}&operatorcode=${opCode}&cricle=${circleCode}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          jsonEl.innerText = JSON.stringify(data, null, 2);
+          if (data.ERROR === "0") {
+            showToast('Plan API executed successfully!', 'bg-success');
+            refreshUserProfile();
+          } else {
+            showToast('Plan API response: ' + (data.MESSAGE || data.ERROR), 'bg-warning');
+          }
+        } catch(err) {
+          jsonEl.innerText = JSON.stringify({ error: err.message }, null, 2);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-send me-1"></i> Execute Plan Fetch Call';
+        }
+      }
+
+      // ================= R-OFFER CHECK FUNCTIONS (AIRTEL & VI) ================= //
+
+      async function runRofferLookup() {
+        const mobileInput = document.getElementById('input-roffer-mobile');
+        const opSelect = document.getElementById('select-roffer-operator');
+        const mobile = (mobileInput.value || '').trim().replace(/\D/g, '');
+        const operatorCode = opSelect.value;
+        const btn = document.getElementById('btn-fetch-roffer');
+        const resultContainer = document.getElementById('roffer-result-container');
+        const grid = document.getElementById('roffer-cards-grid');
+
+        if (mobile.length !== 10) {
+          showToast('Please enter a valid 10-digit mobile number.', 'bg-danger');
+          mobileInput.focus();
+          return;
+        }
+
+        const opText = opSelect.options[opSelect.selectedIndex].text;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking Offers...';
+
+        try {
+          const res = await fetch('/api/roffer/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              mobile,
+              operatorCode,
+              userMobile: currentUser ? currentUser.mobile : undefined
+            })
+          });
+
+          const data = await res.json();
+
+          if (data.success && data.data) {
+            const d = data.data;
+
+            if (d.remainingHits !== undefined) {
+              setText('nav-remaining-hits', d.remainingHits.toLocaleString());
+              setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
+            }
+
+            setText('roffer-badge-mobile', mobile);
+            setText('roffer-badge-op', opText);
+            setText('roffer-badge-msg', d.MESSAGE || 'Offer Successfully Checked');
+            setText('roffer-response-time', `Response Time: ${data.responseTime || 'Instant'}`);
+
+            const offers = d.RDATA || [];
+
+            if (offers.length === 0) {
+              grid.innerHTML = `
+                <div class="col-12 py-5 text-center text-muted">
+                  <i class="bx bx-info-circle fs-1 d-block mb-2 text-info"></i>
+                  <h6>${d.MESSAGE || 'No personalized R-Offers available for this number at the moment.'}</h6>
+                </div>
+              `;
+            } else {
+              grid.innerHTML = offers.map(item => `
+                <div class="col-md-6 col-lg-4">
+                  <div class="card h-100 border border-info shadow-sm" style="border-radius: 10px; background: #fdfefe;">
+                    <div class="card-body p-3 d-flex flex-column justify-content-between">
+                      <div>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <h3 class="mb-0 text-dark fw-bold" style="color: #0891b2;">₹${item.price}</h3>
+                          <span class="badge bg-label-info text-uppercase fw-bold px-2 py-1"><i class="bx bx-gift me-1"></i>Special Offer</span>
+                        </div>
+                        <p class="text-dark fw-semibold mb-2" style="font-size: 0.90rem; line-height: 1.4;">
+                          ${item.ofrtext || item.logdesc}
+                        </p>
+                      </div>
+                      <div class="pt-3 mt-2 border-top d-flex justify-content-between align-items-center">
+                        <small class="text-muted"><i class="bx bx-check-double text-success me-1"></i>Direct Operator Offer</small>
+                        <button class="btn btn-sm btn-outline-info fw-bold" onclick="copyToClipboardText('₹${item.price} Offer: ${item.ofrtext || item.logdesc}')">
+                          <i class="bx bx-copy me-1"></i> Copy
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              `).join('');
+            }
+
+            resultContainer.style.display = 'block';
+            showToast(`Found ${offers.length} special offers!`, 'bg-success');
+          } else {
+            showToast(data.message || 'Failed to fetch R-Offers.', 'bg-danger');
+          }
+        } catch(err) {
+          showToast('Error connecting to R-Offer server.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-search-alt me-1"></i> Check R-Offers';
+        }
+      }
+
+      // Live R-Offer API Test Console in Developer Documentation
+      async function runLiveRofferApiTest() {
+        const mobileInput = document.getElementById('api-test-roffer-mobile');
+        const opSelect = document.getElementById('api-test-roffer-op');
+        const mobile = (mobileInput.value || '').trim().replace(/\D/g, '');
+        const opCode = opSelect.value;
+        const btn = document.getElementById('btn-run-roffer-api-test');
+        const outBox = document.getElementById('api-test-roffer-output-container');
+        const jsonEl = document.getElementById('api-test-roffer-json-result');
+
+        if (mobile.length !== 10) {
+          showToast('Please enter a valid 10-digit mobile number for R-Offer test.', 'bg-danger');
+          mobileInput.focus();
+          return;
+        }
+
+        const userMobile = currentUser.mobile;
+        const userToken = currentUser.apiToken;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Calling R-Offer API...';
+        outBox.style.display = 'block';
+        jsonEl.innerText = '// Calling R-Offer Check API...';
+
+        try {
+          const url = `/api/Mobile/RofferCheck?apimember_id=${userMobile}&api_password=${userToken}&operator_code=${opCode}&mobile_no=${mobile}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          jsonEl.innerText = JSON.stringify(data, null, 2);
+          if (data.ERROR === "0") {
+            showToast('R-Offer API executed successfully!', 'bg-success');
+            refreshUserProfile();
+          } else {
+            showToast('R-Offer API response: ' + (data.MESSAGE || data.ERROR), 'bg-warning');
+          }
+        } catch(err) {
+          jsonEl.innerText = JSON.stringify({ error: err.message }, null, 2);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-send me-1"></i> Execute R-Offer Check Call';
+        }
+      }
+
+      // ================= LAST RECHARGE & DTH INFO CHECK FUNCTIONS ================= //
+
+      async function runLastRechargeLookup() {
+        const mobileInput = document.getElementById('input-lastrecharge-mobile');
+        const opSelect = document.getElementById('select-lastrecharge-operator');
+        const mobile = (mobileInput.value || '').trim().replace(/\D/g, '');
+        const operatorCode = opSelect.value;
+        const btn = document.getElementById('btn-fetch-lastrecharge');
+        const resultContainer = document.getElementById('lastrecharge-result-container');
+        const bodyEl = document.getElementById('lastrecharge-details-body');
+
+        if (mobile.length < 9) {
+          showToast('Please enter a valid Mobile or DTH VC number.', 'bg-danger');
+          mobileInput.focus();
+          return;
+        }
+
+        const opText = opSelect.options[opSelect.selectedIndex].text;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Checking Status...';
+
+        try {
+          const res = await fetch('/api/recharge/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              mobile,
+              operatorCode,
+              userMobile: currentUser ? currentUser.mobile : undefined
+            })
+          });
+
+          const data = await res.json();
+
+          if (data.success && data.data) {
+            const d = data.data;
+
+            if (d.remainingHits !== undefined) {
+              setText('nav-remaining-hits', d.remainingHits.toLocaleString());
+              setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
+            }
+
+            setText('lastrecharge-badge-vc', mobile);
+            setText('lastrecharge-badge-op', opText);
+            setText('lastrecharge-badge-msg', d.Message || 'Offer Successfully Checked');
+            setText('lastrecharge-response-time', `Response Time: ${data.responseTime || 'Instant'}`);
+
+            if (d.error === "0" && d.DATA) {
+              const info = d.DATA;
+              bodyEl.innerHTML = `
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <div class="p-3 bg-label-success rounded">
+                      <small class="text-uppercase fw-bold text-muted d-block">Recharge Balance / Amount</small>
+                      <h3 class="mb-0 text-success mt-1">₹${info.Balance || info.Monthly || '0.00'}</h3>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 bg-label-primary rounded">
+                      <small class="text-uppercase fw-bold text-muted d-block">Last Recharge Date</small>
+                      <h4 class="mb-0 text-primary mt-1">${info['Last Recharge Date'] || 'NA'}</h4>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 bg-label-warning rounded">
+                      <small class="text-uppercase fw-bold text-muted d-block">Next Recharge / Expiry</small>
+                      <h4 class="mb-0 text-warning mt-1">${info['Next Recharge Date'] || 'Active'}</h4>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <ul class="list-group list-group-flush border rounded p-2">
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Subscriber / VC No:</span>
+                        <strong class="text-dark">${info.VC || mobile}</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Customer Name:</span>
+                        <strong class="text-dark">${info.Name || 'MR Subscriber'}</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Registered Mobile (RMN):</span>
+                        <strong class="text-dark">${info.Rmn || mobile}</strong>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <ul class="list-group list-group-flush border rounded p-2">
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Current Plan:</span>
+                        <span class="badge bg-label-info">${info.Plan || 'Standard Pack'}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Operator:</span>
+                        <strong class="text-dark">${info.Operator || opText}</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Status:</span>
+                        <span class="badge bg-success">Active & Verified</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              `;
+            } else {
+              bodyEl.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                  <i class="bx bx-error-circle me-1"></i> ${d.Message || 'Recharge check failed or invalid number.'}
+                </div>
+              `;
+            }
+
+            resultContainer.style.display = 'block';
+            showToast('Recharge status fetched successfully!', 'bg-success');
+          } else {
+            showToast(data.message || 'Failed to fetch recharge details.', 'bg-danger');
+          }
+        } catch(err) {
+          showToast('Error connecting to Recharge server.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-search-alt me-1"></i> Check Status';
+        }
+      }
+
+      // Live Last Recharge API Test Console in Developer Docs
+      async function runLiveLastRechargeApiTest() {
+        const mobileInput = document.getElementById('api-test-recharge-mobile');
+        const opSelect = document.getElementById('api-test-recharge-op');
+        const mobile = (mobileInput.value || '').trim().replace(/\D/g, '');
+        const opCode = opSelect.value;
+        const btn = document.getElementById('btn-run-recharge-api-test');
+        const outBox = document.getElementById('api-test-recharge-output-container');
+        const jsonEl = document.getElementById('api-test-recharge-json-result');
+
+        if (mobile.length < 9) {
+          showToast('Please enter a valid mobile or DTH VC number for API test.', 'bg-danger');
+          mobileInput.focus();
+          return;
+        }
+
+        const userMobile = currentUser.mobile;
+        const userToken = currentUser.apiToken;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Calling Recharge API...';
+        outBox.style.display = 'block';
+        jsonEl.innerText = '// Calling DTH / Last Recharge API...';
+
+        try {
+          const url = `/api/Mobile/DthInfoWithLastRechargeDate?apimember_id=${userMobile}&api_password=${userToken}&mobile_no=${mobile}&Opcode=${opCode}`;
+          const res = await fetch(url);
+          const data = await res.json();
+          jsonEl.innerText = JSON.stringify(data, null, 2);
+          if (data.error === "0") {
+            showToast('Recharge API executed successfully!', 'bg-success');
+            refreshUserProfile();
+          } else {
+            showToast('API response: ' + (data.Message || data.error), 'bg-warning');
+          }
+        } catch(err) {
+          jsonEl.innerText = JSON.stringify({ error: err.message }, null, 2);
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-send me-1"></i> Execute Last Recharge Call';
+        }
+      }
+
+      // ================= DTH INFO LOOKUP (https://planapi.in/DTHinfoDetails.aspx) ================= //
+
+      async function runDthLookup() {
+        const dthInput = document.getElementById('input-dth-number');
+        const opSelect = document.getElementById('select-dth-operator');
+        const dthNumber = (dthInput.value || '').trim().replace(/\D/g, '');
+        const operatorCode = opSelect.value;
+        const btn = document.getElementById('btn-fetch-dthinfo');
+        const resultContainer = document.getElementById('dthinfo-result-container');
+        const bodyEl = document.getElementById('dthinfo-details-body');
+
+        if (dthNumber.length < 8) {
+          showToast('Please enter a valid DTH Customer or VC number.', 'bg-danger');
+          dthInput.focus();
+          return;
+        }
+
+        const opText = opSelect.options[opSelect.selectedIndex].text;
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Fetching DTH Info...';
+
+        try {
+          const res = await fetch('/api/dth/query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              dthNumber,
+              operatorCode,
+              userMobile: currentUser ? currentUser.mobile : undefined
+            })
+          });
+
+          const data = await res.json();
+
+          if (data.success && data.data) {
+            const d = data.data;
+
+            if (d.remainingHits !== undefined) {
+              setText('nav-remaining-hits', d.remainingHits.toLocaleString());
+              setText('plan-panel-remaining-hits', d.remainingHits.toLocaleString());
+            }
+
+            setText('dthinfo-badge-vc', dthNumber);
+            setText('dthinfo-badge-op', opText);
+            setText('dthinfo-badge-msg', d.Message || 'Offer Successfully Checked');
+            setText('dthinfo-response-time', `Response Time: ${data.responseTime || 'Instant'}`);
+
+            if (d.error === "0" && d.DATA) {
+              const info = d.DATA;
+              bodyEl.innerHTML = `
+                <div class="row g-3">
+                  <div class="col-md-4">
+                    <div class="p-3 bg-label-danger rounded">
+                      <small class="text-uppercase fw-bold text-muted d-block">Current Balance</small>
+                      <h3 class="mb-0 text-danger mt-1">₹${info.Balance || '0.00'}</h3>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 bg-label-primary rounded">
+                      <small class="text-uppercase fw-bold text-muted d-block">Monthly Rental / Amount</small>
+                      <h4 class="mb-0 text-primary mt-1">₹${info.Monthly || 'NA'}</h4>
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <div class="p-3 bg-label-warning rounded">
+                      <small class="text-uppercase fw-bold text-muted d-block">Next Due / Recharge Date</small>
+                      <h4 class="mb-0 text-warning mt-1">${info['Next Recharge Date'] || 'Active'}</h4>
+                    </div>
+                  </div>
+                  <div class="col-md-6">
+                    <ul class="list-group list-group-flush border rounded p-2">
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">DTH Customer / VC No:</span>
+                        <strong class="text-dark">${info.VC || dthNumber}</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Subscriber Name:</span>
+                        <strong class="text-dark">${info.Name || 'MR Subscriber'}</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Registered Mobile (RMN):</span>
+                        <strong class="text-dark">${info.Rmn || 'NA'}</strong>
+                      </li>
+                    </ul>
+                  </div>
+                  <div class="col-md-6">
+                    <ul class="list-group list-group-flush border rounded p-2">
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Current Plan:</span>
+                        <span class="badge bg-label-info">${info.Plan || 'Standard DTH Pack'}</span>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">DTH Operator:</span>
+                        <strong class="text-dark">${info.Operator || opText}</strong>
+                      </li>
+                      <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">Address / City:</span>
+                        <span class="text-dark small text-truncate" style="max-width: 200px;">${info.Address || 'India'}</span>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+              `;
+            } else {
+              bodyEl.innerHTML = `
+                <div class="alert alert-danger mb-0">
+                  <i class="bx bx-error-circle me-1"></i> ${d.Message || 'Invalid VC or Operator.'}
+                </div>
+              `;
+            }
+
+            resultContainer.style.display = 'block';
+            showToast('DTH Information fetched successfully!', 'bg-success');
+          } else {
+            showToast(data.message || 'Failed to fetch DTH info.', 'bg-danger');
+          }
+        } catch(err) {
+          showToast('Error connecting to DTH server.', 'bg-danger');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = '<i class="bx bx-search-alt me-1"></i> Fetch DTH Info';
+        }
+      }
+    </script>
+  </body>
+</html>

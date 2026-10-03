@@ -1,0 +1,30 @@
+[
+  {
+    "id": "REQ_1790940648229",
+    "userMobile": "9335819686",
+    "userName": "prince",
+    "planId": "PLAN_100",
+    "amount": 100,
+    "hits": 20000,
+    "utr": "123456",
+    "paymentDate": "2026-10-02",
+    "paymentProof": "",
+    "status": "Approved",
+    "createdAt": "2026-10-02T11:30:48.229Z",
+    "approvedAt": "2026-10-02T11:30:57.258Z"
+  },
+  {
+    "id": "REQ_1790938965647",
+    "userMobile": "9335819686",
+    "userName": "prince",
+    "planId": "PLAN_100",
+    "amount": 100,
+    "hits": 20000,
+    "utr": "428919283711",
+    "paymentDate": "2026-10-02",
+    "paymentProof": "",
+    "status": "Approved",
+    "createdAt": "2026-10-02T11:02:45.647Z",
+    "approvedAt": "2026-10-02T11:03:01.844Z"
+  }
+]
