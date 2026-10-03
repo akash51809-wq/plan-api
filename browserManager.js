@@ -115,22 +115,22 @@ class EzytmAccountSession {
 
           // 1. Navigate to Login Page
           logger.info(`[Pool Node: ${this.label}] Authenticating with EzyTM (Attempt ${attempt}/${retries})...`);
-          await this.page.goto(config.loginUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+          await this.page.goto(config.loginUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
 
           const userInput = this.page.locator('#ContentPlaceHolder1_txtUsername');
-          await userInput.waitFor({ state: 'visible', timeout: 20000 });
+          await userInput.waitFor({ state: 'visible', timeout: 10000 });
           await userInput.fill(this.username || config.username || '8840457632');
 
           const passInput = this.page.locator('#ContentPlaceHolder1_Password');
-          await passInput.waitFor({ state: 'visible', timeout: 20000 });
+          await passInput.waitFor({ state: 'visible', timeout: 10000 });
           await passInput.fill(this.password || config.password || '123456');
 
           await this.page.locator('#ContentPlaceHolder1_LinkButton1').click();
-          await this.page.waitForTimeout(2000);
+          await this.page.waitForTimeout(1500);
 
           // 2. Pre-warm page at OperatorLook.aspx
-          await this.page.goto(config.operatorLookUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-          await this.page.locator('#ContentPlaceHolder1_TxtRechMobLoo').waitFor({ state: 'visible', timeout: 20000 });
+          await this.page.goto(config.operatorLookUrl, { waitUntil: 'domcontentloaded', timeout: 20000 });
+          await this.page.locator('#ContentPlaceHolder1_TxtRechMobLoo').waitFor({ state: 'visible', timeout: 10000 });
 
           this.sessionState = 'READY';
           this.consecutiveErrors = 0;
@@ -153,7 +153,7 @@ class EzytmAccountSession {
             this.initPromise = null;
             throw err;
           }
-          await new Promise(r => setTimeout(r, 2000));
+          await new Promise(r => setTimeout(r, 1500));
         }
       }
     })();
@@ -841,6 +841,43 @@ class EzytmSessionPool {
         Message: "Offer Successfully Checked"
       };
     }, `dth_${cleanNumber}`);
+  }
+
+  /**
+   * Force re-initialization / reconnect of an account session
+   */
+  async reconnectAccount(id) {
+    let session = this.sessions.get(id);
+    if (!session) {
+      const accounts = await ezytmAccountService.getAllAccounts();
+      const target = accounts.find(a => a.id === id);
+      if (target) {
+        session = new EzytmAccountSession(target, this);
+        this.sessions.set(id, session);
+      }
+    }
+    if (session) {
+      logger.info(`[Pool Reconnect] Re-authenticating session for [${session.label}]...`);
+      session.sessionState = 'UNINITIALIZED';
+      session.consecutiveErrors = 0;
+      session.lastError = null;
+      session.init(2).catch(e => logger.warn(`[Pool Reconnect] Error for ${session.label}: ${e.message}`));
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Reconnect all active sessions currently in ERROR state
+   */
+  reconnectAllErrorSessions() {
+    for (const session of this.sessions.values()) {
+      if (session.status === 'Active' && session.sessionState === 'ERROR') {
+        session.sessionState = 'UNINITIALIZED';
+        session.consecutiveErrors = 0;
+        session.init(2).catch(() => {});
+      }
+    }
   }
 
   /**

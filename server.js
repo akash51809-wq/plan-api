@@ -542,6 +542,30 @@ app.delete('/api/admin/ezytm-accounts/:id', requireAdmin, async (req, res, next)
   }
 });
 
+// 5. Force Reconnect / Re-authenticate Specific Account
+app.post('/api/admin/ezytm-accounts/:id/reconnect', requireAdmin, async (req, res, next) => {
+  try {
+    if (browserManager.reconnectAccount) {
+      await browserManager.reconnectAccount(req.params.id);
+    }
+    res.json({ success: true, message: 'Background login initiated. Status will update shortly.' });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+});
+
+// 6. Refresh / Sync Pool Status
+app.post('/api/admin/ezytm-accounts/sync', requireAdmin, async (req, res, next) => {
+  try {
+    if (browserManager.reconnectAllErrorSessions) {
+      browserManager.reconnectAllErrorSessions();
+    }
+    res.json({ success: true, message: 'Syncing pool sessions...' });
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 
 // ---------------- PUBLIC DEVELOPER API ENDPOINTS (RATE-LIMITED & CONCURRENCY-SAFE) ---------------- //

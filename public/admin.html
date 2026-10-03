@@ -1007,6 +1007,9 @@
                   <td><small class="text-muted">${lastUsedStr}</small>${lastErrStr}</td>
                   <td class="text-center">
                     <div class="btn-group btn-group-sm">
+                      <button class="btn btn-outline-info btn-reconnect-ezytm" data-id="${a.id}" title="Re-authenticate / Reconnect Node">
+                        <i class="bx bx-sync"></i>
+                      </button>
                       <button class="btn btn-outline-${a.status === 'Active' ? 'warning' : 'success'} btn-toggle-ezytm" data-id="${a.id}" title="${a.status === 'Active' ? 'Disable Node' : 'Enable Node'}">
                         <i class="bx bx-${a.status === 'Active' ? 'pause' : 'play'}"></i>
                       </button>
@@ -1049,7 +1052,7 @@
           });
           const data = await res.json();
           if (data.success) {
-            showToast('EzyTM account added to rotation pool!', 'bg-success');
+            showToast('EzyTM account added to rotation pool! Initializing login in background...', 'bg-success');
             document.getElementById('form-add-ezytm').reset();
             const modalEl = document.getElementById('modalAddEzytm');
             const modalInstance = bootstrap.Modal.getInstance(modalEl);
@@ -1081,6 +1084,32 @@
         }
       }
 
+      async function reconnectEzytmAccount(id) {
+        try {
+          showToast('Re-authenticating EzyTM node in background...', 'bg-info');
+          const res = await adminFetch(`/api/admin/ezytm-accounts/${id}/reconnect`, { method: 'POST' });
+          const data = await res.json();
+          if (data.success) {
+            showToast('Login initiated! Status will update shortly.', 'bg-success');
+            setTimeout(loadEzytmAccounts, 2500);
+          } else {
+            showToast(data.message || 'Reconnect failed.', 'bg-danger');
+          }
+        } catch (e) {
+          showToast('Error requesting node reconnect.', 'bg-danger');
+        }
+      }
+
+      async function handleRefreshEzytm() {
+        try {
+          await adminFetch('/api/admin/ezytm-accounts/sync', { method: 'POST' }).catch(() => {});
+          await loadEzytmAccounts();
+          showToast('EzyTM pool status refreshed.', 'bg-success');
+        } catch (e) {
+          loadEzytmAccounts();
+        }
+      }
+
       async function deleteEzytmAccount(id, encodedLabel) {
         const label = decodeURIComponent(encodedLabel || 'this account');
         if (!confirm(`Are you sure you want to remove "${label}" from the rotation pool?`)) return;
@@ -1098,6 +1127,14 @@
           showToast('Error deleting account.', 'bg-danger');
         }
       }
+
+      // Auto-poll EzyTM tab every 6 seconds if currently visible
+      setInterval(() => {
+        const ezytmPanel = document.getElementById('panel-ezytm');
+        if (ezytmPanel && ezytmPanel.classList.contains('active')) {
+          loadEzytmAccounts();
+        }
+      }, 6000);
 
       // Event listener registration
       document.addEventListener('DOMContentLoaded', () => {
@@ -1123,7 +1160,7 @@
         if (btnRefreshUsers) btnRefreshUsers.addEventListener('click', loadRegisteredUsers);
 
         const btnRefreshEzytm = document.getElementById('btn-refresh-ezytm');
-        if (btnRefreshEzytm) btnRefreshEzytm.addEventListener('click', loadEzytmAccounts);
+        if (btnRefreshEzytm) btnRefreshEzytm.addEventListener('click', handleRefreshEzytm);
 
         const formAddEzytm = document.getElementById('form-add-ezytm');
         if (formAddEzytm) formAddEzytm.addEventListener('submit', handleAddEzytmAccount);
@@ -1169,6 +1206,14 @@
           const id = deleteUserBtn.getAttribute('data-id');
           const name = deleteUserBtn.getAttribute('data-name');
           if (id) deleteRegisteredUser(id, name);
+          return;
+        }
+
+        const reconnectEzytmBtn = e.target.closest('.btn-reconnect-ezytm');
+        if (reconnectEzytmBtn) {
+          e.preventDefault();
+          const id = reconnectEzytmBtn.getAttribute('data-id');
+          if (id) reconnectEzytmAccount(id);
           return;
         }
 

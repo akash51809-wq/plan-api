@@ -151,5 +151,18 @@
     ],
     "status": "Active",
     "created_at": "2026-10-03T09:58:55.313Z"
+  },
+  {
+    "id": "CLI_1791021778799_vco6",
+    "user_id": "USR_1791021778797_gn7o",
+    "client_name": "Website 1 Production",
+    "api_token_hash": "b726d6368e7abea5b826713277ab07abf5d395589c9ff36b39486ee6c2b2e7c2",
+    "api_token_preview": "tok_8ab...018a",
+    "allowed_ips": [
+      "192.168.1.0/24",
+      "10.0.0.5"
+    ],
+    "status": "Active",
+    "created_at": "2026-10-03T10:02:58.801Z"
   }
 ]
