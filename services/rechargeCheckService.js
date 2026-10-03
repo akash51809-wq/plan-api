@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const browserManager = require('../browserManager');
+const logger = require('./logger');
 
 const RECHARGE_CACHE_FILE = path.join(__dirname, '..', 'data', 'recharge_cache.json');
 
@@ -43,7 +44,7 @@ async function fetchLastRechargeDetails(mobileOrVc, opCode) {
     };
   }
 
-  // 2. Fetch LIVE directly from PlanAPI (https://planapi.in/RechargeCheck.aspx)
+  // 2. Fetch live data
   try {
     const liveRes = await browserManager.checkLastRecharge(cleanNumber, opCode);
     if (liveRes && liveRes.error === "0") {
@@ -54,7 +55,7 @@ async function fetchLastRechargeDetails(mobileOrVc, opCode) {
       return liveRes;
     }
   } catch (liveErr) {
-    console.warn(`[PlanAPI RechargeCheck Live Scrape Notice for ${cleanNumber}]:`, liveErr.message);
+    logger.warn('Live recharge scrape notice', { number: cleanNumber, error: liveErr.message });
   }
 
   // 3. Fallback structure if server is momentarily unreachable

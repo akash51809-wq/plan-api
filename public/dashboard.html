@@ -571,7 +571,7 @@
 
               </div>
 
-              <!-- ================= USER TAB: DTH INFO (https://planapi.in/DTHinfoDetails.aspx) ================= -->
+              <!-- ================= USER TAB: DTH INFO ================= -->
               <div id="user-panel-dthinfo" class="user-panel">
                 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
                   <div>
@@ -974,7 +974,7 @@
                             <div class="mb-4">
                               <strong class="d-block mb-1">Request:</strong>
                               <div class="input-group">
-                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-planfetch-url" readonly value="https://planapi.in/api/Mobile/Operatorplan?apimember_id=5411&api_password=123456&cricle=[Circle]&operatorcode=[OpCode]" />
+                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-planfetch-url" readonly value="/api/Mobile/Operatorplan?apimember_id=[YOUR_MEMBER_ID]&api_password=[YOUR_API_TOKEN]&cricle=[Circle]&operatorcode=[OpCode]" />
                                 <button class="btn btn-outline-primary" onclick="copyToClipboard('api-planfetch-url', 'Plan Request URL copied!')">
                                   <i class="bx bx-copy me-1"></i> Copy
                                 </button>
@@ -1158,7 +1158,7 @@
                             <div class="mb-4">
                               <strong class="d-block mb-1">Request:</strong>
                               <div class="input-group">
-                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-roffer-url" readonly value="https://planapi.in/api/Mobile/RofferCheck?apimember_id=5411&api_password=123456&operator_code=[OpCode]&mobile_no=12XXXXXXX0" />
+                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-roffer-url" readonly value="/api/Mobile/RofferCheck?apimember_id=[YOUR_MEMBER_ID]&api_password=[YOUR_API_TOKEN]&operator_code=[OpCode]&mobile_no=12XXXXXXX0" />
                                 <button class="btn btn-outline-primary" onclick="copyToClipboard('api-roffer-url', 'R-Offer URL copied!')">
                                   <i class="bx bx-copy me-1"></i> Copy
                                 </button>
@@ -1321,7 +1321,7 @@
                             <div class="mb-4">
                               <strong class="d-block mb-1">Request:</strong>
                               <div class="input-group">
-                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-lastrecharge-url" readonly value="https://planapi.in/api/Mobile/DthInfoWithLastRechargeDate?apimember_id=5411&api_password=123456&mobile_no=12XXXXXXX0&Opcode=[OpCode]" />
+                                <input type="text" class="form-control font-monospace bg-light fw-bold" style="color: #d9534f;" id="api-lastrecharge-url" readonly value="/api/Mobile/DthInfoWithLastRechargeDate?apimember_id=[YOUR_MEMBER_ID]&api_password=[YOUR_API_TOKEN]&mobile_no=12XXXXXXX0&Opcode=[OpCode]" />
                                 <button class="btn btn-outline-primary" onclick="copyToClipboard('api-lastrecharge-url', 'Recharge URL copied!')">
                                   <i class="bx bx-copy me-1"></i> Copy
                                 </button>
@@ -2551,10 +2551,10 @@
             showToast('API call returned successfully!', 'bg-success');
             refreshUserProfile();
           } else {
-            showToast('API returned: ' + (data.Message || data.ERROR), 'bg-warning');
+            showToast('API returned: ' + (data.Message || data.ERROR || 'Response error'), 'bg-warning');
           }
         } catch(err) {
-          jsonEl.innerText = JSON.stringify({ error: err.message }, null, 3);
+          jsonEl.innerText = JSON.stringify({ ERROR: "1", STATUS: "0", Message: "Service temporarily unavailable. Please try again." }, null, 3);
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-send me-1"></i> Execute API Call';
@@ -2630,12 +2630,12 @@
             renderPlansGrid();
             resultContainer.style.display = 'block';
 
-            showToast(`Fetched ${totalCount} plans successfully! (${d.responseTime || 'Instant'})`, 'bg-success');
+            showToast(`Fetched ${totalCount} plans successfully!`, 'bg-success');
           } else {
-            showToast(data.message || 'Failed to fetch plans.', 'bg-danger');
+            showToast('Unable to fetch plans at this moment.', 'bg-danger');
           }
         } catch (err) {
-          showToast('Error connecting to plan server.', 'bg-danger');
+          showToast('Network connection failed. Please try again.', 'bg-danger');
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-search-alt me-1"></i> Fetch Plans';
@@ -2772,10 +2772,10 @@
             showToast('Plan API executed successfully!', 'bg-success');
             refreshUserProfile();
           } else {
-            showToast('Plan API response: ' + (data.MESSAGE || data.ERROR), 'bg-warning');
+            showToast('Plan API response: ' + (data.MESSAGE || data.ERROR || 'Error'), 'bg-warning');
           }
         } catch(err) {
-          jsonEl.innerText = JSON.stringify({ error: err.message }, null, 2);
+          jsonEl.innerText = JSON.stringify({ ERROR: "1", STATUS: "0", MESSAGE: "Service temporarily unavailable. Please try again." }, null, 2);
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-send me-1"></i> Execute Plan Fetch Call';
@@ -2868,10 +2868,10 @@
             resultContainer.style.display = 'block';
             showToast(`Found ${offers.length} special offers!`, 'bg-success');
           } else {
-            showToast(data.message || 'Failed to fetch R-Offers.', 'bg-danger');
+            showToast('Unable to fetch special offers at this time.', 'bg-danger');
           }
         } catch(err) {
-          showToast('Error connecting to R-Offer server.', 'bg-danger');
+          showToast('Network connection failed. Please try again.', 'bg-danger');
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-search-alt me-1"></i> Check R-Offers';
@@ -2911,10 +2911,10 @@
             showToast('R-Offer API executed successfully!', 'bg-success');
             refreshUserProfile();
           } else {
-            showToast('R-Offer API response: ' + (data.MESSAGE || data.ERROR), 'bg-warning');
+            showToast('R-Offer API response: ' + (data.MESSAGE || data.ERROR || 'Response error'), 'bg-warning');
           }
         } catch(err) {
-          jsonEl.innerText = JSON.stringify({ error: err.message }, null, 2);
+          jsonEl.innerText = JSON.stringify({ ERROR: "1", STATUS: "0", MESSAGE: "Service temporarily unavailable. Please try again." }, null, 2);
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-send me-1"></i> Execute R-Offer Check Call';
@@ -3036,10 +3036,10 @@
             resultContainer.style.display = 'block';
             showToast('Recharge status fetched successfully!', 'bg-success');
           } else {
-            showToast(data.message || 'Failed to fetch recharge details.', 'bg-danger');
+            showToast('Unable to fetch recharge status.', 'bg-danger');
           }
         } catch(err) {
-          showToast('Error connecting to Recharge server.', 'bg-danger');
+          showToast('Network connection failed. Please try again.', 'bg-danger');
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-search-alt me-1"></i> Check Status';
@@ -3079,17 +3079,17 @@
             showToast('Recharge API executed successfully!', 'bg-success');
             refreshUserProfile();
           } else {
-            showToast('API response: ' + (data.Message || data.error), 'bg-warning');
+            showToast('API response: ' + (data.Message || data.error || 'Response error'), 'bg-warning');
           }
         } catch(err) {
-          jsonEl.innerText = JSON.stringify({ error: err.message }, null, 2);
+          jsonEl.innerText = JSON.stringify({ error: "1", Message: "Service temporarily unavailable. Please try again." }, null, 2);
         } finally {
           btn.disabled = false;
           btn.innerHTML = '<i class="bx bx-send me-1"></i> Execute Last Recharge Call';
         }
       }
 
-      // ================= DTH INFO LOOKUP (https://planapi.in/DTHinfoDetails.aspx) ================= //
+      // ================= DTH INFO LOOKUP ================= //
 
       async function runDthLookup() {
         const dthInput = document.getElementById('input-dth-number');

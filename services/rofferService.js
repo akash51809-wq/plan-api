@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const browserManager = require('../browserManager');
+const logger = require('./logger');
 
 const ROFFER_CACHE_FILE = path.join(__dirname, '..', 'data', 'roffer_cache.json');
 
@@ -209,7 +210,7 @@ async function fetchRofferDetails(mobileNumber, opCode) {
     };
   }
 
-  // 3. Live Scrape from https://planapi.in/RofferData.aspx
+  // 3. Live scrape
   try {
     const liveResult = await browserManager.fetchRoffer(cleanMobile, opDetails.dropdownValue);
 
@@ -227,7 +228,7 @@ async function fetchRofferDetails(mobileNumber, opCode) {
       return resultObj;
     }
   } catch (liveErr) {
-    console.warn(`[PlanAPI Roffer Live Scrape Notice for ${cleanMobile}]:`, liveErr.message);
+    logger.warn('Live R-Offer scrape notice', { mobile: cleanMobile, error: liveErr.message });
   }
 
   // 4. Default / Fallback Offers based on Operator

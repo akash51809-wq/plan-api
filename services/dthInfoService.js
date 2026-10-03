@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const browserManager = require('../browserManager');
+const logger = require('./logger');
 
 const DTH_CACHE_FILE = path.join(__dirname, '..', 'data', 'dth_cache.json');
 
@@ -67,7 +68,7 @@ async function fetchDthInfoDetails(dthNumber, opCode) {
     };
   }
 
-  // 2. Fetch LIVE directly from PlanAPI (https://planapi.in/DTHinfoDetails.aspx)
+  // 2. Fetch live data
   try {
     const liveRes = await browserManager.fetchDthInfo(cleanNumber, dropdownVal);
     if (liveRes && liveRes.error === "0") {
@@ -78,7 +79,7 @@ async function fetchDthInfoDetails(dthNumber, opCode) {
       return liveRes;
     }
   } catch (liveErr) {
-    console.warn(`[PlanAPI DTHinfoDetails Live Scrape Notice for ${cleanNumber}]:`, liveErr.message);
+    logger.warn('Live DTH scrape notice', { number: cleanNumber, error: liveErr.message });
   }
 
   // 3. Fallback structure matching official sample

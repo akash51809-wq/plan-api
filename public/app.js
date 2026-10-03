@@ -495,7 +495,7 @@ async function sendTestWhatsApp() {
       showToast('WhatsApp dispatch completed with notice.', 'warning');
     }
   } catch (err) {
-    respBox.innerText = 'Network error: ' + err.message;
+    respBox.innerText = JSON.stringify({ success: false, message: 'Network connection failed. Please try again.' }, null, 2);
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Test WhatsApp';

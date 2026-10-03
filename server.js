@@ -437,7 +437,7 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], apiRat
       "OpCode ": "null",
       "Circle": "null",
       "CircleCode": "null",
-      "Message": auth.isIpBlocked ? "IP address not authorized for this API client" : "Authentication failed"
+      "Message": "Authentication failed"
     });
   }
 
@@ -494,7 +494,7 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], apiRat
           circleCode = getCircleCode(circle);
         }
       } catch (liveErr) {
-        logger.warn(`Live scrape notice for ${cleanMobile}: ${liveErr.message}`);
+        logger.warn('Live operator scrape notice', { mobile: cleanMobile, error: liveErr.message });
       }
 
       if (!operator || operator === 'Unknown') {
@@ -538,7 +538,7 @@ app.all(['/api/Mobile/OperatorFetchNew', '/api/mobile/operatorfetchnew'], apiRat
       "OpCode": "null",
       "Circle": "null",
       "CircleCode": "null",
-      "Message": "Operator lookup service temporarily busy"
+      "Message": "Service temporarily unavailable"
     });
   }
 });
@@ -562,7 +562,7 @@ app.all(['/api/Mobile/Operatorplan', '/api/Mobile/PlanFetch'], apiRateLimiter, a
       "Operator": "null",
       "Circle": "null",
       "RDATA": null,
-      "MESSAGE": auth.isIpBlocked ? "IP address not authorized for this API client" : "Authentication failed"
+      "MESSAGE": "Authentication failed"
     });
   }
 
@@ -629,7 +629,7 @@ app.all(['/api/Mobile/RofferCheck', '/api/Mobile/roffercheck', '/api/mobile/roff
       "STATUS": "3",
       "MOBILENO": mobileNo ? String(mobileNo).trim() : "null",
       "RDATA": null,
-      "MESSAGE": auth.isIpBlocked ? "IP address not authorized for this API client" : "Authentication failed"
+      "MESSAGE": "Authentication failed"
     });
   }
 
@@ -695,7 +695,7 @@ app.all([
     return res.status(200).json({
       "error": "3",
       "DATA": null,
-      "Message": auth.isIpBlocked ? "IP address not authorized for this API client" : "Authentication failed"
+      "Message": "Authentication failed"
     });
   }
 
@@ -933,68 +933,120 @@ app.post(['/api/lookup/operator', '/api/lookup/full'], async (req, res, next) =>
   }
 });
 
-// ---------------- CENTRALIZED ERROR HANDLER ---------------- //
-app.use((err, req, res, next) => {
-  const statusCode = err.status || err.statusCode || 500;
-  const isProd = process.env.NODE_ENV === 'production';
-
-  logger.error('Unhandled Application Error', {
-    requestId: req.id,
-    error: err.message,
-    stack: isProd ? undefined : err.stack
+// ---------------- 404 UNKNOWN ROUTE HANDLER (ZERO LEAKAGE) ---------------- //
+app.use((req, res) => {
+  if (req.originalUrl.toLowerCase().includes('/api/mobile/')) {
+    return res.status(200).json({
+      "ERROR": "1",
+      "STATUS": "0",
+      "Message": "Invalid API endpoint"
+    });
+  }
+  return res.status(404).json({
+    success: false,
+    message: 'Resource not found'
   });
+});
+
+// ---------------- CENTRALIZED ERROR HANDLER (ZERO INFORMATION LEAKAGE) ---------------- //
+app.use((err, req, res, next) => {
+  // Always log full technical diagnostics strictly on the server
+  logger.error('Unhandled Application Exception', {
+    requestId: req.id,
+    url: req.originalUrl,
+    method: req.method,
+    error: err.message,
+    stack: err.stack
+  });
+
+  // If request is to Developer API, return standard provider-compatible format
+  if (req.originalUrl && req.originalUrl.toLowerCase().includes('/api/mobile/')) {
+    return res.status(200).json({
+      "ERROR": "1",
+      "STATUS": "0",
+      "Message": "Service temporarily unavailable. Please try again."
+    });
+  }
+
+  // Determine safe status code
+  let statusCode = 500;
+  if (err.status && typeof err.status === 'number' && err.status >= 400 && err.status < 600) {
+    statusCode = err.status;
+  } else if (err.statusCode && typeof err.statusCode === 'number' && err.statusCode >= 400 && err.statusCode < 600) {
+    statusCode = err.statusCode;
+  }
+
+  // Safe allowlisted user-facing messages
+  let safeUserMessage = 'Service temporarily unavailable. Please try again.';
+  if (statusCode === 400 || err.type === 'entity.parse.failed') {
+    safeUserMessage = 'Invalid request parameters.';
+    statusCode = 400;
+  } else if (statusCode === 401) {
+    safeUserMessage = 'Authentication failed.';
+  } else if (statusCode === 403) {
+    safeUserMessage = 'Access denied.';
+  } else if (statusCode === 404) {
+    safeUserMessage = 'Resource not found.';
+  } else if (statusCode === 429) {
+    safeUserMessage = 'Too many requests. Please try again later.';
+  }
 
   res.status(statusCode).json({
     success: false,
-    message: isProd && statusCode === 500 ? 'Internal Server Error' : err.message || 'An unexpected error occurred.',
-    requestId: req.id
+    message: safeUserMessage
   });
 });
 
 // ---------------- SERVER STARTUP & GRACEFUL SHUTDOWN ---------------- //
-const server = app.listen(PORT, HOST, async () => {
-  try {
-    await initDatabase();
-  } catch (dbErr) {
-    logger.error('Database initialization fatal error', { error: dbErr.message });
-  }
+let server = null;
 
-  console.log(`\n======================================================`);
-  console.log(`🚀 PlanAPI High-Speed Web Portal is running live!`);
-  console.log(`🔗 Address: http://${HOST}:${PORT}`);
-  console.log(`👤 User Portal: http://localhost:${PORT}/dashboard.html`);
-  console.log(`⚙️ Admin Panel: http://localhost:${PORT}/admin.html`);
-  console.log(`📡 API Endpoint: http://localhost:${PORT}/api/Mobile/OperatorFetchNew`);
-  console.log(`⚡ Speed: Micro-Second In-Memory Series Engine Active!`);
-  console.log(`🛡️ Security: Multi-Client, IP Whitelisting & Concurrency Engine Active!`);
-  console.log(`🗄️ PostgreSQL Database Engine Ready!`);
-  console.log(`======================================================\n`);
-});
+if (require.main === module) {
+  server = app.listen(PORT, HOST, async () => {
+    try {
+      await initDatabase();
+    } catch (dbErr) {
+      logger.error('Database initialization fatal error', { error: dbErr.message });
+    }
+
+    console.log(`\n======================================================`);
+    console.log(`🚀 PlanAPI High-Speed Web Portal is running live!`);
+    console.log(`🔗 Address: http://${HOST}:${PORT}`);
+    console.log(`👤 User Portal: http://localhost:${PORT}/dashboard.html`);
+    console.log(`⚙️ Admin Panel: http://localhost:${PORT}/admin.html`);
+    console.log(`📡 API Endpoint: http://localhost:${PORT}/api/Mobile/OperatorFetchNew`);
+    console.log(`⚡ Speed: Micro-Second In-Memory Series Engine Active!`);
+    console.log(`🛡️ Security: Multi-Client, IP Whitelisting & Concurrency Engine Active!`);
+    console.log(`🗄️ PostgreSQL Database Engine Ready!`);
+    console.log(`======================================================\n`);
+  });
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+}
 
 // Graceful Shutdown Handlers (SIGTERM, SIGINT)
 async function gracefulShutdown(signal) {
   logger.info(`Received ${signal}. Starting graceful shutdown sequence...`);
 
-  server.close(async () => {
-    logger.info('HTTP server closed. Draining database and browser resources...');
-    try {
-      await browserManager.cleanup();
-      await closePool();
-      logger.info('Graceful shutdown completed cleanly.');
-      process.exit(0);
-    } catch (err) {
-      logger.error('Error during shutdown cleanup', { error: err.message });
-      process.exit(1);
-    }
-  });
+  if (server) {
+    server.close(async () => {
+      logger.info('HTTP server closed. Draining database and browser resources...');
+      try {
+        await browserManager.cleanup();
+        await closePool();
+        logger.info('Graceful shutdown completed cleanly.');
+        process.exit(0);
+      } catch (err) {
+        logger.error('Error during shutdown cleanup', { error: err.message });
+        process.exit(1);
+      }
+    });
+  }
 
   setTimeout(() => {
     logger.error('Forced shutdown: Clean exit timeout exceeded.');
     process.exit(1);
   }, 10000);
 }
-
-process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
-process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 
 module.exports = { app, server };

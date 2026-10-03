@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const db = require('./db');
+const logger = require('./logger');
 
 const SETTINGS_FILE = path.join(__dirname, '..', 'data', 'settings.json');
 
@@ -80,11 +81,11 @@ async function sendWhatsAppMessage(mobile, messageText) {
       return { raw: text };
     });
 
-    console.log('✅ WhatsApp API response:', data);
-    return { success: response.ok, data };
+    logger.info('WhatsApp gateway response received', { status: response.status });
+    return { success: response.ok };
   } catch (error) {
-    console.error('❌ Failed to send WhatsApp message:', error);
-    return { success: false, error: error.message };
+    logger.error('Failed to send WhatsApp message', { error: error.message });
+    return { success: false, error: 'Gateway delivery failed' };
   }
 }
 

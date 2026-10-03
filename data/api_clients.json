@@ -1,1 +1,28 @@
-[]
+[
+  {
+    "id": "CLI_1791015768158_1t06",
+    "user_id": "USR_1791015768081_76g7",
+    "client_name": "Website 1 Production",
+    "api_token_hash": "58d5998ee168b5f82bb197fb8f649ab42ca1b82f8c64b47ace78b7249f3bc0ba",
+    "api_token_preview": "tok_0fe...9238",
+    "allowed_ips": [
+      "192.168.1.0/24",
+      "10.0.0.5"
+    ],
+    "status": "Active",
+    "created_at": "2026-10-03T08:22:48.164Z"
+  },
+  {
+    "id": "CLI_1791015812048_vsbv",
+    "user_id": "USR_1791015812042_q8al",
+    "client_name": "Website 1 Production",
+    "api_token_hash": "b2d7ca042d281355c1cce5a20485fdab29cb51e64630638c68ffbb28446bc6e7",
+    "api_token_preview": "tok_7ab...1405",
+    "allowed_ips": [
+      "192.168.1.0/24",
+      "10.0.0.5"
+    ],
+    "status": "Active",
+    "created_at": "2026-10-03T08:23:32.052Z"
+  }
+]
