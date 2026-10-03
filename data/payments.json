@@ -1,5 +1,35 @@
 [
   {
+    "id": "REQ_1791017786672_gpxu",
+    "userMobile": "9999900004",
+    "userName": "Double Approval User",
+    "planId": "PLAN_100",
+    "planName": "₹100 Plan",
+    "amount": 100,
+    "hits": 20000,
+    "utr": "UTR_RACE_1791017786665",
+    "paymentDate": "2026-10-03",
+    "screenshot": "",
+    "status": "Approved",
+    "createdAt": "2026-10-03T08:56:26.674Z",
+    "approvedBy": "admin_1",
+    "approvedAt": "2026-10-03T08:56:26.680Z"
+  },
+  {
+    "id": "REQ_1791017786659_1kkm",
+    "userMobile": "9999900003",
+    "userName": "Payment Tamper User",
+    "planId": "PLAN_100",
+    "planName": "₹100 Plan",
+    "amount": 100,
+    "hits": 20000,
+    "utr": "UTR_TAMPER_1791017786653",
+    "paymentDate": "2026-10-03",
+    "screenshot": "",
+    "status": "Pending",
+    "createdAt": "2026-10-03T08:56:26.661Z"
+  },
+  {
     "id": "REQ_1791017352223_7bzi",
     "userMobile": "9999900004",
     "userName": "Double Approval User",

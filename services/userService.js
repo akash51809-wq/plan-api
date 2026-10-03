@@ -259,6 +259,51 @@ function validateApiUser(apiUserId, token) {
   ) || null;
 }
 
+async function regenerateUserToken(mobileOrId) {
+  if (!mobileOrId) return null;
+  const newToken = generateApiToken('tok_');
+  const cleanMobile = String(mobileOrId).trim().replace(/\D/g, '').slice(-10);
+
+  if (db.isConnected) {
+    const res = await db.query(
+      `UPDATE users
+       SET api_token = $1, updated_at = NOW()
+       WHERE mobile = $2 OR id = $3
+       RETURNING id, name, mobile, api_token as "apiToken", remaining_hits as "remainingHits", total_hits as "totalHits"`,
+      [newToken, cleanMobile, mobileOrId]
+    );
+    if (res.rows.length > 0) {
+      const user = res.rows[0];
+      const tokenHash = hashSha256(newToken);
+      const preview = newToken.length > 10 ? `${newToken.slice(0, 6)}...${newToken.slice(-4)}` : newToken;
+      await db.query(
+        `UPDATE api_clients SET api_token_hash = $1, api_token_preview = $2, updated_at = NOW()
+         WHERE user_id = $3 AND client_name = 'Primary Key'`,
+        [tokenHash, preview, user.id]
+      ).catch(() => {});
+
+      const users = getUsers();
+      const idx = users.findIndex(u => u.mobile.slice(-10) === cleanMobile || u.id === mobileOrId);
+      if (idx >= 0) {
+        users[idx].apiToken = newToken;
+        fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+      }
+      return user;
+    }
+    return null;
+  } else {
+    const users = getUsers();
+    const idx = users.findIndex(u => u.mobile.slice(-10) === cleanMobile || u.id === mobileOrId);
+    if (idx >= 0) {
+      users[idx].apiToken = newToken;
+      users[idx].updatedAt = new Date().toISOString();
+      fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+      return users[idx];
+    }
+    return null;
+  }
+}
+
 module.exports = {
   getUsers,
   saveUser,
@@ -266,5 +311,6 @@ module.exports = {
   findUserByMobile,
   validateApiUser,
   deductUserHit,
-  refundUserHit
+  refundUserHit,
+  regenerateUserToken
 };

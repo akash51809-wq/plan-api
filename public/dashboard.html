@@ -60,38 +60,6 @@
               </a>
             </li>
 
-            <li class="menu-item" id="menu-mobile-plans">
-              <a href="#" role="button" class="menu-link" data-user-panel="mobile-plans">
-                <i class="menu-icon tf-icons bx bx-list-check text-warning"></i>
-                <div>Mobile Plans</div>
-                <div class="badge bg-label-warning fs-tiny rounded-pill ms-auto">Live</div>
-              </a>
-            </li>
-
-            <li class="menu-item" id="menu-roffer">
-              <a href="#" role="button" class="menu-link" data-user-panel="roffer">
-                <i class="menu-icon tf-icons bx bx-gift text-info"></i>
-                <div>R-Offer Check</div>
-                <div class="badge bg-label-info fs-tiny rounded-pill ms-auto">New</div>
-              </a>
-            </li>
-
-            <li class="menu-item" id="menu-lastrecharge">
-              <a href="#" role="button" class="menu-link" data-user-panel="lastrecharge">
-                <i class="menu-icon tf-icons bx bx-history text-success"></i>
-                <div>Last Recharge Check</div>
-                <div class="badge bg-label-success fs-tiny rounded-pill ms-auto">Live</div>
-              </a>
-            </li>
-
-            <li class="menu-item" id="menu-dthinfo">
-              <a href="#" role="button" class="menu-link" data-user-panel="dthinfo">
-                <i class="menu-icon tf-icons bx bx-tv text-danger"></i>
-                <div>DTH Info</div>
-                <div class="badge bg-label-danger fs-tiny rounded-pill ms-auto">New</div>
-              </a>
-            </li>
-
             <li class="menu-item" id="menu-buy-plan">
               <a href="#" role="button" class="menu-link" data-user-panel="buy-plan">
                 <i class="menu-icon tf-icons bx bx-diamond text-success"></i>
@@ -108,25 +76,10 @@
               </a>
             </li>
 
-            <li class="menu-item" id="menu-clients">
-              <a href="#" role="button" class="menu-link" data-user-panel="clients">
-                <i class="menu-icon tf-icons bx bx-key text-primary"></i>
-                <div>API Keys & Whitelist</div>
-                <div class="badge bg-label-primary fs-tiny rounded-pill ms-auto">Multi-App</div>
-              </a>
-            </li>
-
             <li class="menu-item" id="menu-profile">
               <a href="#" role="button" class="menu-link" data-user-panel="profile">
                 <i class="menu-icon tf-icons bx bx-user-circle text-info"></i>
                 <div>My Profile</div>
-              </a>
-            </li>
-
-            <li class="menu-item">
-              <a href="index.html" class="menu-link">
-                <i class="menu-icon tf-icons bx bx-globe text-info"></i>
-                <div>Main Website</div>
               </a>
             </li>
 
@@ -301,347 +254,6 @@
                 </div>
               </div>
 
-              <!-- ================= USER TAB: MOBILE RECHARGE PLANS ================= -->
-              <div id="user-panel-mobile-plans" class="user-panel">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                  <div>
-                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-list-check text-warning me-2"></i>Live Mobile Recharge Plans</h4>
-                    <p class="text-muted mb-0">Search and explore real-time telecom recharge plans across all operators and circles in India</p>
-                  </div>
-                  <div>
-                    <button class="btn btn-outline-warning" data-user-panel="api">
-                      <i class="bx bx-code-alt me-1"></i> Plan Fetch API Docs
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Operator & Circle Selection Card (The 2 requested boxes) -->
-                <div class="card shadow-sm border mb-4">
-                  <div class="card-header bg-label-warning border-bottom py-3">
-                    <h5 class="mb-0 fw-bold text-warning"><i class="bx bx-slider-alt me-2"></i>Select Operator & Circle to Fetch Plans</h5>
-                  </div>
-                  <div class="card-body pt-4">
-                    <div class="row g-3 align-items-end">
-                      <!-- Box 1: Which Operator? -->
-                      <div class="col-md-5">
-                        <label for="select-mobile-plan-operator" class="form-label fw-bold">
-                          <i class="bx bx-broadcast text-primary me-1"></i> 1. Which Operator?
-                        </label>
-                        <select id="select-mobile-plan-operator" class="form-select form-select-lg">
-                          <option value="2">Airtel</option>
-                          <option value="11">Reliance Jio</option>
-                          <option value="6">Vodafone Idea (VI)</option>
-                          <option value="4">BSNL</option>
-                        </select>
-                      </div>
-
-                      <!-- Box 2: Which Circle? -->
-                      <div class="col-md-5">
-                        <label for="select-mobile-plan-circle" class="form-label fw-bold">
-                          <i class="bx bx-map-pin text-danger me-1"></i> 2. Which Circle / State?
-                        </label>
-                        <select id="select-mobile-plan-circle" class="form-select form-select-lg">
-                          <option value="70">Rajasthan (70)</option>
-                          <option value="54">UP (East) (54)</option>
-                          <option value="97">UP (West) (97)</option>
-                          <option value="10">Delhi NCR (10)</option>
-                          <option value="92">Mumbai (92)</option>
-                          <option value="90">Maharashtra & Goa (90)</option>
-                          <option value="52">Bihar & Jharkhand (52)</option>
-                          <option value="98">Gujarat (98)</option>
-                          <option value="93">Madhya Pradesh & CG (93)</option>
-                          <option value="02">Punjab (02)</option>
-                          <option value="96">Haryana (96)</option>
-                          <option value="31">Kolkata (31)</option>
-                          <option value="51">West Bengal (51)</option>
-                          <option value="06">Karnataka (06)</option>
-                          <option value="49">Andhra Pradesh & Telangana (49)</option>
-                          <option value="94">Tamil Nadu (94)</option>
-                          <option value="40">Chennai (40)</option>
-                          <option value="95">Kerala (95)</option>
-                          <option value="53">Odisha (53)</option>
-                          <option value="56">Assam (56)</option>
-                          <option value="16">North East (16)</option>
-                          <option value="03">Himachal Pradesh (03)</option>
-                          <option value="55">Jammu & Kashmir (55)</option>
-                        </select>
-                      </div>
-
-                      <!-- Action Button -->
-                      <div class="col-md-2">
-                        <button class="btn btn-warning btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-mobile-plans" id="btn-run-mobile-plans">
-                          <i class="bx bx-search-alt me-1"></i> Fetch Plans
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Plans Display Container -->
-                <div id="mobile-plans-result-container" style="display: none;">
-                  
-                  <!-- Plan Category Filter Pills -->
-                  <div class="card shadow-sm border mb-4">
-                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-label-primary fs-6 px-3 py-2" id="plans-result-badge-operator">Airtel</span>
-                        <span class="badge bg-label-secondary fs-6 px-3 py-2" id="plans-result-badge-circle">Rajasthan</span>
-                      </div>
-                      <div class="input-group" style="max-width: 260px;">
-                        <span class="input-group-text"><i class="bx bx-search"></i></span>
-                        <input type="text" class="form-control" placeholder="Search plan amount / data..." id="input-filter-plans"  />
-                      </div>
-                    </div>
-
-                    <div class="card-body pt-3">
-                      <!-- Category Nav Tabs -->
-                      <ul class="nav nav-pills mb-3 gap-2 flex-wrap" id="plan-category-tabs">
-                        <li class="nav-item">
-                          <button class="nav-link active fw-bold btn-sm" data-plan-cat="ALL">All Plans (<span id="count-all">0</span>)</button>
-                        </li>
-                        <li class="nav-item">
-                          <button class="nav-link fw-bold btn-sm" data-plan-cat="FULLTT">Unlimited / Combo (<span id="count-fulltt">0</span>)</button>
-                        </li>
-                        <li class="nav-item">
-                          <button class="nav-link fw-bold btn-sm" data-plan-cat="DATA">4G / 5G Data (<span id="count-data">0</span>)</button>
-                        </li>
-                        <li class="nav-item">
-                          <button class="nav-link fw-bold btn-sm" data-plan-cat="TOPUP">Talktime TOPUP (<span id="count-topup">0</span>)</button>
-                        </li>
-                        <li class="nav-item">
-                          <button class="nav-link fw-bold btn-sm" data-plan-cat="Romaing">Roaming (<span id="count-roaming">0</span>)</button>
-                        </li>
-                      </ul>
-
-                      <!-- Plan Cards Grid -->
-                      <div class="row g-3" id="plans-cards-grid">
-                        <!-- Populated by JavaScript -->
-                      </div>
-                    </div>
-                  </div>
-
-                </div>
-
-              </div>
-
-              <!-- ================= USER TAB: R-OFFER CHECK (AIRTEL & VI) ================= -->
-              <div id="user-panel-roffer" class="user-panel">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                  <div>
-                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-gift text-info me-2"></i>Live R-Offer Check</h4>
-                    <p class="text-muted mb-0">Fetch special tailored personalized recharge offers directly from telecom operators (Airtel & Vodafone Idea)</p>
-                  </div>
-                  <div>
-                    <button class="btn btn-outline-info" data-user-panel="api">
-                      <i class="bx bx-code-alt me-1"></i> R-Offer API Docs
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Query Form Card -->
-                <div class="card shadow-sm border mb-4">
-                  <div class="card-header bg-label-info border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <h5 class="mb-0 fw-bold text-info"><i class="bx bx-mobile-alt me-2"></i>Enter Mobile Number & Select Operator</h5>
-                    <span class="badge bg-info text-white">Supported: Airtel & VI</span>
-                  </div>
-                  <div class="card-body pt-4">
-                    <div class="row g-3 align-items-end">
-                      <div class="col-md-5">
-                        <label for="input-roffer-mobile" class="form-label fw-bold">Enter 10-Digit Mobile Number</label>
-                        <div class="input-group input-group-merge">
-                          <span class="input-group-text"><i class="bx bx-phone text-muted"></i> +91</span>
-                          <input type="tel" id="input-roffer-mobile" class="form-control form-control-lg" placeholder="e.g. 8124090563" maxlength="10" value="8124090563" />
-                        </div>
-                      </div>
-
-                      <div class="col-md-4">
-                        <label for="select-roffer-operator" class="form-label fw-bold">Which Operator?</label>
-                        <select id="select-roffer-operator" class="form-select form-select-lg">
-                          <option value="2">Airtel (02)</option>
-                          <option value="6">Vodafone Idea - VI (06)</option>
-                          <option value="11" disabled>Reliance Jio (Not Supported)</option>
-                          <option value="4" disabled>BSNL (Not Supported)</option>
-                        </select>
-                      </div>
-
-                      <div class="col-md-3">
-                        <button class="btn btn-info btn-lg w-100 fw-bold shadow-sm text-white" id="btn-fetch-roffer" id="btn-run-roffer">
-                          <i class="bx bx-search-alt me-1"></i> Check R-Offers
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- R-Offer Results Container -->
-                <div id="roffer-result-container" style="display: none;">
-                  <div class="card shadow-sm border mb-4">
-                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-label-info fs-6 px-3 py-2" id="roffer-badge-mobile">8124090563</span>
-                        <span class="badge bg-label-primary fs-6 px-3 py-2" id="roffer-badge-op">Airtel</span>
-                        <span class="badge bg-success text-white" id="roffer-badge-msg">Offer Successfully Checked</span>
-                      </div>
-                      <div>
-                        <span class="text-muted small" id="roffer-response-time"></span>
-                      </div>
-                    </div>
-                    <div class="card-body pt-3">
-                      <div class="row g-3" id="roffer-cards-grid">
-                        <!-- Populated by JS -->
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- ================= USER TAB: LAST RECHARGE & DTH INFO CHECK ================= -->
-              <div id="user-panel-lastrecharge" class="user-panel">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                  <div>
-                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-history text-success me-2"></i>Last Recharge & DTH Info Check</h4>
-                    <p class="text-muted mb-0">Verify subscriber details, balance, last recharge date, next expiry date, and plan status in real-time</p>
-                  </div>
-                  <div>
-                    <button class="btn btn-outline-success" data-user-panel="api">
-                      <i class="bx bx-code-alt me-1"></i> Recharge API Docs
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Query Form Card -->
-                <div class="card shadow-sm border mb-4">
-                  <div class="card-header bg-label-success border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <h5 class="mb-0 fw-bold text-success"><i class="bx bx-mobile-alt me-2"></i>Enter Mobile / DTH VC Number</h5>
-                    <span class="badge bg-success text-white">Live Query Engine</span>
-                  </div>
-                  <div class="card-body pt-4">
-                    <div class="row g-3 align-items-end">
-                      <div class="col-md-5">
-                        <label for="input-lastrecharge-mobile" class="form-label fw-bold">Mobile No / DTH VC Number</label>
-                        <div class="input-group input-group-merge">
-                          <span class="input-group-text"><i class="bx bx-phone text-muted"></i></span>
-                          <input type="text" id="input-lastrecharge-mobile" class="form-control form-control-lg" placeholder="e.g. 8124090563 or 301211222" value="8124090563" />
-                        </div>
-                      </div>
-
-                      <div class="col-md-4">
-                        <label for="select-lastrecharge-operator" class="form-label fw-bold">Operator / Service</label>
-                        <select id="select-lastrecharge-operator" class="form-select form-select-lg">
-                          <option value="2">Airtel (02)</option>
-                          <option value="11">Reliance Jio (11)</option>
-                          <option value="6">Vodafone Idea - VI (06)</option>
-                          <option value="4">BSNL (04)</option>
-                          <option value="21">Tata Play DTH (21)</option>
-                          <option value="22">Airtel Digital TV (22)</option>
-                          <option value="23">Dish TV (23)</option>
-                          <option value="24">Videocon D2H (24)</option>
-                          <option value="25">Sun Direct (25)</option>
-                        </select>
-                      </div>
-
-                      <div class="col-md-3">
-                        <button class="btn btn-success btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-lastrecharge" id="btn-run-last-recharge">
-                          <i class="bx bx-search-alt me-1"></i> Check Status
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Result Container -->
-                <div id="lastrecharge-result-container" style="display: none;">
-                  <div class="card shadow-sm border mb-4">
-                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-label-success fs-6 px-3 py-2" id="lastrecharge-badge-vc">8124090563</span>
-                        <span class="badge bg-label-primary fs-6 px-3 py-2" id="lastrecharge-badge-op">Airtel</span>
-                        <span class="badge bg-success text-white" id="lastrecharge-badge-msg">Offer Successfully Checked</span>
-                      </div>
-                      <div>
-                        <span class="text-muted small" id="lastrecharge-response-time"></span>
-                      </div>
-                    </div>
-                    <div class="card-body p-4" id="lastrecharge-details-body">
-                      <!-- Populated by JS -->
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
-              <!-- ================= USER TAB: DTH INFO ================= -->
-              <div id="user-panel-dthinfo" class="user-panel">
-                <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
-                  <div>
-                    <h4 class="mb-1 fw-bold text-dark"><i class="bx bx-tv text-danger me-2"></i>Live DTH Customer Information</h4>
-                    <p class="text-muted mb-0">Fetch live DTH subscriber name, registered mobile, monthly rental, balance, due date, plan, and address in real time</p>
-                  </div>
-                  <div>
-                    <button class="btn btn-outline-danger" data-user-panel="api">
-                      <i class="bx bx-code-alt me-1"></i> DTH Info API Docs
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Query Form Card -->
-                <div class="card shadow-sm border mb-4">
-                  <div class="card-header bg-label-danger border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <h5 class="mb-0 fw-bold text-danger"><i class="bx bx-tv me-2"></i>Select DTH Operator & Enter Customer ID / VC</h5>
-                    <span class="badge bg-danger text-white">All DTH Operators</span>
-                  </div>
-                  <div class="card-body pt-4">
-                    <div class="row g-3 align-items-end">
-                      <div class="col-md-5">
-                        <label for="select-dth-operator" class="form-label fw-bold">1. Which DTH Operator?</label>
-                        <select id="select-dth-operator" class="form-select form-select-lg">
-                          <option value="28">TATA Sky / Tata Play (28)</option>
-                          <option value="24">Airtel Digital TV (24)</option>
-                          <option value="25">Dish TV (25)</option>
-                          <option value="27">Sun Direct (27)</option>
-                          <option value="29">Videocon D2H (29)</option>
-                        </select>
-                      </div>
-
-                      <div class="col-md-4">
-                        <label for="input-dth-number" class="form-label fw-bold">2. DTH Customer / VC Number</label>
-                        <div class="input-group input-group-merge">
-                          <span class="input-group-text"><i class="bx bx-credit-card-front text-muted"></i></span>
-                          <input type="text" id="input-dth-number" class="form-control form-control-lg" placeholder="e.g. 301211222" value="301211222" />
-                        </div>
-                      </div>
-
-                      <div class="col-md-3">
-                        <button class="btn btn-danger btn-lg w-100 fw-bold shadow-sm" id="btn-fetch-dthinfo" id="btn-run-dth">
-                          <i class="bx bx-search-alt me-1"></i> Fetch DTH Info
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Result Container -->
-                <div id="dthinfo-result-container" style="display: none;">
-                  <div class="card shadow-sm border mb-4">
-                    <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center flex-wrap gap-2">
-                      <div class="d-flex align-items-center gap-2">
-                        <span class="badge bg-label-danger fs-6 px-3 py-2" id="dthinfo-badge-vc">301211222</span>
-                        <span class="badge bg-label-primary fs-6 px-3 py-2" id="dthinfo-badge-op">TATA Sky</span>
-                        <span class="badge bg-success text-white" id="dthinfo-badge-msg">Offer Successfully Checked</span>
-                      </div>
-                      <div>
-                        <span class="text-muted small" id="dthinfo-response-time"></span>
-                      </div>
-                    </div>
-                    <div class="card-body p-4" id="dthinfo-details-body">
-                      <!-- Populated by JS -->
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-
               <!-- ================= USER TAB 2: BUY PLAN ================= -->
               <div id="user-panel-buy-plan" class="user-panel">
                 <div class="d-flex justify-content-between align-items-center mb-4">
@@ -727,7 +339,9 @@
                 <div class="card shadow-sm border mb-4">
                   <div class="card-header bg-label-primary d-flex justify-content-between align-items-center">
                     <h6 class="mb-0 text-primary fw-bold"><i class="bx bx-key me-2"></i>Your API Authentication Credentials</h6>
-                    <span class="badge bg-primary">Active</span>
+                    <button class="btn btn-sm btn-outline-danger fw-bold shadow-sm" id="btn-regenerate-api-token">
+                      <i class="bx bx-refresh me-1"></i> Generate New Token
+                    </button>
                   </div>
                   <div class="card-body pt-4">
                     <div class="row g-3">
@@ -735,16 +349,16 @@
                         <label class="form-label fw-bold small text-uppercase">ApiUserID (Registered Mobile)</label>
                         <div class="input-group">
                           <input type="text" class="form-control bg-lighter fw-bold" id="api-card-userid" readonly value="..." />
-                          <button class="btn btn-outline-primary" data-copy-target="api-card-userid" data-copy-msg="ApiUserID copied!">
+                          <button class="btn btn-outline-primary" data-copy-target="api-card-userid" data-copy-msg="ApiUserID copied!" title="Copy ApiUserID">
                             <i class="bx bx-copy"></i>
                           </button>
                         </div>
                       </div>
                       <div class="col-md-7">
-                        <label class="form-label fw-bold small text-uppercase">API Token (Generated by System)</label>
+                        <label class="form-label fw-bold small text-uppercase">API Token (Secret Key)</label>
                         <div class="input-group">
                           <input type="text" class="form-control bg-lighter font-monospace" id="api-card-token" readonly value="..." />
-                          <button class="btn btn-outline-primary" data-copy-target="api-card-token" data-copy-msg="API Token copied!">
+                          <button class="btn btn-outline-primary" data-copy-target="api-card-token" data-copy-msg="API Token copied!" title="Copy Token">
                             <i class="bx bx-copy"></i>
                           </button>
                         </div>
@@ -1456,48 +1070,6 @@
 
               </div>
 
-              <!-- ================= USER TAB: API APPLICATIONS & IP WHITELIST ================= -->
-              <div id="user-panel-clients" class="user-panel">
-                <div class="row">
-                  <div class="col-12 mb-4">
-                    <div class="card shadow-sm border">
-                      <div class="card-header d-flex justify-content-between align-items-center bg-light">
-                        <div>
-                          <h5 class="mb-1"><i class="bx bx-key text-primary me-2"></i>API Applications & Multi-Website Keys</h5>
-                          <p class="text-muted small mb-0">Create isolated API keys for each of your websites/servers and configure optional IP Whitelisting.</p>
-                        </div>
-                        <button class="btn btn-primary" data-action="open-create-client">
-                          <i class="bx bx-plus me-1"></i> Create New Application Key
-                        </button>
-                      </div>
-                      <div class="card-body pt-4">
-                        <div class="table-responsive text-nowrap">
-                          <table class="table table-hover align-middle">
-                            <thead class="table-light">
-                              <tr>
-                                <th>Application Name</th>
-                                <th>API Key / Token</th>
-                                <th>Allowed IP(s)</th>
-                                <th>Status</th>
-                                <th>Last Used</th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody id="api-clients-tbody">
-                              <tr>
-                                <td colspan="6" class="text-center py-4 text-muted">
-                                  <span class="spinner-border spinner-border-sm me-2" role="status"></span> Loading API Applications...
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
               <!-- ================= USER TAB 3: PROFILE ================= -->
               <div id="user-panel-profile" class="user-panel">
                 <div class="card col-lg-8 mx-auto shadow-sm border">
@@ -1514,9 +1086,14 @@
                         <span class="text-muted"><i class="bx bxl-whatsapp text-success me-2"></i> WhatsApp Number (ApiUserID)</span>
                         <strong id="profile-user-mobile">-</strong>
                       </li>
-                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                      <li class="list-group-item d-flex justify-content-between align-items-center flex-wrap gap-2">
                         <span class="text-muted"><i class="bx bx-key text-warning me-2"></i> API Token</span>
-                        <code id="profile-user-token">-</code>
+                        <div class="d-flex align-items-center gap-2">
+                          <code id="profile-user-token" class="fs-6">-</code>
+                          <button class="btn btn-xs btn-outline-danger fw-bold" id="btn-profile-regenerate-token">
+                            <i class="bx bx-refresh"></i> Generate New
+                          </button>
+                        </div>
                       </li>
                       <li class="list-group-item d-flex justify-content-between align-items-center">
                         <span class="text-muted"><i class="bx bx-badge-check text-primary me-2"></i> Verification</span>
@@ -3214,9 +2791,52 @@
         }
       }
 
+      
+      // ---------------- REGENERATE API TOKEN ---------------- //
+      async function handleRegenerateUserToken() {
+        if (!confirm('Are you sure you want to generate a new API Token? Your existing API Token will be immediately revoked.')) return;
+
+        const btn1 = document.getElementById('btn-regenerate-api-token');
+        const btn2 = document.getElementById('btn-profile-regenerate-token');
+        if (btn1) { btn1.disabled = true; btn1.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating...'; }
+        if (btn2) { btn2.disabled = true; btn2.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Generating...'; }
+
+        try {
+          const res = await fetch('/api/user/regenerate-token', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + (currentUser ? currentUser.apiToken : '')
+            },
+            body: JSON.stringify({ userMobile: currentUser ? currentUser.mobile : '' })
+          });
+          const data = await res.json();
+          if (data.success && data.apiToken) {
+            currentUser.apiToken = data.apiToken;
+            localStorage.setItem('planapi_user', JSON.stringify(currentUser));
+            showToast('New API Token generated successfully!', 'bg-success');
+            await refreshUserProfile();
+          } else {
+            showToast(data.message || 'Failed to generate new token.', 'bg-danger');
+          }
+        } catch(e) {
+          showToast('Error connecting to server to generate new token.', 'bg-danger');
+        } finally {
+          if (btn1) { btn1.disabled = false; btn1.innerHTML = '<i class="bx bx-refresh me-1"></i> Generate New Token'; }
+          if (btn2) { btn2.disabled = false; btn2.innerHTML = '<i class="bx bx-refresh"></i> Generate New'; }
+        }
+      }
+
       // ---------------- EVENT LISTENERS & DELEGATION (CSP HARDENED) ---------------- //
       document.addEventListener('DOMContentLoaded', () => {
         // Search inputs enter key listeners
+        
+        const btnRegen1 = document.getElementById('btn-regenerate-api-token');
+        if (btnRegen1) btnRegen1.addEventListener('click', handleRegenerateUserToken);
+
+        const btnRegen2 = document.getElementById('btn-profile-regenerate-token');
+        if (btnRegen2) btnRegen2.addEventListener('click', handleRegenerateUserToken);
+
         const quickSearch = document.getElementById('nav-quick-search');
         if (quickSearch) {
           quickSearch.addEventListener('keypress', (e) => {

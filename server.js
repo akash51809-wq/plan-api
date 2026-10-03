@@ -7,7 +7,7 @@ const cors = require('cors');
 const logger = require('./services/logger');
 const { initDatabase, closePool } = require('./services/db');
 const { getSettings, saveSettings, sendWhatsAppMessage } = require('./services/whatsappService');
-const { getUsers, saveUser, findUser, deductUserHit, refundUserHit } = require('./services/userService');
+const { getUsers, saveUser, findUser, deductUserHit, refundUserHit, regenerateUserToken } = require('./services/userService');
 const { createApiClient, getApiClients, updateApiClient, regenerateApiClientToken, revokeApiClient, authenticateApiRequest } = require('./services/clientService');
 const { generateAndSaveOtp, verifyOtp } = require('./services/otpService');
 const { loginAdmin } = require('./services/adminService');
@@ -182,6 +182,31 @@ app.post('/api/auth/verify-otp', verifyOtpLimiter, async (req, res, next) => {
 // 3. User Profile Route (Protected)
 app.all(['/api/auth/login-check', '/api/user/profile'], requireUser, (req, res) => {
   res.json({ success: true, user: req.user });
+});
+
+// 4. Regenerate Primary User API Token
+app.post('/api/user/regenerate-token', requireUser, async (req, res, next) => {
+  try {
+    const user = req.user;
+    const updated = await regenerateUserToken(user.mobile || user.id);
+    if (!updated) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+    res.json({
+      success: true,
+      message: 'New API token generated successfully!',
+      apiToken: updated.apiToken,
+      user: {
+        id: updated.id,
+        name: updated.name,
+        mobile: updated.mobile,
+        apiToken: updated.apiToken,
+        remainingHits: updated.remainingHits
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 // ---------------- API CLIENTS / MULTI-APPLICATION MANAGEMENT ---------------- //
