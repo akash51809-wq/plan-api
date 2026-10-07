@@ -21,6 +21,7 @@ const { getClientIp } = require('./services/ipService');
 const ezytmAccountService = require('./services/ezytmAccountService');
 const operatorCacheService = require('./services/operatorCacheService');
 const browserManager = require('./browserManager');
+const { startKeepAlive, stopKeepAlive } = require('./services/keepAliveService');
 
 const { requestIdMiddleware, requireAdmin, requireUser } = require('./middleware/auth');
 const { otpRateLimiter, verifyOtpLimiter, adminLoginLimiter, apiRateLimiter } = require('./middleware/rateLimiter');
@@ -86,12 +87,57 @@ app.use(requestIdMiddleware);
 // Static Assets
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ---------------- HEALTH CHECK ROUTE ---------------- //
+// ---------------- HEALTH & KEEP-ALIVE PING ROUTES ---------------- //
 app.get('/health', (req, res) => {
   res.json({
     status: 'ok',
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
+  });
+});
+
+// Render 5-minute Sleep Prevention Ping Route
+app.all(['/ping', '/api/ping'], (req, res) => {
+  // Respond immediately to HEAD requests (used by lightweight uptime checks)
+  if (req.method === 'HEAD') {
+    return res.status(200).end();
+  }
+
+  const format = (req.query.format || '').toLowerCase();
+  const isRaw = req.query.raw === 'true' || format === 'text';
+  const isExplicitJson = format === 'json' || req.query.json === 'true' || req.xhr;
+  const isExplicitHtml = format === 'html' || req.query.html === 'true';
+
+  const acceptsHtml = req.accepts('html');
+  const isDocumentRequest = req.headers['sec-fetch-dest'] === 'document';
+  const isBrowserAccept = Boolean(req.headers.accept && req.headers.accept.includes('text/html'));
+  const userAgent = (req.headers['user-agent'] || '').toLowerCase();
+  const isBotOrCron = userAgent.includes('cron') || userAgent.includes('curl') || userAgent.includes('uptimerobot');
+
+  // Serve dedicated status HTML page when opened directly in a browser
+  const wantsHtml = isExplicitHtml || (isBrowserAccept && isDocumentRequest && !isExplicitJson) || (acceptsHtml && !isExplicitJson && !isRaw && !isBotOrCron);
+
+  if (wantsHtml && req.method === 'GET') {
+    return res.sendFile(path.join(__dirname, 'public', 'ping.html'));
+  }
+
+  // Plain text response for simple monitors: curl /ping?format=text
+  if (isRaw) {
+    return res.status(200).type('text/plain').send('pong');
+  }
+
+  // Fast JSON response for cron-job.org, UptimeRobot, and monitoring services
+  return res.status(200).json({
+    status: 'ok',
+    message: 'pong',
+    timestamp: new Date().toISOString(),
+    uptime: Math.floor(process.uptime()),
+    service: 'PlanAPI',
+    nodeVersion: process.version,
+    memory: {
+      rssMb: Math.round(process.memoryUsage().rss / 1024 / 1024),
+      heapUsedMb: Math.round(process.memoryUsage().heapUsed / 1024 / 1024)
+    }
   });
 });
 
@@ -1186,10 +1232,14 @@ if (require.main === module) {
     console.log(`👤 User Portal: http://localhost:${PORT}/dashboard.html`);
     console.log(`⚙️ Admin Panel: http://localhost:${PORT}/admin.html`);
     console.log(`📡 API Endpoint: http://localhost:${PORT}/api/Mobile/OperatorFetchNew`);
+    console.log(`⏱️ Keep-Alive Ping: http://${HOST}:${PORT}/ping`);
     console.log(`⚡ Speed: Micro-Second In-Memory Series Engine Active!`);
     console.log(`🛡️ Security: Multi-Client, IP Whitelisting & Concurrency Engine Active!`);
     console.log(`🗄️ PostgreSQL Database Engine Ready!`);
     console.log(`======================================================\n`);
+
+    // Start background auto-pinger (if RENDER_EXTERNAL_URL / PING_URL is present)
+    startKeepAlive();
   });
 
   process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
@@ -1199,6 +1249,9 @@ if (require.main === module) {
 // Graceful Shutdown Handlers (SIGTERM, SIGINT)
 async function gracefulShutdown(signal) {
   logger.info(`Received ${signal}. Starting graceful shutdown sequence...`);
+
+  // Stop background keep-alive worker
+  stopKeepAlive();
 
   if (server) {
     server.close(async () => {
